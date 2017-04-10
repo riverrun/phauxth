@@ -14,10 +14,10 @@ defmodule Phauxth.Mixfile do
   end
 
   defp deps do
-    [{:cowboy, "~> 1.1"},
-     {:plug, "~> 1.3"},
+    [{:phoenix, "~> 1.3.0-rc"},
+     {:phoenix_ecto, "~> 3.2"},
+     {:cowboy, "~> 1.1"},
      {:comeonin, "~> 3.0"},
-     {:ecto, "~> 2.1"},
      {:postgrex, "~> 0.13", optional: true},
      {:earmark, "~> 1.1", only: :dev},
      {:ex_doc,  "~> 0.14", only: :dev}]
