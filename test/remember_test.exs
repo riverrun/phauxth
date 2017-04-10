@@ -1,4 +1,4 @@
-defmodule Phauxth.LoginTest do
+defmodule Phauxth.RememberTest do
   use Phauxth.TestCase
   use Plug.Test
 
