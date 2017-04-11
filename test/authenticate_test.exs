@@ -25,8 +25,9 @@ defmodule Phauxth.AuthenticateTest do
 
   def call_api(id) do
     token = Token.sign(TokenEndpoint, "user auth", id)
-    conn = conn(:get, "/") |> put_req_header("authorization", token)
-    Authenticate.call(conn, {TokenEndpoint, @max_age})
+    conn(:get, "/")
+    |> put_req_header("authorization", token)
+    |> Authenticate.call({TokenEndpoint, @max_age})
   end
 
   test "current user in session", %{user: user} do
@@ -59,6 +60,11 @@ defmodule Phauxth.AuthenticateTest do
 
   test "authenticate api with invalid token sets the current_user to nil", %{user: user} do
     conn = call_api(user.id + 1)
+    assert conn.assigns == %{current_user: nil}
+  end
+
+  test "authenticate api with no token sets the current_user to nil" do
+    conn = conn(:get, "/") |> Authenticate.call({TokenEndpoint, @max_age})
     assert conn.assigns == %{current_user: nil}
   end
 

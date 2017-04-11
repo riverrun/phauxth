@@ -48,7 +48,7 @@ defmodule Phauxth.Otp do
   @behaviour Plug
 
   import Ecto.{Changeset, Query}
-  import Phauxth.Login.Utils
+  import Phauxth.Login.Base
   alias Comeonin.Otp
   alias Phauxth.Config
 

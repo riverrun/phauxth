@@ -6,7 +6,7 @@ defmodule Phauxth.Remember.Utils do
   alias Phoenix.Token
 
   @doc """
-  Add a Phoenix token as a remeember me cookie.
+  Add a Phoenix token as a remember me cookie.
   """
   def add_cookie(conn, user_id, max_age \\ 604_800) do
     cookie = Token.sign(conn, "user auth", user_id)
