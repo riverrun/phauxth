@@ -1,5 +1,6 @@
 defmodule Phauxth.Remember do
   @moduledoc """
+  Remember me Plug using Phoenix Token.
   """
 
   use Phauxth.Authenticate.Base
@@ -12,5 +13,4 @@ defmodule Phauxth.Remember do
     end
   end
   def call(conn, _), do: conn
-
 end

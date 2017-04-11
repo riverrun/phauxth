@@ -71,6 +71,9 @@ defmodule Phauxth.RememberTest do
     assert remember.value =~ "SFMyNTY"
   end
 
+  test "delete cookie" do
+  end
+
   test "output to current_user does not contain password_hash or otp_secret" , %{newconn: newconn} do
     newconn = Remember.call(newconn, {Endpoint, @max_age})
     %{current_user: user} = newconn.assigns
