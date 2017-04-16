@@ -1,5 +1,6 @@
 defmodule Phauxth.Remember.Utils do
   @moduledoc """
+  Helper functions to be used with the Phauxth remember me functionality.
   """
 
   import Plug.Conn

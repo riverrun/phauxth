@@ -1,17 +1,9 @@
 defmodule Phauxth.Authenticate.Base do
   @moduledoc """
-  Authenticate the current user, using Plug sessions or Phoenix token.
+  Base module for authentication.
 
-  ## Example using Phoenix
-
-  Add the following line to the pipeline in the `web/router.ex` file:
-
-      plug Phauxth.Authenticate
-
-  To use with an api, add a context:
-
-      plug Phauxth.Authenticate, context: MyApp.Web.Endpoint
-
+  This is used by Phauxth.Authenticate and Phauxth.AbsintheAuthenticate.
+  It can also be used to produce a custom authentication module.
   """
 
   @doc false
@@ -44,6 +36,10 @@ defmodule Phauxth.Authenticate.Base do
   alias Phauxth.Config
 
   @doc """
+  Check the conn to see if the user is registered in the current
+  session.
+
+  This function also calls the database to get user information.
   """
   def check_session(conn) do
     with id when not is_nil(id) <- get_session(conn, :user_id),
@@ -51,6 +47,9 @@ defmodule Phauxth.Authenticate.Base do
   end
 
   @doc """
+  Check the headers for an authorization token.
+
+  This function also calls the database to get user information.
   """
   def check_headers(headers, context, max_age) do
     with {_, token} <- List.keyfind(headers, "authorization", 0),
@@ -58,6 +57,9 @@ defmodule Phauxth.Authenticate.Base do
   end
 
   @doc """
+  Check the authorization token.
+
+  This function also calls the database to get user information.
   """
   def check_token(token, context, max_age) do
     with {:ok, user_id} <- Token.verify(context, "user auth", token, max_age: max_age),
@@ -65,6 +67,7 @@ defmodule Phauxth.Authenticate.Base do
   end
 
   @doc """
+  Set the `current_user` value.
   """
   def set_current_user(nil, conn), do: assign(conn, :current_user, nil)
   def set_current_user({:error, _}, conn), do: assign(conn, :current_user, nil)

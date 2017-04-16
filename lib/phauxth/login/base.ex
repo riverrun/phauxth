@@ -64,7 +64,7 @@ defmodule Phauxth.Login.Base do
   alias Phauxth.{Config, Log}
 
   @doc """
-  Prints out a log message and adds an `phauxth_user` or `phauxth_error`
+  Prints out a log message and adds a `phauxth_user` or `phauxth_error`
   message to the conn.
 
   The first argument to the function should be `{:ok, user}`,

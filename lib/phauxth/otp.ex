@@ -2,7 +2,7 @@ defmodule Phauxth.Otp do
   @moduledoc """
   Module to handle one-time passwords for use in two factor authentication.
 
-  `Phauxth.Otp` checks the one-time password, and returns an
+  `Phauxth.Otp` checks the one-time password, and returns a
   `phauxth_user` message (the user model) if the one-time password is
   correct or an `phauxth_error` message if there is an error.
 

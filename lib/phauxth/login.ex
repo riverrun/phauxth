@@ -2,7 +2,7 @@ defmodule Phauxth.Login do
   @moduledoc """
   Module to handle login.
 
-  `Phauxth.Login` checks the user's password, and returns an `phauxth_user`
+  `Phauxth.Login` checks the user's password, and returns a `phauxth_user`
   message (the user model) if login is successful or an `phauxth_error`
   message if there is an error.
 

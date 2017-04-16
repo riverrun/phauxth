@@ -1,10 +1,12 @@
 defmodule Phauxth.Login.DB_Utils do
   @moduledoc """
+  Helper functions to be used with Ecto.
   """
 
   import Ecto.Changeset
 
   @doc """
+  Add the password hash to the changeset.
   """
   def add_password_hash(user, %{password: password}) do
     valid_password?(password, 8) |> add_hash_changeset(user)
