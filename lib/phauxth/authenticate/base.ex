@@ -33,7 +33,7 @@ defmodule Phauxth.Authenticate.Base do
 
   import Plug.Conn
   alias Phoenix.Token
-  alias Phauxth.Config
+  alias Phauxth.{Config, Log}
 
   @doc """
   Check the conn to see if the user is registered in the current
@@ -69,10 +69,18 @@ defmodule Phauxth.Authenticate.Base do
   @doc """
   Set the `current_user` value.
   """
-  def set_current_user(nil, conn), do: assign(conn, :current_user, nil)
-  def set_current_user({:error, _}, conn), do: assign(conn, :current_user, nil)
+  def set_current_user(nil, conn), do: report_nil_user(conn, "no user")
+  def set_current_user({:error, msg}, conn), do: report_nil_user(conn, "#{msg} token")
   def set_current_user(user, conn) do
+    Log.log(:info, Config.log_level, conn.request_path,
+            %Log{user: user.id, message: "User authenticated"})
     user = Map.drop(user, Config.drop_user_keys)
     assign(conn, :current_user, user)
+  end
+
+  defp report_nil_user(conn, error_msg) do
+    Log.log(:info, Config.log_level, conn.request_path,
+            %Log{user: "none", message: error_msg})
+    assign(conn, :current_user, nil)
   end
 end

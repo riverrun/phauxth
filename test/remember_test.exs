@@ -1,6 +1,7 @@
 defmodule Phauxth.RememberTest do
   use Phauxth.TestCase
   use Plug.Test
+  import ExUnit.CaptureLog
 
   alias Phauxth.{Authenticate, Remember, Remember.Utils, SessionHelper, UserHelper}
 
@@ -36,16 +37,16 @@ defmodule Phauxth.RememberTest do
     assert user.role == "user"
   end
 
-  test "error message is sent when the cookie is invalid", %{conn: conn} do
-    invalid = "SFMyNTY.MQ.yX9edpVZtRiJwMsoARY8QJqXfKnQpicssKlqGPjtoUw"
+  test "error log when the cookie is invalid", %{conn: conn} do
+    invalid = "SFMyNTY.g3QAAAACZAAEZGF0YWeBZAAGc2lnbmVkbgYAHU1We1sB.mMbd1DOs-1UnE29sTg1O9QC_l1YAHURVe7FsTTsXj88"
     conn = put_resp_cookie(conn, "remember_me", invalid,
      [http_only: true, max_age: 604_800])
-    newconn = conn(:get, "/")
-              |> recycle_cookies(conn)
-              |> SessionHelper.sign_conn
-              |> Remember.call({Endpoint, @max_age})
-    assert newconn.private[:phauxth_error] == "Invalid cookie"
-    refute newconn.assigns[:current_user]
+    assert capture_log(fn ->
+      conn(:get, "/")
+      |> recycle_cookies(conn)
+      |> SessionHelper.sign_conn
+      |> Remember.call({Endpoint, @max_age})
+    end) =~ ~s(path=/ user=none message="invalid token")
   end
 
   test "call remember with no remember cookie" do
