@@ -9,6 +9,10 @@ defmodule Phauxth.SessionHelper do
   @default_opts [store: :cookie, key: "spameggs", signing_salt: "signing salt", log: false]
   @signing_opts Plug.Session.init(@default_opts)
 
+  def recycle_and_sign(conn) do
+    conn(:get, "/") |> recycle_cookies(conn) |> sign_conn
+  end
+
   def sign_conn(conn, secret \\ @secret) do
     put_in(conn.secret_key_base, secret)
     |> Plug.Session.call(@signing_opts)

@@ -1,6 +1,7 @@
 defmodule Phauxth.AuthenticateTest do
   use Phauxth.TestCase
   use Plug.Test
+  import ExUnit.CaptureLog
 
   alias Phoenix.Token
   alias Phauxth.{Authenticate, SessionHelper, UserHelper}
@@ -23,11 +24,14 @@ defmodule Phauxth.AuthenticateTest do
     |> Authenticate.call({nil, @max_age})
   end
 
-  def call_api(id) do
-    token = Token.sign(TokenEndpoint, "user auth", id)
+  def call_api(token, max_age \\ @max_age) do
     conn(:get, "/")
     |> put_req_header("authorization", token)
-    |> Authenticate.call({TokenEndpoint, @max_age})
+    |> Authenticate.call({TokenEndpoint, max_age})
+  end
+
+  def sign_token(id) do
+    Token.sign(TokenEndpoint, "user auth", id)
   end
 
   test "current user in session", %{user: user} do
@@ -52,15 +56,27 @@ defmodule Phauxth.AuthenticateTest do
   end
 
   test "authenticate api sets the current_user", %{user: user} do
-    conn = call_api(user.id)
+    conn = call_api(sign_token(user.id))
     %{current_user: user} = conn.assigns
     assert user.email == "fred+1@mail.com"
     assert user.role == "user"
   end
 
-  test "authenticate api with invalid token sets the current_user to nil", %{user: user} do
-    conn = call_api(user.id + 1)
+  test "authenticate api with invalid token sets the current_user to nil" do
+    conn = call_api("garbage")
     assert conn.assigns == %{current_user: nil}
+  end
+
+  test "log reports invalid error message for token" do
+    assert capture_log(fn ->
+      call_api("garbage")
+    end) =~ ~s(path=/ user=none message="invalid token")
+  end
+
+  test "log reports expired error message for token", %{user: user} do
+    assert capture_log(fn ->
+      call_api(sign_token(user.id), -1000)
+    end) =~ ~s(path=/ user=none message="expired token")
   end
 
   test "authenticate api with no token sets the current_user to nil" do
