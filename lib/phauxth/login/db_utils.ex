@@ -8,6 +8,9 @@ defmodule Phauxth.Login.DB_Utils do
   @doc """
   Add the password hash to the changeset.
   """
+  def add_password_hash(user, %{"password" => password}) do
+    valid_password?(password, 8) |> add_hash_changeset(user)
+  end
   def add_password_hash(user, %{password: password}) do
     valid_password?(password, 8) |> add_hash_changeset(user)
   end
