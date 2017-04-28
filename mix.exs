@@ -15,7 +15,7 @@ defmodule Phauxth.Mixfile do
 
   defp deps do
     [{:phoenix, "~> 1.3.0-rc"},
-     {:phoenix_ecto, "~> 3.2"},
+     {:ecto, "~> 2.1"},
      {:cowboy, "~> 1.1"},
      {:comeonin, "~> 3.0"},
      {:postgrex, "~> 0.13", optional: true},
