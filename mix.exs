@@ -1,11 +1,21 @@
 defmodule Phauxth.Mixfile do
   use Mix.Project
 
+  @version "0.8.0"
+
+  @description """
+  Authentication library for Phoenix web applications
+  """
+
   def project do
     [app: :phauxth,
-     version: "0.1.0",
+     version: @version,
      elixir: "~> 1.4",
      start_permanent: Mix.env == :prod,
+     name: "Phauxth",
+     description: @description,
+     package: package(),
+     source_url: "https://github.com/riverrun/phauxth",
      deps: deps()]
   end
 
@@ -21,5 +31,12 @@ defmodule Phauxth.Mixfile do
      {:postgrex, "~> 0.13", optional: true},
      {:earmark, "~> 1.1", only: :dev},
      {:ex_doc,  "~> 0.14", only: :dev}]
+  end
+
+  defp package do
+    [maintainers: ["David Whitlock"],
+     licenses: ["BSD"],
+     links: %{"GitHub" => "https://github.com/riverrun/phauxth",
+      "Docs" => "http://hexdocs.pm/phauxth"}]
   end
 end
