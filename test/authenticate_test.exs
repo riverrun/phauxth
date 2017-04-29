@@ -67,13 +67,13 @@ defmodule Phauxth.AuthenticateTest do
     assert conn.assigns == %{current_user: nil}
   end
 
-  test "log reports invalid error message for token" do
+  test "log reports error message for invalid token" do
     assert capture_log(fn ->
       call_api("garbage")
     end) =~ ~s(path=/ user=none message="invalid token")
   end
 
-  test "log reports expired error message for token", %{user: user} do
+  test "log reports error message for expired token", %{user: user} do
     assert capture_log(fn ->
       call_api(sign_token(user.id), -1000)
     end) =~ ~s(path=/ user=none message="expired token")

@@ -1,14 +1,15 @@
 defmodule Phauxth.Otp do
   @moduledoc """
-  Module to handle one-time passwords for use in two factor authentication.
+  Module to handle one-time passwords, usually for use in two factor
+  authentication.
 
   `Phauxth.Otp` checks the one-time password, and returns a
   `phauxth_user` message (the user model) if the one-time password is
-  correct or an `phauxth_error` message if there is an error.
+  correct or a `phauxth_error` message if there is an error.
 
-  After this function has been called, you need to add the user to the
-  session, by running `put_session(conn, :user_id, id)`, or send an API
-  token to the user.
+  After this function has been called, you need to either add the user
+  to the session, by running `put_session(conn, :user_id, id)`, or send
+  an API token to the user.
 
   ## Options
 

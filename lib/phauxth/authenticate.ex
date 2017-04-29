@@ -1,6 +1,6 @@
 defmodule Phauxth.Authenticate do
   @moduledoc """
-  Authenticate the current user, using Plug sessions or Phoenix token.
+  Authenticate the current user, using Plug sessions or Phoenix tokens.
 
   ## Options
 

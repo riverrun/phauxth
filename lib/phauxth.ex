@@ -4,16 +4,15 @@ defmodule Phauxth do
 
   Phauxth is designed to be secure, extensible and well-documented.
 
-  The following functionality is provided by Phauxth.
+  The following functionality is provided by Phauxth (see the
+  `Customizing Phauxth` section below for more information about
+  customizing these functions).
 
   ## Authentication
 
     * Phauxth.Authenticate
       * authenticate the user, using Plug sessions or Phoenix tokens
       * set the current_user value
-    * Phauxth.AbsintheAuthenticate
-      * authenticate the user and set the absinthe context
-      * this also provides an example of how the Phauxth.Authenticate.Base module can be customized
     * Phauxth.Remember
       * authenticates the user using a remember_me cookie
 
@@ -27,8 +26,10 @@ defmodule Phauxth do
 
   ## Email / phone confirmation and password resetting
 
-  Email / phone confirmation and password resetting is provided by a
-  separate library, PhauxthConfirm.
+    * Phauxth.Confirm
+      * user confirmation
+    * Phauxth.Confirm.PassReset
+      * password resetting using email / phone confirmation
 
   ## Helper functions
 
@@ -47,6 +48,8 @@ defmodule Phauxth do
 
     * `--api` - create files for an api
     * `--confirm` - add files for email confirmation
+
+  ## Customizing Phauxth
 
   You can find more information at the
   [Phauxth wiki](https://github.com/riverrun/phauxth/wiki).

@@ -13,7 +13,7 @@ defmodule <%= base %>.Web.ConfirmControllerTest do
   test "confirmation succeeds for correct key", %{conn: conn} do
     email = "arthur@mail.com"
     key = "pu9-VNdgE8V9qZo19rlcg3KUNjpxuixg"
-    conn = get(conn, confirm_path(conn, :confirm, email: email, key: key))<%= if api do %>
+    conn = get(conn, confirm_path(conn, :update, email: email, key: key))<%= if api do %>
     assert json_response(conn, 200)["info"]["detail"]<% else %>
     assert conn.private.phoenix_flash["info"] =~ "Account confirmed"
     assert redirected_to(conn) == confirm_path(conn, :new)<% end %>
@@ -22,7 +22,7 @@ defmodule <%= base %>.Web.ConfirmControllerTest do
   test "confirmation fails for incorrect key", %{conn: conn} do
     email = "arthur@mail.com"
     key = "pu9-VNdgE8V9QzO19RLCG3KUNjpxuixg"
-    conn = get(conn, confirm_path(conn, :confirm, email: email, key: key))<%= if api do %>
+    conn = get(conn, confirm_path(conn, :update, email: email, key: key))<%= if api do %>
     assert json_response(conn, 404)["errors"]["detail"]<% else %>
     assert conn.private.phoenix_flash["error"] =~ "Invalid credentials"
     assert redirected_to(conn) == confirm_path(conn, :new)<% end %>
@@ -31,7 +31,7 @@ defmodule <%= base %>.Web.ConfirmControllerTest do
   test "confirmation fails for incorrect email", %{conn: conn} do
     email = "gerald@mail.com"
     key = "pu9-VNdgE8V9qZo19rlcg3KUNjpxuixg"
-    conn = get(conn, confirm_path(conn, :confirm, email: email, key: key))<%= if api do %>
+    conn = get(conn, confirm_path(conn, :update, email: email, key: key))<%= if api do %>
     assert json_response(conn, 404)["errors"]["detail"]<% else %>
     assert conn.private.phoenix_flash["error"] =~ "Invalid credentials"
     assert redirected_to(conn) == confirm_path(conn, :new)<% end %>

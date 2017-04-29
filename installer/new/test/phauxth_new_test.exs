@@ -52,8 +52,8 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       end
 
       assert_file "lib/phauxth_new/accounts/accounts.ex", fn file ->
-        assert file =~ "PhauxthConfirm.DB_Utils.add_confirm_token(key)"
-        assert file =~ "PhauxthConfirm.DB_Utils.add_reset_token(user, key)"
+        assert file =~ "Phauxth.Confirm.DB_Utils.add_confirm_token(key)"
+        assert file =~ "Phauxth.Confirm.DB_Utils.add_reset_token(user, key)"
       end
 
       assert_received {:mix_shell, :info, ["\nWe are almost ready!" <> _ = message]}

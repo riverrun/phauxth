@@ -24,7 +24,7 @@ defmodule <%= base %>.Accounts do
     %User{}
     |> user_changeset(attrs)
     |> Phauxth.Login.DB_Utils.add_password_hash(attrs)<%= if confirm do %>
-    |> PhauxthConfirm.DB_Utils.add_confirm_token(key)<% end %>
+    |> Phauxth.Confirm.DB_Utils.add_confirm_token(key)<% end %>
     |> Repo.insert()
   end
 
@@ -44,7 +44,7 @@ defmodule <%= base %>.Accounts do
 
   def request_pass_reset(%{"email" => email}, key) do
     with %User{} = user <- Repo.get_by(User, email: email) do
-      PhauxthConfirm.DB_Utils.add_reset_token(user, key) |> Repo.update()
+      Phauxth.Confirm.DB_Utils.add_reset_token(user, key) |> Repo.update()
     else
       nil -> {:error, :not_found}
     end

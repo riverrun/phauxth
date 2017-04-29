@@ -1,6 +1,6 @@
 defmodule Phauxth.Login.DB_Utils do
   @moduledoc """
-  Helper functions to be used with Ecto.
+  Login helper functions for use with Ecto.
   """
 
   import Ecto.Changeset

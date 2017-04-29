@@ -5,14 +5,14 @@ defmodule <%= base %>.Web.PasswordResetController do
 
   action_fallback <%= base %>.Web.FallbackController<% end %>
 
-  plug PhauxthConfirm.PassReset when action in [:update]<%= if not api do %>
+  plug Phauxth.Confirm.PassReset when action in [:update]<%= if not api do %>
 
   def new(conn, _params) do
     render conn, "new.html"
   end<% end %>
 
   def create(conn, %{"password_reset" => %{"email" => email} = user_params}) do
-    {key, link} = PhauxthConfirm.gen_token_link(email)<%= if api do %>
+    {key, link} = Phauxth.Confirm.gen_token_link(email)<%= if api do %>
     with {:ok, %User{}} <- Accounts.request_pass_reset(user_params, key) do
       Message.reset_request(email, link)
       message = "Check your inbox for instructions on how to reset your password"

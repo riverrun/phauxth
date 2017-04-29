@@ -19,7 +19,7 @@ defmodule Phauxth.Config do
   ## Examples
 
   The simplest way to change the default values would be to add
-  an `phauxth` entry to the `config.exs` file in your project,
+  a `phauxth` entry to the `config.exs` file in your project,
   like the following example.
 
       config :phauxth,
@@ -62,7 +62,8 @@ defmodule Phauxth.Config do
 
   This should be a list of atoms.
 
-  By default, :password_hash and :password are removed, and this option allows you to add to this list.
+  By default, :password_hash, :password and :otp_secret are removed,
+  and this option allows you to add to this list.
   """
   def drop_user_keys do
     Application.get_env(:phauxth, :drop_user_keys, []) ++
