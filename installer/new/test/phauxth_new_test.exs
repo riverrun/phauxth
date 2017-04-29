@@ -26,16 +26,19 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       end
 
       assert_received {:mix_shell, :info, ["\nWe are almost ready!" <> _ = message]}
-      assert message =~ ~s(You need to first edit the `lib/phauxth_new/web/router.ex` file.)
+      assert message =~ ~s(You need to first edit the `mix.exs` file)
       assert message =~ ~s({:phauxth, "~> 0.8"})
       assert message =~ ~s(And to start the server)
-      refute message =~ ~s(add the functions that contact the user, by email)
+      refute message =~ ~s(will need to create a module that contacts the user, by email)
     end
   end
 
   test "generates confirm functionality" do
     in_tmp "generates confirm functionality", fn ->
       Mix.Tasks.Phauxth.New.run ["--confirm"]
+
+      assert_file "lib/phauxth_new/web/controllers/confirm_controller.ex"
+      assert_file "test/web/controllers/confirm_controller_test.exs"
 
       assert_file "test/support/auth_case.ex", fn file ->
         assert file =~ "import Ecto.Changeset"
@@ -54,7 +57,7 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       end
 
       assert_received {:mix_shell, :info, ["\nWe are almost ready!" <> _ = message]}
-      assert message =~ ~s(add the functions that contact the user, by email)
+      assert message =~ ~s(will need to create a module that contacts the user, by email)
     end
   end
 
@@ -84,6 +87,9 @@ defmodule Mix.Tasks.Phauxth.NewTest do
     in_tmp "generates api files with confirmation", fn ->
       Mix.Tasks.Phauxth.New.run ["--api", "--confirm"]
 
+      assert_file "lib/phauxth_new/web/controllers/confirm_controller.ex"
+      assert_file "lib/phauxth_new/web/views/confirm_view.ex"
+
       assert_file "lib/phauxth_new/web/views/auth_view.ex"
       assert_file "lib/phauxth_new/web/controllers/password_reset_controller.ex"
 
@@ -93,7 +99,7 @@ defmodule Mix.Tasks.Phauxth.NewTest do
 
       assert_received {:mix_shell, :info, ["\nWe are almost ready!" <> _ = message]}
       assert message =~ ~s(plug Phauxth.Authenticate, context: PhauxthNew.Web.Endpoint)
-      assert message =~ ~s(add the functions that contact the user, by email)
+      assert message =~ ~s(will need to create a module that contacts the user, by email)
     end
   end
 end

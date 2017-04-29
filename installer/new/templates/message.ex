@@ -1,6 +1,6 @@
-defmodule <%= base %>.Mailer do
+defmodule <%= base %>.Message do
   @moduledoc """
-  A module for sending emails.
+  A module for sending emails. # modify this so is can be used for phone messages as well
 
   These functions are used for email confirmation and password resetting.
 
@@ -11,7 +11,7 @@ defmodule <%= base %>.Mailer do
   @doc """
   An email with a confirmation link in it.
   """
-  def ask_confirm(_email, link) do
+  def confirm_request(_email, link) do
     confirm_url = "http://www.example.com/users/confirm#{link}"
     confirm_url
   end
@@ -19,7 +19,7 @@ defmodule <%= base %>.Mailer do
   @doc """
   An email with a link to reset the password.
   """
-  def ask_reset(_email, link) do
+  def reset_request(_email, link) do
     confirm_url = "http://www.example.com/password_resets/edit?#{link}"
     confirm_url
   end
@@ -27,7 +27,14 @@ defmodule <%= base %>.Mailer do
   @doc """
   An email acknowledging that the account has been successfully confirmed.
   """
-  def receipt_confirm(email) do
+  def confirm_success(email) do
+    email
+  end
+
+  @doc """
+  An email acknowledging that the account has been successfully confirmed.
+  """
+  def reset_success(email) do
     email
   end
 end

@@ -37,14 +37,15 @@ defmodule Mix.Tasks.Phauxth.New do
     {:eex, "accounts.ex", "accounts/accounts.ex"},
     {:eex, "accounts_test.exs", "test/accounts_test.exs"},
     {:eex, "authorize.ex", "web/controllers/authorize.ex"},
-    {:eex, "session_view.ex", "web/views/session_view.ex"},
     {:eex, "session_controller.ex", "web/controllers/session_controller.ex"},
     {:eex, "session_controller_test.exs", "test/web/controllers/session_controller_test.exs"},
-    {:eex, "user_view.ex", "web/views/user_view.ex"},
+    {:eex, "session_view.ex", "web/views/session_view.ex"},
     {:eex, "user_controller.ex", "web/controllers/user_controller.ex"},
-    {:eex, "user_controller_test.exs", "test/web/controllers/user_controller_test.exs"}]
+    {:eex, "user_controller_test.exs", "test/web/controllers/user_controller_test.exs"},
+    {:eex, "user_view.ex", "web/views/user_view.ex"}]
 
-  @phx_api [{:eex, "auth_view.ex", "web/views/auth_view.ex"},
+  @phx_api [{:eex, "fallback_controller.ex", "web/controllers/fallback_controller.ex"},
+    {:eex, "auth_view.ex", "web/views/auth_view.ex"},
     {:eex, "changeset_view.ex", "web/views/changeset_view.ex"}]
 
   @phx_html [{:text, "session_new.html.eex", "web/templates/session/new.html.eex"},
@@ -54,7 +55,11 @@ defmodule Mix.Tasks.Phauxth.New do
     {:text, "new.html.eex", "web/templates/user/new.html.eex"},
     {:text, "show.html.eex", "web/templates/user/show.html.eex"}]
 
-  @phx_confirm [{:eex, "password_reset_controller.ex", "web/controllers/password_reset_controller.ex"},
+  @phx_confirm [{"message.ex", "web/message.ex"},
+    {:eex, "confirm_controller.ex", "web/controllers/confirm_controller.ex"},
+    {:eex, "confirm_controller_test.exs", "test/web/controllers/confirm_controller_test.exs"},
+    {:eex, "confirm_view.ex", "web/views/confirm_view.ex"},
+    {:eex, "password_reset_controller.ex", "web/controllers/password_reset_controller.ex"},
     {:eex, "password_reset_controller_test.exs", "test/web/controllers/password_reset_controller_test.exs"},
     {:eex, "password_reset_view.ex", "web/views/password_reset_view.ex"}]
 
@@ -91,14 +96,14 @@ defmodule Mix.Tasks.Phauxth.New do
 
     We are almost ready!
 
-    You need to first edit the `lib/#{base_name()}/web/router.ex` file.
+    You need to first edit the `mix.exs` file, adding `{:phauxth, "~> 0.8"},`
+    to the deps. Then, run `mix deps.get`.
+
+    Now edit the `lib/#{base_name()}/web/router.ex` file.
 
     #{router_message(api)}#{confirm_message(confirm)}
 
-    Now edit the `mix.exs` file, adding `{:phauxth, "~> 0.8"},` to the deps.
-    Then run `mix deps.get`.
-
-    Then, to run the tests:
+    To run the tests:
 
         mix test
 
@@ -178,9 +183,12 @@ defmodule Mix.Tasks.Phauxth.New do
   defp confirm_message(true) do
     """
 
-    You will need to add the functions that contact the user, by email
-    or phone, to the user_controller.ex and password_reset_controller.ex
-    files.
+    You will need to create a module that contacts the user, by email
+    or phone. This module should contain a `confirm_request`, `reset_request`,
+    `confirm_success` and `reset_request` function.
+
+    You will also need to add the `confirm_request` function to the
+    `create` function in the user_controller.ex file.
     """
   end
   defp confirm_message(_), do: ""

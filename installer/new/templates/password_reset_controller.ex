@@ -1,27 +1,27 @@
 defmodule <%= base %>.Web.PasswordResetController do
   use <%= base %>.Web, :controller<%= if not api do %>
   import <%= base %>.Web.Authorize<% end %>
-  alias <%= base %>.{Accounts, Accounts.User, Mailer}<%= if api do %>
+  alias <%= base %>.{Accounts, Accounts.User, Message}<%= if api do %>
 
   action_fallback <%= base %>.Web.FallbackController<% end %>
 
-  plug PhauxConfirm.PassReset when action in [:update]<%= if not api do %>
+  plug PhauxthConfirm.PassReset when action in [:update]<%= if not api do %>
 
   def new(conn, _params) do
     render conn, "new.html"
   end<% end %>
 
   def create(conn, %{"password_reset" => %{"email" => email} = user_params}) do
-    {key, link} = PhauxConfirm.Email.gen_token_link(email)<%= if api do %>
+    {key, link} = PhauxthConfirm.gen_token_link(email)<%= if api do %>
     with {:ok, %User{}} <- Accounts.request_pass_reset(user_params, key) do
-      Mailer.ask_reset(email, link)
+      Message.reset_request(email, link)
       message = "Check your inbox for instructions on how to reset your password"
       conn
       |> put_status(:created)
       |> render(<%= base %>.Web.PasswordResetView, "info.json", %{info: message})<% else %>
     case Accounts.request_pass_reset(user_params, key) do
       {:ok, _user} ->
-        Mailer.ask_reset(email, link)
+        Message.reset_request(email, link)
         message = "Check your inbox for instructions on how to reset your password"
         success conn, message, user_path(conn, :index)
       {:error, _changeset} ->
@@ -35,7 +35,8 @@ defmodule <%= base %>.Web.PasswordResetController do
     |> render(<%= base %>.Web.PasswordResetView, "error.json", error: message)
   end
   def update(%Plug.Conn{private: %{phauxth_user: user}} = conn, _) do
-    Mailer.receipt_confirm(user.email)
+    message = "Your password has been reset"
+    Message.reset_success(user.email)
     render(conn, <%= base %>.Web.PasswordResetView, "info.json", %{info: message})
   end<% else %>
 
@@ -50,7 +51,7 @@ defmodule <%= base %>.Web.PasswordResetController do
     |> render("edit.html", email: email, key: key)
   end
   def update(%Plug.Conn{private: %{phauxth_user: user}} = conn, _) do
-    Mailer.receipt_confirm(user.email)
+    Message.reset_success(user.email)
     configure_session(conn, drop: true) |> success(message, session_path(conn, :new))
   end<% end %>
 end

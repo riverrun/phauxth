@@ -18,32 +18,28 @@ defmodule <%= base %>.Web.PasswordResetControllerTest do
     {:ok, %{conn: conn}}
   end
 
-  test "reset password succeeds for correct key", %{conn: conn} do<%= if api do %>
-    conn = put(conn, password_reset_path(conn, :update), password_reset: @valid_attrs)
+  test "reset password succeeds for correct key", %{conn: conn} do
+    conn = put(conn, password_reset_path(conn, :update), password_reset: @valid_attrs)<%= if api do %>
     assert json_response(conn, 200)["info"]["detail"]<% else %>
-    conn = put(conn, password_reset_path(conn, :update), password_reset: @valid_attrs)
     assert conn.private.phoenix_flash["info"] =~ "Password reset"
     assert redirected_to(conn) == session_path(conn, :new)<% end %>
   end
 
-  test "reset password fails for invalid email", %{conn: conn} do<%= if api do %>
-    conn = post(conn, password_reset_path(conn, :create), password_reset: @invalid_email)
+  test "reset password fails for invalid email", %{conn: conn} do
+    conn = post(conn, password_reset_path(conn, :create), password_reset: @invalid_email)<%= if api do %>
     assert json_response(conn, 404)["errors"]["detail"]<% else %>
-    conn = post(conn, password_reset_path(conn, :create), password_reset: @invalid_email)
     assert conn.private.phoenix_template == "new.html"<% end %>
   end
 
-  test "reset password fails for incorrect key", %{conn: conn} do<%= if api do %>
-    conn = put(conn, password_reset_path(conn, :update), password_reset: @invalid_attrs)
+  test "reset password fails for incorrect key", %{conn: conn} do
+    conn = put(conn, password_reset_path(conn, :update), password_reset: @invalid_attrs)<%= if api do %>
     assert json_response(conn, 422)["errors"] != %{}<% else %>
-    conn = put(conn, password_reset_path(conn, :update), password_reset: @invalid_attrs)
     assert conn.private.phoenix_flash["error"] =~ "Invalid credentials"<% end %>
   end
 
-  test "reset password fails for invalid password", %{conn: conn} do<%= if api do %>
-    conn = put(conn, password_reset_path(conn, :update), password_reset: @invalid_pass)
+  test "reset password fails for invalid password", %{conn: conn} do
+    conn = put(conn, password_reset_path(conn, :update), password_reset: @invalid_pass)<%= if api do %>
     assert json_response(conn, 422)["errors"] != %{}<% else %>
-    conn = put(conn, password_reset_path(conn, :update), password_reset: @invalid_pass)
     assert conn.private.phoenix_flash["error"] =~ "Invalid credentials"<% end %>
   end
 end
