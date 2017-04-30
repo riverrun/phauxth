@@ -5,9 +5,13 @@ defmodule Phauxth.Login.Base do
   This module is used by Phauxth.Login, and it can also be used to
   create customized Plugs to handle login.
 
-  ## Custom login
+  ## Custom login modules
 
   The init/1, call/2 and check_pass/2 functions can all be overridden.
+
+  One example of a custom login module is provided by the
+  Phauxth.Confirm.Login module, which extends this base module by
+  adding a check to see if the user has been successfully confirmed.
 
   ### Custom module for password authentication
 

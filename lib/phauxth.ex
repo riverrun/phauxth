@@ -6,7 +6,7 @@ defmodule Phauxth do
 
   The following functionality is provided by Phauxth (see the
   `Customizing Phauxth` section below for more information about
-  customizing these functions).
+  extending this functionality).
 
   ## Authentication
 

@@ -5,7 +5,7 @@ defmodule Phauxth.RememberTest do
 
   alias Phauxth.{Authenticate, Remember, Remember.Utils, SessionHelper, UserHelper}
 
-  @max_age 24 * 60 * 60
+  @max_age 7 * 24 * 60 * 60
 
   defmodule Endpoint do
     def config(:secret_key_base), do: "abc123"
@@ -23,12 +23,13 @@ defmodule Phauxth.RememberTest do
   end
 
   test "init function" do
-    assert Remember.init([]) == {nil, 86400}
+    assert Remember.init([]) == {nil, 604800}
   end
 
   test "call remember with default options", %{conn: conn} do
     conn = SessionHelper.recycle_and_sign(conn)
-           |> Remember.call({Endpoint, @max_age})
+           |> put_private(:phoenix_endpoint, Endpoint)
+           |> Remember.call({nil, @max_age})
     %{current_user: user} = conn.assigns
     assert user.username == "fred"
     assert user.role == "user"

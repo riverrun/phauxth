@@ -4,6 +4,12 @@ defmodule Phauxth.Confirm.Base do
 
   This is used by both the Phauxth.Confirm and Phauxth.Confirm.PassReset
   modules.
+
+  ## Custom confirmation modules
+
+  One example of a custom confirmation module is provided by the
+  Phauxth.Confirm.PassReset module, which extends this base module to add
+  the password reset functionality.
   """
 
   @doc false
@@ -16,7 +22,7 @@ defmodule Phauxth.Confirm.Base do
       @doc false
       def init(opts) do
         identifier = Keyword.get(opts, :identifier, :email)
-        {identifier, to_string(identifier), Keyword.get(opts, :key_expires_after, 60)}
+        {identifier, to_string(identifier), Keyword.get(opts, :key_validity, 60)}
       end
 
       @doc false

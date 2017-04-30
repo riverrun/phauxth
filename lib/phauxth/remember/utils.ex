@@ -6,10 +6,12 @@ defmodule Phauxth.Remember.Utils do
   import Plug.Conn
   alias Phoenix.Token
 
+  @max_age 7 * 24 * 60 * 60
+
   @doc """
   Add a Phoenix token as a remember me cookie.
   """
-  def add_rem_cookie(conn, user_id, max_age \\ 604_800) do
+  def add_rem_cookie(conn, user_id, max_age \\ @max_age) do
     cookie = Token.sign(conn, "user auth", user_id)
     put_resp_cookie(conn, "remember_me", cookie, [http_only: true, max_age: max_age])
   end

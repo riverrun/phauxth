@@ -2,21 +2,29 @@ defmodule Phauxth.Authenticate.Base do
   @moduledoc """
   Base module for authentication.
 
-  This is used by Phauxth.Authenticate and Phauxth.AbsintheAuthenticate.
-  It can also be used to produce a custom authentication module.
+  This is used by Phauxth.Authenticate and Phauxth.Remember.
+  It can also be used to produce a custom authentication module,
+  as outlined below.
+
+  ## Custom authentication modules
+
+  One example of a custom authentication module is provided by the
+  Phauxth.Remember module, which uses this base module to provide the
+  'remember me' functionality.
   """
 
   @doc false
-  defmacro __using__(_) do
+  defmacro __using__(options) do
     quote do
       @behaviour Plug
+      @max_age unquote(options)[:max_age] || 24 * 60 * 60
 
       import unquote(__MODULE__)
 
       @doc false
       def init(opts) do
         {Keyword.get(opts, :context),
-        Keyword.get(opts, :max_age, 24 * 60 * 60)}
+        Keyword.get(opts, :max_age, @max_age)}
       end
 
       @doc false

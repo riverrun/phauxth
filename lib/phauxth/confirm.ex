@@ -26,7 +26,7 @@ defmodule Phauxth.Confirm do
 
   Or with options:
 
-      plug Phauxth.Confirm, [key_expires_after: 20]
+      plug Phauxth.Confirm, [key_validity: 20]
 
   """
 
