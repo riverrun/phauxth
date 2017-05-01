@@ -11,6 +11,31 @@ defmodule Phauxth.Authenticate.Base do
   One example of a custom authentication module is provided by the
   Phauxth.Remember module, which uses this base module to provide the
   'remember me' functionality.
+
+  ### Graphql authentication
+
+  The following module is a more complicated example of how this Base
+  module can be extended, this time to provide authentication for
+  absinthe-elixir:
+
+      defmodule AbsintheAuthenticate do
+
+        use Phauxth.Authenticate.Base
+        import Plug.Conn
+        alias Phauxth.Config
+
+        def call(%Plug.Conn{req_headers: headers} = conn, {context, max_age}) do
+          check_headers(headers, context, max_age) |> set_absinthe_user(conn)
+        end
+        def call(conn, _), do: conn
+
+        defp set_absinthe_user(nil, conn), do: conn
+        defp set_absinthe_user({:error, _}, conn), do: conn
+        defp set_absinthe_user(user, conn) do
+          user = Map.drop(user, Config.drop_user_keys)
+          put_private(conn, :absinthe, %{context: %{current_user: user}})
+        end
+      end
   """
 
   @doc false
