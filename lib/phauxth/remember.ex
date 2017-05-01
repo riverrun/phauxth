@@ -19,7 +19,7 @@ defmodule Phauxth.Remember do
     if conn.assigns[:current_user] do
       conn
     else
-      check_token(token, context || conn, max_age) |> set_current_user(conn)
+      check_token(token, context || conn, max_age) |> log_user(conn) |> set_user(conn)
     end
   end
   def call(conn, _), do: conn
