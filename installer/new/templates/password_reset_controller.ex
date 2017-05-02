@@ -34,7 +34,8 @@ defmodule <%= base %>.Web.PasswordResetController do
     |> put_status(:unprocessable_entity)
     |> render(<%= base %>.Web.PasswordResetView, "error.json", error: message)
   end
-  def update(%Plug.Conn{private: %{phauxth_user: user}} = conn, _) do
+  def update(%Plug.Conn{private: %{phauxth_user: user}} = conn, params) do
+    Accounts.update_user(user, params)
     message = "Your password has been reset"
     Message.reset_success(user.email)
     render(conn, <%= base %>.Web.PasswordResetView, "info.json", %{info: message})
@@ -51,6 +52,7 @@ defmodule <%= base %>.Web.PasswordResetController do
     |> render("edit.html", email: email, key: key)
   end
   def update(%Plug.Conn{private: %{phauxth_user: user}} = conn, _) do
+    Accounts.update_user(user, params)
     Message.reset_success(user.email)
     configure_session(conn, drop: true) |> success(message, session_path(conn, :new))
   end<% end %>

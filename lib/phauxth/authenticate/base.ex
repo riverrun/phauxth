@@ -32,7 +32,7 @@ defmodule Phauxth.Authenticate.Base do
   defmacro __using__(options) do
     quote do
       @behaviour Plug
-      @max_age unquote(options)[:max_age] || 24 * 60 * 60
+      @max_age unquote(options)[:max_age] || 7 * 24 * 60 * 60
 
       import unquote(__MODULE__)
 

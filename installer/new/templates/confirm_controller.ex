@@ -11,6 +11,7 @@ defmodule <%= base %>.Web.ConfirmController do
     error(conn, message, session_path(conn, :new))<% end %>
   end
   def update(%Plug.Conn{private: %{phauxth_user: user}} = conn, _) do
+    Accounts.confirm_user(user)
     message = "Your account has been confirmed"
     Message.confirm_success(user.email)<%= if api do %>
     render(conn, <%= base %>.Web.ConfirmView, "info.json", %{info: message})<% else %>

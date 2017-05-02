@@ -59,6 +59,7 @@ defmodule Phauxth.Confirm.Base do
         check_time(sent_time, valid_secs) and secure_compare(token, key) and user
       end
       def check_key(nil, _, _), do: {:error, "invalid credentials"}
+      def check_key(_, _, _), do: {:error, "user account already confirmed"}
 
       defoverridable [init: 1, call: 2, check_confirm: 2, check_key: 3]
     end
@@ -87,6 +88,6 @@ defmodule Phauxth.Confirm.Base do
   def finalize(user, conn, user_id, ok_msg) do
     Log.log(:info, Config.log_level, conn.request_path,
             %Log{user: user_id, message: ok_msg})
-    put_private(conn, :phauxth_user, user)
+    put_private(conn, :phauxth_user, Map.drop(user, Config.drop_user_keys))
   end
 end
