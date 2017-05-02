@@ -5,4 +5,3 @@ tmp
 /doc
 /.fetch
 erl_crash.dump
-*.ez

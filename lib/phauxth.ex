@@ -51,6 +51,9 @@ defmodule Phauxth do
 
   ## Customizing Phauxth
 
+  See the documentation for Phauxth.Authenticate.Base, Phauxth.Login.Base
+  and Phauxth.Confirm.Base for more information on extending these modules.
+
   You can find more information at the
   [Phauxth wiki](https://github.com/riverrun/phauxth/wiki).
 

@@ -11,6 +11,21 @@ defmodule Phauxth.Authenticate.Base do
   One example of a custom authentication module is provided by the
   Phauxth.Remember module, which uses this base module to provide the
   'remember me' functionality.
+
+  ### Graphql authentication
+
+  The following module is another example of how this Base module can
+  be extended, this time to provide authentication for absinthe-elixir:
+
+      defmodule AbsintheAuthenticate do
+
+        use Phauxth.Authenticate.Base
+        import Plug.Conn
+
+        def set_user(user, conn) do
+          put_private(conn, :absinthe, %{context: %{current_user: user}})
+        end
+      end
   """
 
   @doc false
@@ -29,13 +44,20 @@ defmodule Phauxth.Authenticate.Base do
 
       @doc false
       def call(conn, {nil, _}) do
-        check_session(conn) |> set_current_user(conn)
+        check_session(conn) |> log_user(conn) |> set_user(conn)
       end
       def call(%Plug.Conn{req_headers: headers} = conn, {context, max_age}) do
-        check_headers(headers, context, max_age) |> set_current_user(conn)
+        check_headers(headers, context, max_age) |> log_user(conn) |> set_user(conn)
       end
 
-      defoverridable [init: 1, call: 2]
+      @doc """
+      Set the `current_user` variable.
+      """
+      def set_user(user, conn) do
+        Plug.Conn.assign(conn, :current_user, user)
+      end
+
+      defoverridable [init: 1, call: 2, set_user: 2]
     end
   end
 
@@ -75,20 +97,19 @@ defmodule Phauxth.Authenticate.Base do
   end
 
   @doc """
-  Set the `current_user` value.
+  Log the result of the authentication and return the user struct or nil.
   """
-  def set_current_user(nil, conn), do: report_nil_user(conn, "no user")
-  def set_current_user({:error, msg}, conn), do: report_nil_user(conn, "#{msg} token")
-  def set_current_user(user, conn) do
+  def log_user(nil, conn) do
+    Log.log(:info, Config.log_level, conn.request_path,
+            %Log{user: "none", message: "no user"}) && nil
+  end
+  def log_user({:error, msg}, conn) do
+    Log.log(:info, Config.log_level, conn.request_path,
+            %Log{user: "none", message: "#{msg} token"}) && nil
+  end
+  def log_user(user, conn) do
     Log.log(:info, Config.log_level, conn.request_path,
             %Log{user: user.id, message: "User authenticated"})
-    user = Map.drop(user, Config.drop_user_keys)
-    assign(conn, :current_user, user)
-  end
-
-  defp report_nil_user(conn, error_msg) do
-    Log.log(:info, Config.log_level, conn.request_path,
-            %Log{user: "none", message: error_msg})
-    assign(conn, :current_user, nil)
+    Map.drop(user, Config.drop_user_keys)
   end
 end

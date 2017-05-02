@@ -12,6 +12,15 @@ defmodule Phauxth.AuthenticateTest do
     def config(:secret_key_base), do: "abc123"
   end
 
+  defmodule AbsintheAuthenticate do
+    use Phauxth.Authenticate.Base
+    import Plug.Conn
+
+    def set_user(user, conn) do
+      put_private(conn, :absinthe, %{context: %{current_user: user}})
+    end
+  end
+
   setup do
     user = UserHelper.add_user()
     {:ok, %{user: user}}
@@ -89,6 +98,15 @@ defmodule Phauxth.AuthenticateTest do
     %{current_user: user} = conn.assigns
     refute Map.has_key?(user, :password_hash)
     refute Map.has_key?(user, :otp_secret)
+  end
+
+  test "customized set_user", %{user: user} do
+    conn = conn(:get, "/")
+           |> put_req_header("authorization", sign_token(user.id))
+           |> AbsintheAuthenticate.call({TokenEndpoint, @max_age})
+    %{context: %{current_user: user}} = conn.private.absinthe
+    assert user.email == "fred+1@mail.com"
+    assert user.role == "user"
   end
 
 end
