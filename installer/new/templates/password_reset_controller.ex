@@ -13,13 +13,13 @@ defmodule <%= base %>.Web.PasswordResetController do
 
   def create(conn, %{"password_reset" => %{"email" => email} = user_params}) do
     {key, link} = Phauxth.Confirm.gen_token_link(email)<%= if api do %>
-    with {:ok, %User{}} <- Accounts.request_pass_reset(user_params, key) do
+    with {:ok, %User{}} <- Accounts.add_reset_token(user_params, key) do
       Message.reset_request(email, link)
       message = "Check your inbox for instructions on how to reset your password"
       conn
       |> put_status(:created)
       |> render(<%= base %>.Web.PasswordResetView, "info.json", %{info: message})<% else %>
-    case Accounts.request_pass_reset(user_params, key) do
+    case Accounts.add_reset_token(user_params, key) do
       {:ok, _user} ->
         Message.reset_request(email, link)
         message = "Check your inbox for instructions on how to reset your password"
@@ -36,8 +36,8 @@ defmodule <%= base %>.Web.PasswordResetController do
   end
   def update(%Plug.Conn{private: %{phauxth_user: user}} = conn, params) do
     Accounts.update_user(user, params)
-    message = "Your password has been reset"
     Message.reset_success(user.email)
+    message = "Your password has been reset"
     render(conn, <%= base %>.Web.PasswordResetView, "info.json", %{info: message})
   end<% else %>
 
@@ -51,9 +51,10 @@ defmodule <%= base %>.Web.PasswordResetController do
     |> put_flash(:error, message)
     |> render("edit.html", email: email, key: key)
   end
-  def update(%Plug.Conn{private: %{phauxth_user: user}} = conn, _) do
+  def update(%Plug.Conn{private: %{phauxth_user: user}} = conn, params) do
     Accounts.update_user(user, params)
     Message.reset_success(user.email)
+    message = "Your password has been reset"
     configure_session(conn, drop: true) |> success(message, session_path(conn, :new))
   end<% end %>
 end

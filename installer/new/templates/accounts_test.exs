@@ -59,7 +59,7 @@ defmodule <%= base %>.AccountsTest do
     assert %Ecto.Changeset{} = Accounts.change_user(user)
   end<%= if confirm do %>
 
-  test "request_pass_reset returns" do
+  test "add_reset_token returns" do
   end<% end %>
 
 end

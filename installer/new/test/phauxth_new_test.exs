@@ -43,7 +43,7 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       assert_file "test/support/auth_case.ex", fn file ->
         assert file =~ "import Ecto.Changeset"
         assert file =~ ~s(key = "pu9-VNdgE8V9qZo19rlcg3KUNjpxuixg")
-        assert file =~ "{:ok, user} = Accounts.request_pass_reset"
+        assert file =~ "{:ok, user} = Accounts.add_reset_token"
       end
 
       assert_file "lib/phauxth_new/accounts/user.ex", fn file ->
@@ -57,7 +57,8 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       end
 
       assert_received {:mix_shell, :info, ["\nWe are almost ready!" <> _ = message]}
-      assert message =~ ~s(will need to create a module that contacts the user, by email)
+      assert message =~ ~s(resources "/password_resets", PasswordResetController, only: [:new, :create])
+      assert message =~ ~s(will need to edit the Message module)
     end
   end
 
@@ -99,7 +100,8 @@ defmodule Mix.Tasks.Phauxth.NewTest do
 
       assert_received {:mix_shell, :info, ["\nWe are almost ready!" <> _ = message]}
       assert message =~ ~s(plug Phauxth.Authenticate, context: PhauxthNew.Web.Endpoint)
-      assert message =~ ~s(will need to create a module that contacts the user, by email)
+      assert message =~ ~s(post "/password_resets/create", PasswordResetController, :create)
+      assert message =~ ~s(will need to edit the Message module)
     end
   end
 end

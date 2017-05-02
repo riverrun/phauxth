@@ -28,14 +28,22 @@ defmodule <%= base %>.Accounts do
   end<%= if confirm do %>
 
   def confirm_user(%User{} = user) do
-    change(user, %{confirmed_at: Ecto.DateTime.utc}) |> Repo.update # also make confirmation_token nil?
+    change(user, %{confirmed_at: Ecto.DateTime.utc}) |> Repo.update
   end<% end %>
 
   def update_user(%User{} = user, attrs) do
     user
     |> update_changeset(attrs)
     |> Repo.update()
-  end
+  end<%= if confirm do %>
+
+  def update_password(%User{} = user, attrs) do
+    user
+    |> update_changeset(attrs)
+    |> put_pass_hash()
+    |> change(%{reset_token: nil, reset_sent_at: nil})
+    |> Repo.update()
+  end<% end %>
 
   def delete_user(%User{} = user) do
     Repo.delete(user)
@@ -69,20 +77,18 @@ defmodule <%= base %>.Accounts do
     |> unique_constraint(:email)<%= if confirm do %>
     |> change(%{confirmation_token: key, confirmation_sent_at: Ecto.DateTime.utc})<% end %>
     |> put_pass_hash()
-  end<%= if confirm do %>
+  end
 
   defp update_changeset(%User{} = user, attrs) do
     user
     |> cast(attrs, [:email, :password])
     |> validate_required([:email])
     |> unique_constraint(:email)
-    |> put_pass_hash()
-    |> change(%{reset_token: nil, reset_sent_at: nil})
-  end<% end %>
+  end
 
   defp put_pass_hash(%Ecto.Changeset{valid?: true, changes:
       %{password: password}} = changeset) do
-    put_change(changeset, :password_hash, Comeonin.Bcrypt.hashpwsalt(password))
+    change(changeset, %{password_hash: Comeonin.Bcrypt.hashpwsalt(password), password: nil})
   end
   defp put_pass_hash(changeset), do: changeset
 end

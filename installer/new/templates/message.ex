@@ -1,40 +1,40 @@
 defmodule <%= base %>.Message do
   @moduledoc """
-  A module for sending emails. # modify this so is can be used for phone messages as well
+  A module for sending messages, by email or phone, to the user.
 
-  These functions are used for email confirmation and password resetting.
+  These functions are used for user confirmation and password resetting.
 
-  You need to complete these functions with the email library / module of
+  You need to complete these functions with the email / phone library of
   your choice.
   """
 
   @doc """
-  An email with a confirmation link in it.
+  A message with a confirmation link in it.
   """
-  def confirm_request(_email, link) do
+  def confirm_request(_message, link) do
     confirm_url = "http://www.example.com/users/confirm#{link}"
     confirm_url
   end
 
   @doc """
-  An email with a link to reset the password.
+  A message with a link to reset the password.
   """
-  def reset_request(_email, link) do
+  def reset_request(_message, link) do
     confirm_url = "http://www.example.com/password_resets/edit?#{link}"
     confirm_url
   end
 
   @doc """
-  An email acknowledging that the account has been successfully confirmed.
+  A message acknowledging that the account has been successfully confirmed.
   """
-  def confirm_success(email) do
-    email
+  def confirm_success(message) do
+    message
   end
 
   @doc """
-  An email acknowledging that the account has been successfully confirmed.
+  A message acknowledging that the account has been successfully confirmed.
   """
-  def reset_success(email) do
-    email
+  def reset_success(message) do
+    message
   end
 end

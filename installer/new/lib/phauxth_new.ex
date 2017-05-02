@@ -55,7 +55,7 @@ defmodule Mix.Tasks.Phauxth.New do
     {:text, "new.html.eex", "web/templates/user/new.html.eex"},
     {:text, "show.html.eex", "web/templates/user/show.html.eex"}]
 
-  @phx_confirm [{"message.ex", "web/message.ex"},
+  @phx_confirm [{:eex, "message.ex", "web/message.ex"},
     {:eex, "confirm_controller.ex", "web/controllers/confirm_controller.ex"},
     {:eex, "confirm_controller_test.exs", "test/web/controllers/confirm_controller_test.exs"},
     {:eex, "confirm_view.ex", "web/views/confirm_view.ex"},
@@ -101,7 +101,7 @@ defmodule Mix.Tasks.Phauxth.New do
 
     Now edit the `lib/#{base_name()}/web/router.ex` file.
 
-    #{router_message(api)}#{confirm_message(confirm)}
+    #{router_message(api)}#{confirm_message(confirm, api)}
 
     To run the tests:
 
@@ -180,18 +180,35 @@ defmodule Mix.Tasks.Phauxth.New do
     """
   end
 
-  defp confirm_message(true) do
+  defp confirm_message(true, api) do
     """
+    #{confirm_routes(api)}
 
-    You will need to create a module that contacts the user, by email
-    or phone. This module should contain a `confirm_request`, `reset_request`,
-    `confirm_success` and `reset_request` function.
+    You will need to edit the Message module, which is in the web directory.
+    Add the email / phone library of your choice to this module and edit the
+    functions so that they send messages to the user.
 
     You will also need to add the `confirm_request` function to the
     `create` function in the user_controller.ex file.
     """
   end
-  defp confirm_message(_), do: ""
+  defp confirm_message(_, _), do: ""
+
+  defp confirm_routes(true) do
+    """
+        get "/confirm/new", ConfirmController, :new
+        post "/password_resets/create", PasswordResetController, :create
+        put "/password_resets/update", PasswordResetController, :update
+    """
+  end
+  defp confirm_routes(_) do
+    """
+        get "/confirm/new", ConfirmController, :new
+        resources "/password_resets", PasswordResetController, only: [:new, :create]
+        get "/password_resets/edit", PasswordResetController, :edit
+        put "/password_resets/update", PasswordResetController, :update
+    """
+  end
 
   defp timestamp do
     {{y, m, d}, {hh, mm, ss}} = :calendar.universal_time()

@@ -9,8 +9,6 @@ defmodule <%= base %>.Web.PasswordResetControllerTest do
     key: "pu9-VNdgE8V9qZo19rlcg3KUNjpxuixg"}
   @invalid_attrs %{email: "gladys@mail.com",  password: "^hEsdg*F899",
     key: "pu9-VNDGe8v9QzO19RLCg3KUNjpxuixg"}
-  @invalid_pass %{email: "gladys@mail.com", password: "qwerty",
-    key: "pu9-VNdgE8V9qZo19rlcg3KUNjpxuixg"}
 
   setup %{conn: conn} do<%= if not api do %>
     conn = conn |> bypass_through(<%= base %>.Web.Router, :browser) |> get("/")<% end %>
@@ -21,7 +19,7 @@ defmodule <%= base %>.Web.PasswordResetControllerTest do
   test "reset password succeeds for correct key", %{conn: conn} do
     conn = put(conn, password_reset_path(conn, :update), password_reset: @valid_attrs)<%= if api do %>
     assert json_response(conn, 200)["info"]["detail"]<% else %>
-    assert conn.private.phoenix_flash["info"] =~ "Password reset"
+    assert conn.private.phoenix_flash["info"] =~ "password has been reset"
     assert redirected_to(conn) == session_path(conn, :new)<% end %>
   end
 
@@ -37,9 +35,4 @@ defmodule <%= base %>.Web.PasswordResetControllerTest do
     assert conn.private.phoenix_flash["error"] =~ "Invalid credentials"<% end %>
   end
 
-  test "reset password fails for invalid password", %{conn: conn} do
-    conn = put(conn, password_reset_path(conn, :update), password_reset: @invalid_pass)<%= if api do %>
-    assert json_response(conn, 422)["errors"] != %{}<% else %>
-    assert conn.private.phoenix_flash["error"] =~ "Invalid credentials"<% end %>
-  end
 end
