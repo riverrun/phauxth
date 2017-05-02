@@ -1,7 +1,7 @@
 # Phauxth
 
 [![Hex.pm Version](http://img.shields.io/hexpm/v/phauxth.svg)](https://hex.pm/packages/phauxth)
-[![Join the chat at https://gitter.im/phauxth/Lobby](https://badges.gitter.im/phauxth/Lobby.svg)](https://gitter.im/phauxth/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/phauxth_elixir/Lobby](https://badges.gitter.im/phauxth_elixir/Lobby.svg)](https://gitter.im/phauxth_elixir/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Authentication library for Phoenix web apps.
 
