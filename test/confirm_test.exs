@@ -9,7 +9,7 @@ defmodule Phauxth.ConfirmTest do
   @incomplete_link "email=wrong%40mail.com"
 
   setup do
-    UserHelper.add_user()
+    UserHelper.add_confirm_user()
     :ok
   end
 
@@ -17,6 +17,13 @@ defmodule Phauxth.ConfirmTest do
     conn(:get, "/confirm?" <> link)
     |> fetch_query_params
     |> Phauxth.Confirm.call(opts)
+    |> update_repo
+  end
+
+  def update_repo(%Plug.Conn{private: %{phauxth_error: _}} = conn), do: conn
+  def update_repo(%Plug.Conn{private: %{phauxth_user: user}} = conn) do
+    UserHelper.confirm_user(user)
+    conn
   end
 
   def user_confirmed do
@@ -64,6 +71,12 @@ defmodule Phauxth.ConfirmTest do
     conn = call_confirm(phone_link, {:phone, "phone", 60})
     assert user_confirmed()
     assert conn.private.phauxth_user
+  end
+
+  test "check time" do
+    assert Phauxth.Confirm.Base.check_time(Ecto.DateTime.utc, 60)
+    refute Phauxth.Confirm.Base.check_time(Ecto.DateTime.utc, -60)
+    refute Phauxth.Confirm.Base.check_time(nil, 60)
   end
 
   test "gen_token_link" do

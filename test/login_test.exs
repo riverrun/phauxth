@@ -4,6 +4,9 @@ defmodule Phauxth.LoginTest do
 
   alias Phauxth.UserHelper
 
+  @crypto_attrs %{password_hash: "dumb-h4rd2gU3$$-crypto"}
+  @hashname_attrs %{encrypted_password: "dumb-h4rd2gU3$$-crypto"}
+
   setup do
     UserHelper.add_user()
     :ok
@@ -54,7 +57,7 @@ defmodule Phauxth.LoginTest do
   end
 
   test "can customize to use different crypto" do
-    UserHelper.add_custom_crypto_user()
+    UserHelper.add_custom_user(@crypto_attrs)
     conn = conn(:post, "/login", %{"session" =>
                   %{"email" => "froderick@mail.com", "password" => "h4rd2gU3$$"}})
     |> Phauxth.CustomCrypto.call({:email, "email"})
@@ -63,24 +66,24 @@ defmodule Phauxth.LoginTest do
   end
 
   test "can customize to use different hash name in the database" do
-    UserHelper.add_custom_hashname_user()
+    UserHelper.add_custom_user(@hashname_attrs)
     conn = conn(:post, "/login", %{"session" =>
-                  %{"email" => "igor@mail.com", "password" => "h4rd2gU3$$"}})
+                  %{"email" => "froderick@mail.com", "password" => "h4rd2gU3$$"}})
     |> Phauxth.CustomHashname.call({:email, "email"})
     %{email: email} = conn.private[:phauxth_user]
-    assert email == "igor@mail.com"
+    assert email == "froderick@mail.com"
   end
 
   test "custom login error message" do
-    UserHelper.add_custom_hashname_user()
+    UserHelper.add_custom_user(@hashname_attrs)
     conn = conn(:post, "/login", %{"session" =>
-                  %{"email" => "igor@mail.com", "password" => "password"}})
+                  %{"email" => "froderick@mail.com", "password" => "password"}})
     |> Phauxth.CustomHashname.call({:email, "email"})
     assert conn.private[:phauxth_error] =~ "Oh no you don't"
   end
 
   test "login fails for invalid email with custom crypto" do
-    UserHelper.add_custom_crypto_user()
+    UserHelper.add_custom_user(@crypto_attrs)
     conn = conn(:post, "/login", %{"session" =>
                   %{"email" => "oranges@mail.com", "password" => "h4rd2gU3$$"}})
     |> Phauxth.CustomCrypto.call({:email, "email"})

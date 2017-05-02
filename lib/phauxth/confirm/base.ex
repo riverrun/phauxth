@@ -17,7 +17,9 @@ defmodule Phauxth.Confirm.Base do
     quote do
       @behaviour Plug
 
+      import Plug.{Conn, Crypto}
       import unquote(__MODULE__)
+      alias Phauxth.{Config, Log}
 
       @doc false
       def init(opts) do
@@ -28,59 +30,63 @@ defmodule Phauxth.Confirm.Base do
       @doc false
       def call(conn, {identifier, user_params, key_expiry}) do
         with %{^user_params => user_id, "key" => key} = params <- conn.query_params do
-          check_confirm conn, {identifier, user_id, key, key_expiry, :nopass}
+          check_confirm conn, {identifier, user_id, key, key_expiry, "account confirmed"}
         else
           _ -> check_confirm conn, nil
         end
       end
 
-      defoverridable [init: 1, call: 2]
+      @doc """
+      Function to confirm the user by checking the token.
+      """
+      def check_confirm(conn, {identifier, user_id, key, key_expiry, ok_msg})
+          when byte_size(key) == 32 do
+        Config.repo.get_by(Config.user_mod, [{identifier, user_id}])
+        |> check_key(key, key_expiry * 60)
+        |> finalize(conn, user_id, ok_msg)
+      end
+      def check_confirm(conn, _) do
+        Log.log(:warn, Config.log_level, conn.request_path,
+                %Log{message: "invalid query string",
+                  meta: [{"query", conn.query_string}]})
+        put_private(conn, :phauxth_error, "Invalid credentials")
+      end
+
+      @doc """
+      """
+      def check_key(%{confirmed_at: nil, confirmation_sent_at: sent_time,
+          confirmation_token: token} = user, key, valid_secs) do
+        check_time(sent_time, valid_secs) and secure_compare(token, key) and user
+      end
+      def check_key(nil, _, _), do: {:error, "invalid credentials"}
+
+      defoverridable [init: 1, call: 2, check_confirm: 2, check_key: 3]
     end
   end
 
-  import Plug.{Conn, Crypto}
-  alias Phauxth.Confirm.DB_Utils
+  import Plug.Conn
   alias Phauxth.{Config, Log}
 
-  @doc """
-  Function to confirm the user by checking the token.
-  """
-  def check_confirm(conn, {identifier, user_id, key, key_expiry, password})
-      when byte_size(key) == 32 do
-    Config.repo.get_by(Config.user_mod, [{identifier, user_id}])
-    |> check_key(key, key_expiry * 60, password)
-    |> finalize(conn, user_id, password)
-  end
-  def check_confirm(conn, _) do
-    Log.log(:warn, Config.log_level, conn.request_path,
-            %Log{message: "invalid query string",
-              meta: [{"query", conn.query_string}]})
-    put_private(conn, :phauxth_error, "Invalid credentials")
+  def check_time(nil, _), do: false
+  def check_time(sent_at, valid_secs) do
+    (sent_at |> Ecto.DateTime.to_erl
+     |> :calendar.datetime_to_gregorian_seconds) + valid_secs >
+    (:calendar.universal_time |> :calendar.datetime_to_gregorian_seconds)
   end
 
-  defp check_key(nil, _, _, _), do: {:error, "invalid credentials"}
-  defp check_key(%{confirmed_at: nil} = user, key, valid_secs, :nopass) do
-    DB_Utils.check_time(user.confirmation_sent_at, valid_secs) and
-    secure_compare(user.confirmation_token, key) and
-    DB_Utils.user_confirmed(user) || {:error, "invalid token"}
+  def finalize(false, conn, user_id, _) do
+    finalize({:error, "invalid token"}, conn, user_id, nil)
   end
-  defp check_key(_, _, _, :nopass), do: {:error, "user account already confirmed"}
-  defp check_key(user, key, valid_secs, password) do
-    DB_Utils.check_time(user.reset_sent_at, valid_secs) and
-    secure_compare(user.reset_token, key) and
-    DB_Utils.password_reset(user, password) || {:error, "invalid token"}
-  end
-
-  defp finalize({:ok, user}, conn, user_id, password) do
-    message = if password == :nopass, do: "account confirmed", else: "password reset"
-    Log.log(:info, Config.log_level, conn.request_path, %Log{user: user_id, message: message})
-    put_private(conn, :phauxth_user, Map.drop(user, Config.drop_user_keys))
-  end
-  defp finalize({:error, message}, conn, user_id, _) do
+  def finalize({:error, message}, conn, user_id, _) do
     Log.log(:warn, Config.log_level, conn.request_path,
             %Log{user: user_id,
               message: message,
               meta: [{"current_user_id", Log.current_user_id(conn.assigns)}]})
     put_private(conn, :phauxth_error, "Invalid credentials")
+  end
+  def finalize(user, conn, user_id, ok_msg) do
+    Log.log(:info, Config.log_level, conn.request_path,
+            %Log{user: user_id, message: ok_msg})
+    put_private(conn, :phauxth_user, user)
   end
 end

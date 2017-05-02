@@ -8,7 +8,9 @@ defmodule Phauxth.Confirm.PassResetTest do
   alias Phauxth.Confirm.PassReset
 
   setup do
-    UserHelper.add_reset_user("lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw")
+    attrs = %{email: "frank@mail.com", role: "user", password: "h4rd2gU3$$",
+      confirmed_at: Ecto.DateTime.utc}
+    UserHelper.add_reset_user(attrs)
     :ok
   end
 
@@ -18,6 +20,13 @@ defmodule Phauxth.Confirm.PassResetTest do
                        "key" => "lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw",
                        "password" => password}})
     |> PassReset.call(opts)
+    |> update_repo(password)
+  end
+
+  def update_repo(%Plug.Conn{private: %{phauxth_error: _}} = conn, _), do: conn
+  def update_repo(%Plug.Conn{private: %{phauxth_user: user}} = conn, password) do
+    UserHelper.reset_password(user, password)
+    conn
   end
 
   def password_changed(password) do
@@ -48,13 +57,6 @@ defmodule Phauxth.Confirm.PassResetTest do
     change(user, %{reset_sent_at: nil})
     |> Phauxth.TestRepo.update
     conn = call_reset("password", {:email, "email", 60})
-    assert conn.private.phauxth_error =~ "Invalid credentials"
-  end
-
-  test "reset password fails with weak password" do
-    password = "pass"
-    conn = call_reset(password, {:email, "email", 60})
-    refute password_changed(password)
     assert conn.private.phauxth_error =~ "Invalid credentials"
   end
 

@@ -12,8 +12,10 @@ defmodule Phauxth.RememberTest do
   end
 
   setup do
+    attrs = %{email: "brian@mail.com", role: "user", password: "h4rd2gU3$$",
+      otp_required: true, otp_secret: "MFRGGZDFMZTWQ2LK", otp_last: 0}
     user = UserHelper.add_user()
-    other = UserHelper.add_otp_user()
+    other = UserHelper.add_user(attrs)
     conn = conn(:get, "/")
            |> put_private(:phoenix_endpoint, Endpoint)
            |> SessionHelper.sign_conn

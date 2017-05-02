@@ -3,64 +3,53 @@ defmodule Phauxth.UserHelper do
   import Ecto.Changeset
   alias Phauxth.{TestRepo, TestUser}
 
-  def add_user do
-    attrs = %{email: "fred+1@mail.com", username: "fred", phone: "55555555555",
-      role: "user", password: "h4rd2gU3$$", confirmed_at: nil,
-      confirmation_sent_at: Ecto.DateTime.utc, reset_sent_at: Ecto.DateTime.utc}
-    %TestUser{} |> add_user(attrs, "lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw", TestRepo)
+  @attrs %{email: "fred+1@mail.com", username: "fred", phone: "55555555555",
+    role: "user", password: "h4rd2gU3$$", confirmed_at: nil,
+    confirmation_sent_at: Ecto.DateTime.utc, reset_sent_at: Ecto.DateTime.utc}
+  @key "lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
+
+  def add_user(attrs \\ @attrs) do
+    %TestUser{}
+    |> user_changeset(attrs)
+    |> TestRepo.insert!
   end
 
-  def add_confirmed do
-    attrs = %{email: "ray@mail.com", role: "user", password: "h4rd2gU3$$",
-      confirmed_at: Ecto.DateTime.utc}
-    %TestUser{} |> add_user_confirmed(attrs, TestRepo)
+  def add_confirm_user(attrs \\ @attrs, key \\ @key) do
+    %TestUser{}
+    |> user_changeset(attrs)
+    |> add_confirm_token(key)
+    |> TestRepo.insert!
   end
 
-  def add_custom_crypto_user do
+  def add_reset_user(attrs, key \\ @key) do
+    %TestUser{}
+    |> user_changeset(attrs)
+    |> add_reset_token(key)
+    |> TestRepo.insert!
+  end
+
+  def add_custom_user(attrs) do
     %TestUser{}
     |> cast(%{email: "froderick@mail.com"}, [:email])
-    |> change(%{password_hash: "dumb-h4rd2gU3$$-crypto"})
+    |> change(attrs)
     |> TestRepo.insert!
   end
 
-  def add_custom_hashname_user do
-    %TestUser{}
-    |> cast(%{email: "igor@mail.com"}, [:email])
-    |> change(%{encrypted_password: "dumb-h4rd2gU3$$-crypto"})
-    |> TestRepo.insert!
+  def add_confirm_token(user, key \\ @key) do
+    change(user, %{confirmation_token: key, confirmation_sent_at: Ecto.DateTime.utc})
   end
 
-  def add_otp_user do
-    attrs = %{email: "brian@mail.com", role: "user", password: "h4rd2gU3$$",
-      otp_required: true, otp_secret: "MFRGGZDFMZTWQ2LK", otp_last: 0}
-    %TestUser{} |> add_user(attrs, TestRepo)
+  def add_reset_token(user, key \\ @key) do
+    change(user, %{reset_token: key, reset_sent_at: Ecto.DateTime.utc})
   end
 
-  def add_reset_user(key) do
-    attrs = %{email: "frank@mail.com", role: "user", password: "h4rd2gU3$$",
-      confirmed_at: Ecto.DateTime.utc}
-    %TestUser{} |> add_reset(attrs, key, TestRepo)
+  def confirm_user(user) do
+    change(user, %{confirmed_at: Ecto.DateTime.utc}) |> TestRepo.update!
   end
 
-  defp add_user(user, attrs, repo) do
-    user_changeset(user, attrs) |> repo.insert!
-  end
-  defp add_user(user, attrs, key, repo) do
-    user_changeset(user, attrs)
-    |> Phauxth.Confirm.DB_Utils.add_confirm_token(key)
-    |> repo.insert!
-  end
-
-  defp add_user_confirmed(user, attrs, repo) do
-    add_user(user, attrs, repo)
-    |> change(%{confirmed_at: Ecto.DateTime.utc})
-    |> repo.update!
-  end
-
-  defp add_reset(user, attrs, key, repo) do
-    user_changeset(user, attrs)
-    |> Phauxth.Confirm.DB_Utils.add_reset_token(key)
-    |> repo.insert!
+  def reset_password(user, password) do
+    change(user, %{password_hash: Comeonin.Bcrypt.hashpwsalt(password)})
+    |> TestRepo.update!
   end
 
   defp user_changeset(user, params) do
@@ -68,6 +57,12 @@ defmodule Phauxth.UserHelper do
     |> cast(params, Map.keys(params))
     |> validate_required([:email])
     |> unique_constraint(:email)
-    |> Phauxth.Login.DB_Utils.add_password_hash(params)
+    |> put_pass_hash()
   end
+
+  defp put_pass_hash(%Ecto.Changeset{valid?: true, changes:
+      %{password: pass}} = changeset) do
+    put_change(changeset, :password_hash, Comeonin.Bcrypt.hashpwsalt(pass))
+  end
+  defp put_pass_hash(changeset), do: changeset
 end
