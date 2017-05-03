@@ -10,24 +10,24 @@ defmodule <%= base %>.Web.PasswordResetController do
   plug Phauxth.Confirm.PassReset when action in [:update]<%= if not api do %>
 
   def new(conn, _params) do
-    render conn, "new.html"
+    render(conn, "new.html")
   end<% end %>
 
   def create(conn, %{"password_reset" => %{"email" => email} = user_params}) do
-    {key, link} = Phauxth.Confirm.gen_token_link(email)<%= if api do %>
+    key = Phauxth.Confirm.gen_token()<%= if api do %>
     with {:ok, %User{}} <- Accounts.add_reset_token(user_params, key) do
-      Message.reset_request(email, link)
+      Message.reset_request(email, key)
       message = "Check your inbox for instructions on how to reset your password"
       conn
       |> put_status(:created)
       |> render(<%= base %>.Web.PasswordResetView, "info.json", %{info: message})<% else %>
     case Accounts.add_reset_token(user_params, key) do
       {:ok, _user} ->
-        Message.reset_request(email, link)
+        Message.reset_request(email, key)
         message = "Check your inbox for instructions on how to reset your password"
-        success conn, message, user_path(conn, :index)
+        success(conn, message, user_path(conn, :index))
       {:error, _changeset} ->
-        render conn, "new.html"<% end %>
+        render(conn, "new.html")<% end %>
     end
   end<%= if api do %>
 
@@ -44,7 +44,7 @@ defmodule <%= base %>.Web.PasswordResetController do
   end<% else %>
 
   def edit(conn, %{"email" => email, "key" => key}) do
-    render conn, "edit.html", email: email, key: key
+    render(conn, "edit.html", email: email, key: key)
   end
 
   def update(%Plug.Conn{private: %{phauxth_error: message}} = conn,

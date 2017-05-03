@@ -19,8 +19,8 @@ defmodule <%= base %>.Accounts do
     Repo.get_by(User, attrs)
   end<%= if confirm do %>
 
-  def create_user(attrs \\ %{}, key) do<% else %>
-  def create_user(attrs \\ %{}) do<% end %>
+  def create_user(attrs, key) do<% else %>
+  def create_user(attrs) do<% end %>
     %User{}<%= if confirm do %>
     |> create_changeset(attrs, key)<% else %>
     |> create_changeset(attrs)<% end %>
@@ -44,7 +44,7 @@ defmodule <%= base %>.Accounts do
     |> update_changeset(attrs)
     |> change(%{confirmation_token: key, confirmation_sent_at: Ecto.DateTime.utc})
     |> Repo.update()
-  end
+  end<% end %>
 
   def update_password(%User{} = user, attrs) do
     user
@@ -52,7 +52,7 @@ defmodule <%= base %>.Accounts do
     |> put_pass_hash()
     |> change(%{reset_token: nil, reset_sent_at: nil})
     |> Repo.update()
-  end<% end %>
+  end
 
   def delete_user(%User{} = user) do
     Repo.delete(user)

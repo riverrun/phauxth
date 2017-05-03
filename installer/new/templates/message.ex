@@ -8,10 +8,13 @@ defmodule <%= base %>.Message do
   your choice.
   """
 
+  alias Phauxth.Confirm
+
   @doc """
   A message with a confirmation link in it.
   """
-  def confirm_request(_message, link) do
+  def confirm_request(address, key) do
+    link = Confirm.gen_link(address, key)
     confirm_url = "http://www.example.com/users/confirm#{link}"
     confirm_url
   end
@@ -19,7 +22,8 @@ defmodule <%= base %>.Message do
   @doc """
   A message with a link to reset the password.
   """
-  def reset_request(_message, link) do
+  def reset_request(address, key) do
+    link = Confirm.gen_link(address, key)
     confirm_url = "http://www.example.com/password_resets/edit?#{link}"
     confirm_url
   end
@@ -27,14 +31,14 @@ defmodule <%= base %>.Message do
   @doc """
   A message acknowledging that the account has been successfully confirmed.
   """
-  def confirm_success(message) do
-    message
+  def confirm_success(address) do
+    address
   end
 
   @doc """
   A message acknowledging that the account has been successfully confirmed.
   """
-  def reset_success(message) do
-    message
+  def reset_success(address) do
+    address
   end
 end

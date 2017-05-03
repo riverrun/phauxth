@@ -32,7 +32,7 @@ defmodule <%= base %>.AccountsTest do
   end
 
   test "create_user/1 with invalid data returns error changeset" do
-    assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
+    assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs<%= if confirm do %>, @confirm_key<% end %>)
   end
 
   test "update_user/2 with valid data updates the user" do
