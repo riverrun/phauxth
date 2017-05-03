@@ -28,7 +28,9 @@ defmodule <%= base %>.Accounts do
   end<%= if confirm do %>
 
   def confirm_user(%User{} = user) do
-    change(user, %{confirmed_at: Ecto.DateTime.utc}) |> Repo.update
+    change(user, %{confirmed_at: Ecto.DateTime.utc,
+      confirmation_token: nil, confirmation_sent_at: nil})
+      |> Repo.update
   end<% end %>
 
   def update_user(%User{} = user, attrs) do
@@ -36,6 +38,13 @@ defmodule <%= base %>.Accounts do
     |> update_changeset(attrs)
     |> Repo.update()
   end<%= if confirm do %>
+
+  def update_email(%User{} = user, attrs, key) do
+    user
+    |> update_changeset(attrs)
+    |> change(%{confirmation_token: key, confirmation_sent_at: Ecto.DateTime.utc})
+    |> Repo.update()
+  end
 
   def update_password(%User{} = user, attrs) do
     user

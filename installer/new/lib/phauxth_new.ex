@@ -187,9 +187,6 @@ defmodule Mix.Tasks.Phauxth.New do
     You will need to edit the Message module, which is in the web directory.
     Add the email / phone library of your choice to this module and edit the
     functions so that they send messages to the user.
-
-    You will also need to add the `confirm_request` function to the
-    `create` function in the user_controller.ex file.
     """
   end
   defp confirm_message(_, _), do: ""
