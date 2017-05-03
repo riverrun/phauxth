@@ -96,7 +96,7 @@ defmodule Mix.Tasks.Phauxth.New do
 
     We are almost ready!
 
-    You need to first edit the `mix.exs` file, adding `{:phauxth, "~> 0.8"},`
+    You need to first edit the `mix.exs` file, adding `{:phauxth, "~> 0.9"},`
     to the deps. Then, run `mix deps.get`.
 
     Now edit the `lib/#{base_name()}/web/router.ex` file.
