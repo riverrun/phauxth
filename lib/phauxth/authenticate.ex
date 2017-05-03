@@ -10,7 +10,7 @@ defmodule Phauxth.Authenticate do
       * in most cases, this will be the name of the endpoint you are using
       * see the documentation for Phoenix.Token for more information
     * max_age - the length of the validity of the token
-      * the default is one day
+      * the default is one week
 
   ## Examples
 

@@ -9,7 +9,7 @@ defmodule Phauxth.ConfirmTest do
   @incomplete_link "email=wrong%40mail.com"
 
   setup do
-    UserHelper.add_user()
+    UserHelper.add_confirm_user()
     :ok
   end
 
@@ -17,6 +17,13 @@ defmodule Phauxth.ConfirmTest do
     conn(:get, "/confirm?" <> link)
     |> fetch_query_params
     |> Phauxth.Confirm.call(opts)
+    |> update_repo
+  end
+
+  def update_repo(%Plug.Conn{private: %{phauxth_error: _}} = conn), do: conn
+  def update_repo(%Plug.Conn{private: %{phauxth_user: user}} = conn) do
+    UserHelper.confirm_user(user)
+    conn
   end
 
   def user_confirmed do
@@ -66,14 +73,26 @@ defmodule Phauxth.ConfirmTest do
     assert conn.private.phauxth_user
   end
 
-  test "gen_token_link" do
-    {key, link} = Phauxth.Confirm.gen_token_link("fred@mail.com")
+  test "check time" do
+    assert Phauxth.Confirm.Base.check_time(Ecto.DateTime.utc, 60)
+    refute Phauxth.Confirm.Base.check_time(Ecto.DateTime.utc, -60)
+    refute Phauxth.Confirm.Base.check_time(nil, 60)
+  end
+
+  test "gen_token creates a token 32 bytes long" do
+    assert Phauxth.Confirm.gen_token() |> byte_size == 32
+  end
+
+  test "gen_link" do
+    key = "lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
+    link = Phauxth.Confirm.gen_link("fred@mail.com", key)
     assert link =~ "email=fred%40mail.com&key="
     assert :binary.match(link, [key]) == {26, 32}
   end
 
-  test "gen_token_link with custom unique_id" do
-    {key, link} = Phauxth.Confirm.gen_token_link("55555555555", :phone)
+  test "gen_link with custom unique_id" do
+    key = "lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
+    link = Phauxth.Confirm.gen_link("55555555555", key, :phone)
     assert link =~ "phone=55555555555&key="
     assert :binary.match(link, [key]) == {22, 32}
   end

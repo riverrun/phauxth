@@ -31,7 +31,13 @@ defmodule Phauxth.Confirm.PassReset do
 
   def call(%Plug.Conn{params: %{"password_reset" => params}} = conn,
       {identifier, user_params, key_expiry}) when is_atom(identifier) do
-    %{^user_params => user_id, "key" => key, "password" => password} = params
-    check_confirm conn, {identifier, user_id, key, key_expiry, password}
+    %{^user_params => user_id, "key" => key, "password" => _password} = params
+    check_confirm conn, {identifier, user_id, key, key_expiry, "password reset"}
+  end
+
+  def check_key(nil, _, _), do: {:error, "invalid credentials"}
+  def check_key(user, key, valid_secs) do
+    check_time(user.reset_sent_at, valid_secs) and
+    secure_compare(user.reset_token, key) and user
   end
 end

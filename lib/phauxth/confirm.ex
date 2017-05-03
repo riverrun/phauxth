@@ -33,25 +33,16 @@ defmodule Phauxth.Confirm do
   use Phauxth.Confirm.Base
 
   @doc """
-  Generate a confirmation token and a link containing the user-identifier
-  and the token.
-
-  The link is used to create the url that the user needs to follow to
-  complete the confirmation process.
-
-  ## Examples
-
-  To create a key and link for email confirmation:
-
-      Phauxth.Confirm.gen_token_link("fred@mail.com")
-
-  To create a key and link for phone confirmation:
-
-      Phauxth.Confirm.gen_token_link("83749374983", :phone)
-
+  Generate a confirmation token.
   """
-  def gen_token_link(user, identifier \\ :email) do
-    key = :crypto.strong_rand_bytes(24) |> Base.url_encode64
-    {key, "#{identifier}=#{URI.encode_www_form(user)}&key=#{key}"}
+  def gen_token do
+    :crypto.strong_rand_bytes(24) |> Base.url_encode64
+  end
+
+  @doc """
+  Generate a link containing a user-identifier and the confirmation token.
+  """
+  def gen_link(user_id, key, identifier \\ :email) do
+    "#{identifier}=#{URI.encode_www_form(user_id)}&key=#{key}"
   end
 end

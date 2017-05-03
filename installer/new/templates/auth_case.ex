@@ -23,7 +23,7 @@ defmodule <%= base %>.Web.AuthCase do
   def add_reset(email) do
     add_user(email)
     key = "pu9-VNdgE8V9qZo19rlcg3KUNjpxuixg"
-    {:ok, user} = Accounts.request_pass_reset(%{"email" => email}, key)
+    {:ok, user} = Accounts.add_reset_token(%{"email" => email}, key)
     user
   end<% end %>
 

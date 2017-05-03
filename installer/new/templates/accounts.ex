@@ -19,18 +19,38 @@ defmodule <%= base %>.Accounts do
     Repo.get_by(User, attrs)
   end<%= if confirm do %>
 
-  def create_user(attrs \\ %{}, key) do<% else %>
-  def create_user(attrs \\ %{}) do<% end %>
-    %User{}
-    |> user_changeset(attrs)
-    |> Phauxth.Login.DB_Utils.add_password_hash(attrs)<%= if confirm do %>
-    |> Phauxth.Confirm.DB_Utils.add_confirm_token(key)<% end %>
+  def create_user(attrs, key) do<% else %>
+  def create_user(attrs) do<% end %>
+    %User{}<%= if confirm do %>
+    |> create_changeset(attrs, key)<% else %>
+    |> create_changeset(attrs)<% end %>
     |> Repo.insert()
-  end
+  end<%= if confirm do %>
+
+  def confirm_user(%User{} = user) do
+    change(user, %{confirmed_at: Ecto.DateTime.utc,
+      confirmation_token: nil, confirmation_sent_at: nil})
+      |> Repo.update
+  end<% end %>
 
   def update_user(%User{} = user, attrs) do
     user
-    |> user_changeset(attrs)
+    |> update_changeset(attrs)
+    |> Repo.update()
+  end<%= if confirm do %>
+
+  def update_email(%User{} = user, attrs, key) do
+    user
+    |> update_changeset(attrs)
+    |> change(%{confirmation_token: key, confirmation_sent_at: Ecto.DateTime.utc})
+    |> Repo.update()
+  end<% end %>
+
+  def update_password(%User{} = user, attrs) do
+    user
+    |> update_changeset(attrs)
+    |> put_pass_hash()
+    |> change(%{reset_token: nil, reset_sent_at: nil})
     |> Repo.update()
   end
 
@@ -42,9 +62,10 @@ defmodule <%= base %>.Accounts do
     user_changeset(user, %{})
   end<%= if confirm do %>
 
-  def request_pass_reset(%{"email" => email}, key) do
+  def add_reset_token(%{"email" => email}, key) do
     with %User{} = user <- Repo.get_by(User, email: email) do
-      Phauxth.Confirm.DB_Utils.add_reset_token(user, key) |> Repo.update()
+      change(user, %{reset_token: key, reset_sent_at: Ecto.DateTime.utc})
+      |> Repo.update()
     else
       nil -> {:error, :not_found}
     end
@@ -55,5 +76,28 @@ defmodule <%= base %>.Accounts do
     |> cast(attrs, [:email])
     |> validate_required([:email])
     |> unique_constraint(:email)
+  end<%= if confirm do %>
+
+  defp create_changeset(%User{} = user, attrs, key) do<% else %>
+  defp create_changeset(%User{} = user, attrs) do<% end %>
+    user
+    |> cast(attrs, [:email, :password])
+    |> validate_required([:email, :password])
+    |> unique_constraint(:email)<%= if confirm do %>
+    |> change(%{confirmation_token: key, confirmation_sent_at: Ecto.DateTime.utc})<% end %>
+    |> put_pass_hash()
   end
+
+  defp update_changeset(%User{} = user, attrs) do
+    user
+    |> cast(attrs, [:email, :password])
+    |> validate_required([:email])
+    |> unique_constraint(:email)
+  end
+
+  defp put_pass_hash(%Ecto.Changeset{valid?: true, changes:
+      %{password: password}} = changeset) do
+    change(changeset, %{password_hash: Comeonin.Bcrypt.hashpwsalt(password), password: nil})
+  end
+  defp put_pass_hash(changeset), do: changeset
 end

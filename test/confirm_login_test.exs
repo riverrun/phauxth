@@ -5,8 +5,12 @@ defmodule Phauxth.Confirm.LoginTest do
   alias Phauxth.UserHelper
 
   setup do
+    attrs = %{email: "ray@mail.com", role: "user", password: "h4rd2gU3$$",
+      confirmed_at: Ecto.DateTime.utc}
+    key = "lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
     UserHelper.add_user()
-    UserHelper.add_confirmed()
+    UserHelper.add_confirm_user(attrs, key)
+    |> UserHelper.confirm_user
     :ok
   end
 

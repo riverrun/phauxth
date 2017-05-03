@@ -2,8 +2,7 @@ defmodule <%= base %>.Web.UserController do
   use <%= base %>.Web, :controller
 
   import <%= base %>.Web.Authorize
-  alias <%= base %>.Accounts<%= if api do %>
-  alias <%= base %>.Accounts.User
+  alias <%= base %>.{Accounts, Accounts.User<%= if confirm do %>, Message<% end %>}<%= if api do %>
 
   action_fallback <%= base %>.Web.FallbackController<% end %>
 
@@ -18,18 +17,22 @@ defmodule <%= base %>.Web.UserController do
   end<%= if not api do %>
 
   def new(conn, _) do
-    changeset = Accounts.change_user(%<%= base %>.Accounts.User{})
+    changeset = Accounts.change_user(%User{})
     render(conn, "new.html", changeset: changeset)
-  end<% end %>
+  end<% end %><%= if confirm do %>
 
-  def create(conn, %{"user" => user_params}) do<%= if api do %>
-    with {:ok, %User{} = user} <- Accounts.create_user(user_params) do
+  def create(conn, %{"user" => %{"email" => email} = user_params}) do
+    key = Phauxth.Confirm.gen_token()<% else %>
+  def create(conn, %{"user" => user_params}) do<% end %><%= if api do %>
+    with {:ok, %User{} = user} <- Accounts.create_user(user_params<%= if confirm do %>, key<% end %>) do<%= if confirm do %>
+      Message.confirm_request(email, key)<% end %>
       conn
       |> put_status(:created)
       |> put_resp_header("location", user_path(conn, :show, user))
       |> render("show.json", user: user)<% else %>
-    case Accounts.create_user(user_params) do
-      {:ok, _user} ->
+    case Accounts.create_user(user_params<%= if confirm do %>, key<% end %>) do
+      {:ok, _user} -><%= if confirm do %>
+        Message.confirm_request(email, key)<% end %>
         success(conn, "User created successfully", session_path(conn, :new))
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)<% end %>

@@ -4,7 +4,7 @@ defmodule <%= base %>.Web.UserControllerTest do
   import <%= base %>.Web.AuthCase
   alias <%= base %>.Accounts
 
-  @create_attrs %{email: "bill@mail.com"}
+  @create_attrs %{email: "bill@mail.com", password: "hard2guess"}
   @update_attrs %{email: "william@mail.com"}
   @invalid_attrs %{email: nil}
 

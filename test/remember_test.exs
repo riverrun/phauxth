@@ -3,7 +3,7 @@ defmodule Phauxth.RememberTest do
   use Plug.Test
   import ExUnit.CaptureLog
 
-  alias Phauxth.{Authenticate, Remember, Remember.Utils, SessionHelper, UserHelper}
+  alias Phauxth.{Authenticate, Remember, SessionHelper, UserHelper}
 
   @max_age 7 * 24 * 60 * 60
 
@@ -12,18 +12,20 @@ defmodule Phauxth.RememberTest do
   end
 
   setup do
+    attrs = %{email: "brian@mail.com", role: "user", password: "h4rd2gU3$$",
+      otp_required: true, otp_secret: "MFRGGZDFMZTWQ2LK", otp_last: 0}
     user = UserHelper.add_user()
-    other = UserHelper.add_otp_user()
+    other = UserHelper.add_user(attrs)
     conn = conn(:get, "/")
            |> put_private(:phoenix_endpoint, Endpoint)
            |> SessionHelper.sign_conn
-           |> Utils.add_rem_cookie(user.id)
+           |> Remember.add_rem_cookie(user.id)
 
     {:ok, %{conn: conn, other: other}}
   end
 
   test "init function" do
-    assert Remember.init([]) == {nil, 604800}
+    assert Remember.init([]) == {nil, 2419200}
   end
 
   test "call remember with default options", %{conn: conn} do
@@ -69,7 +71,7 @@ defmodule Phauxth.RememberTest do
   end
 
   test "delete cookie", %{conn: conn} do
-    conn = Utils.delete_rem_cookie(conn)
+    conn = Remember.delete_rem_cookie(conn)
            |> send_resp(200, "")
     refute conn.req_cookies["remember_me"]
   end

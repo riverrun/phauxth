@@ -6,7 +6,9 @@ defmodule Phauxth.OtpTest do
   alias Phauxth.{TestRepo, TestUser, UserHelper}
 
   setup context do
-    %{id: user_id} = UserHelper.add_otp_user()
+    attrs = %{email: "brian@mail.com", role: "user", password: "h4rd2gU3$$",
+      otp_required: true, otp_secret: "MFRGGZDFMZTWQ2LK", otp_last: 0}
+    %{id: user_id} = UserHelper.add_user(attrs)
     otp_last = context[:last] || 0
     update_repo(user_id, otp_last)
     {:ok, %{user_id: user_id}}
