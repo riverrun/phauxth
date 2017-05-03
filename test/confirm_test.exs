@@ -79,14 +79,20 @@ defmodule Phauxth.ConfirmTest do
     refute Phauxth.Confirm.Base.check_time(nil, 60)
   end
 
-  test "gen_token_link" do
-    {key, link} = Phauxth.Confirm.gen_token_link("fred@mail.com")
+  test "gen_token creates a token 32 bytes long" do
+    assert Phauxth.Confirm.gen_token() |> byte_size == 32
+  end
+
+  test "gen_link" do
+    key = "lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
+    link = Phauxth.Confirm.gen_link("fred@mail.com", key)
     assert link =~ "email=fred%40mail.com&key="
     assert :binary.match(link, [key]) == {26, 32}
   end
 
-  test "gen_token_link with custom unique_id" do
-    {key, link} = Phauxth.Confirm.gen_token_link("55555555555", :phone)
+  test "gen_link with custom unique_id" do
+    key = "lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
+    link = Phauxth.Confirm.gen_link("55555555555", key, :phone)
     assert link =~ "phone=55555555555&key="
     assert :binary.match(link, [key]) == {22, 32}
   end

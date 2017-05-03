@@ -1,9 +1,11 @@
 defmodule <%= base %>.Web.PasswordResetController do
-  use <%= base %>.Web, :controller<%= if not api do %>
-  import <%= base %>.Web.Authorize<% end %>
-  alias <%= base %>.{Accounts, Accounts.User, Message}<%= if api do %>
+  use <%= base %>.Web, :controller<%= if api do %>
 
-  action_fallback <%= base %>.Web.FallbackController<% end %>
+  alias <%= base %>.{Accounts, Accounts.User, Message}
+
+  action_fallback <%= base %>.Web.FallbackController<% else %>
+  import <%= base %>.Web.Authorize
+  alias <%= base %>.{Accounts, Message}<% end %>
 
   plug Phauxth.Confirm.PassReset when action in [:update]<%= if not api do %>
 
