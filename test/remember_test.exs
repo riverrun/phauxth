@@ -26,6 +26,7 @@ defmodule Phauxth.RememberTest do
 
   test "init function" do
     assert Remember.init([]) == {nil, 2419200}
+    assert Remember.init([max_age: 100]) == {nil, 100}
   end
 
   test "call remember with default options", %{conn: conn} do

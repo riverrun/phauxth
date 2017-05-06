@@ -29,8 +29,8 @@ defmodule Phauxth.Mixfile do
      {:cowboy, "~> 1.1"},
      {:comeonin, "~> 3.0"},
      {:postgrex, "~> 0.13", optional: true},
-     {:earmark, "~> 1.1", only: :dev},
-     {:ex_doc,  "~> 0.14", only: :dev}]
+     {:earmark, "~> 1.2", only: :dev},
+     {:ex_doc,  "~> 0.15", only: :dev}]
   end
 
   defp package do

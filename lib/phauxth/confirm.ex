@@ -18,7 +18,7 @@ defmodule Phauxth.Confirm do
 
   Add the following command to the `web/router.ex` file:
 
-      get "/update", ConfirmController, :update
+      get "/new", ConfirmController, :new
 
   Then add the following to the `confirm_controller.ex` file:
 
