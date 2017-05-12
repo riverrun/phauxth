@@ -12,14 +12,10 @@ defmodule Phauxth.Log do
     * user - the user identifier (one of email, username, nil)
     * message - error / info message
     * meta - additional metadata that does not fit into any of the other categories
-  """
 
-  require Logger
+  ## Log levels
 
-  defstruct user: "nil", message: "", meta: []
-
-  @doc """
-  Returns the log message.
+  The available log levels are :info, :warn and false.
 
   The level at which logging starts can be configured by changing
   the `log_level` value in the config file.
@@ -33,15 +29,25 @@ defmodule Phauxth.Log do
   And if you do not want Phauxth to print out any logs, set the
   log_level to false.
   """
-  def log(_, false, _, _), do: :ok
-  def log(level, log_level, path, %Phauxth.Log{user: user, message: message, meta: meta}) do
-    if Logger.compare_levels(level, log_level) != :lt do
-      Logger.log level, fn ->
-        Enum.map_join([{"path", path}, {"user", user}, {"message", message}] ++
-                      meta, " ", &format/1)
+
+  require Logger
+  alias Phauxth.Config
+
+  defstruct user: "nil", message: "no user", meta: []
+
+  for level <- [:info, :warn, :error] do
+    @doc """
+    Returns the #{level} log message.
+    """
+    def unquote(level)(conn, %Phauxth.Log{user: user, message: message, meta: meta}) do
+      if Config.log_level && Logger.compare_levels(unquote(level), Config.log_level) != :lt do
+        Logger.log unquote(level), fn ->
+          Enum.map_join([{"path", conn.request_path}, {"user", user},
+                         {"message", message}] ++ meta, " ", &format/1)
+        end
       end
+      :ok
     end
-    :ok
   end
 
   @doc """

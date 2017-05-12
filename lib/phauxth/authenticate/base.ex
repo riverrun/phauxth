@@ -100,16 +100,13 @@ defmodule Phauxth.Authenticate.Base do
   Log the result of the authentication and return the user struct or nil.
   """
   def log_user(nil, conn) do
-    Log.log(:info, Config.log_level, conn.request_path,
-            %Log{user: "none", message: "no user"}) && nil
+    Log.info(conn, %Log{}) && nil
   end
   def log_user({:error, msg}, conn) do
-    Log.log(:info, Config.log_level, conn.request_path,
-            %Log{user: "none", message: "#{msg} token"}) && nil
+    Log.info(conn, %Log{message: "#{msg} token"}) && nil
   end
   def log_user(user, conn) do
-    Log.log(:info, Config.log_level, conn.request_path,
-            %Log{user: user.id, message: "User authenticated"})
+    Log.info(conn, %Log{user: user.id, message: "User authenticated"})
     Map.drop(user, Config.drop_user_keys)
   end
 end

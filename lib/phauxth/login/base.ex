@@ -79,18 +79,15 @@ defmodule Phauxth.Login.Base do
   `Invalid credentials` will be used.
   """
   def report({:ok, user}, conn, user_id, ok_log) do
-    Log.log(:info, Config.log_level, conn.request_path,
-            %Log{user: user_id, message: ok_log})
+    Log.info(conn, %Log{user: user_id, message: ok_log})
     put_private(conn, :phauxth_user, Map.drop(user, Config.drop_user_keys))
   end
   def report({:error, error_log}, conn, user_id, _) do
-    Log.log(:warn, Config.log_level, conn.request_path,
-            %Log{user: user_id, message: error_log})
+    Log.warn(conn, %Log{user: user_id, message: error_log})
     put_private(conn, :phauxth_error, "Invalid credentials")
   end
   def report({:error, error_log, error_msg}, conn, user_id, _) do
-    Log.log(:warn, Config.log_level, conn.request_path,
-            %Log{user: user_id, message: error_log})
+    Log.warn(conn, %Log{user: user_id, message: error_log})
     put_private(conn, :phauxth_error, error_msg)
   end
 end

@@ -39,16 +39,15 @@ defmodule Phauxth.Confirm.Base do
       @doc """
       Function to confirm the user by checking the token.
       """
-      def check_confirm(conn, {identifier, user_id, key, key_expiry, ok_msg})
+      def check_confirm(conn, {identifier, user_id, key, key_expiry, ok_log})
           when byte_size(key) == 32 do
         Config.repo.get_by(Config.user_mod, [{identifier, user_id}])
         |> check_key(key, key_expiry * 60)
-        |> finalize(conn, user_id, ok_msg)
+        |> finalize(conn, user_id, ok_log)
       end
       def check_confirm(conn, _) do
-        Log.log(:warn, Config.log_level, conn.request_path,
-                %Log{message: "invalid query string",
-                  meta: [{"query", conn.query_string}]})
+        Log.warn(conn, %Log{message: "invalid query string",
+          meta: [{"query", conn.query_string}]})
         put_private(conn, :phauxth_error, "Invalid credentials")
       end
 
@@ -79,15 +78,12 @@ defmodule Phauxth.Confirm.Base do
     finalize({:error, "invalid token"}, conn, user_id, nil)
   end
   def finalize({:error, message}, conn, user_id, _) do
-    Log.log(:warn, Config.log_level, conn.request_path,
-            %Log{user: user_id,
-              message: message,
-              meta: [{"current_user_id", Log.current_user_id(conn.assigns)}]})
+    Log.warn(conn, %Log{user: user_id, message: message,
+      meta: [{"current_user_id", Log.current_user_id(conn.assigns)}]})
     put_private(conn, :phauxth_error, "Invalid credentials")
   end
-  def finalize(user, conn, user_id, ok_msg) do
-    Log.log(:info, Config.log_level, conn.request_path,
-            %Log{user: user_id, message: ok_msg})
+  def finalize(user, conn, user_id, ok_log) do
+    Log.info(conn, %Log{user: user_id, message: ok_log})
     put_private(conn, :phauxth_user, Map.drop(user, Config.drop_user_keys))
   end
 end
