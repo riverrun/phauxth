@@ -29,7 +29,7 @@ defmodule Phauxth.Confirm.Base do
 
       @doc false
       def call(conn, {identifier, user_params, key_expiry}) do
-        with %{^user_params => user_id, "key" => key} = params <- conn.query_params do
+        with %{^user_params => user_id, "key" => key} <- conn.query_params do
           check_confirm conn, {identifier, user_id, key, key_expiry, "account confirmed"}
         else
           _ -> check_confirm conn, nil
@@ -43,7 +43,7 @@ defmodule Phauxth.Confirm.Base do
           when byte_size(key) == 32 do
         Config.repo.get_by(Config.user_mod, [{identifier, user_id}])
         |> check_key(key, key_expiry * 60)
-        |> finalize(conn, user_id, ok_log)
+        |> report(conn, user_id, ok_log)
       end
       def check_confirm(conn, _) do
         Log.warn(conn, %Log{message: "invalid query string",
@@ -74,15 +74,15 @@ defmodule Phauxth.Confirm.Base do
     (:calendar.universal_time |> :calendar.datetime_to_gregorian_seconds)
   end
 
-  def finalize(false, conn, user_id, _) do
-    finalize({:error, "invalid token"}, conn, user_id, nil)
+  def report(false, conn, user_id, _) do
+    report({:error, "invalid token"}, conn, user_id, nil)
   end
-  def finalize({:error, message}, conn, user_id, _) do
+  def report({:error, message}, conn, user_id, _) do
     Log.warn(conn, %Log{user: user_id, message: message,
       meta: [{"current_user_id", Log.current_user_id(conn.assigns)}]})
     put_private(conn, :phauxth_error, "Invalid credentials")
   end
-  def finalize(user, conn, user_id, ok_log) do
+  def report(user, conn, user_id, ok_log) do
     Log.info(conn, %Log{user: user_id, message: ok_log})
     put_private(conn, :phauxth_user, Map.drop(user, Config.drop_user_keys))
   end

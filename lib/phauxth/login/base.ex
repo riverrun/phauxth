@@ -35,7 +35,7 @@ defmodule Phauxth.Login.Base do
 
       @doc false
       def init(opts) do
-        uniq = Keyword.get(opts, :unique_id, :email)
+        uniq = Keyword.get(opts, :identifier, :email)
         user_params = if is_atom(uniq), do: to_string(uniq), else: "email"
         {uniq, user_params}
       end
@@ -44,11 +44,16 @@ defmodule Phauxth.Login.Base do
       def call(%Plug.Conn{params: %{"session" => params}} = conn,
           {uniq, user_params}) when is_atom(uniq) do
         %{^user_params => user_id, "password" => password} = params
-        Config.repo.get_by(Config.user_mod, [{uniq, user_id}])
-        |> check_pass(password)
+        check_user_pass(uniq, user_id, password)
         |> report(conn, user_id, "successful login")
       end
-      def call(_conn, _), do: raise ArgumentError, "unique_id should be an atom"
+      def call(_conn, _), do: raise ArgumentError, "identifier should be an atom"
+
+      @doc false
+      def check_user_pass(uniq, user_id, password) do
+        Config.repo.get_by(Config.user_mod, [{uniq, user_id}])
+        |> check_pass(password)
+      end
 
       @doc false
       def check_pass(nil, _) do
@@ -60,7 +65,7 @@ defmodule Phauxth.Login.Base do
         {:ok, user} || {:error, "invalid password"}
       end
 
-      defoverridable [init: 1, call: 2, check_pass: 2]
+      defoverridable [init: 1, call: 2, check_user_pass: 3, check_pass: 2]
     end
   end
 

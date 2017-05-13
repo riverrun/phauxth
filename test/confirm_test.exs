@@ -90,7 +90,7 @@ defmodule Phauxth.ConfirmTest do
     assert :binary.match(link, [key]) == {26, 32}
   end
 
-  test "gen_link with custom unique_id" do
+  test "gen_link with custom identifier" do
     key = "lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
     link = Phauxth.Confirm.gen_link("55555555555", key, :phone)
     assert link =~ "phone=55555555555&key="
