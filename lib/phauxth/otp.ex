@@ -3,9 +3,9 @@ defmodule Phauxth.Otp do
   Module to handle one-time passwords, usually for use in two factor
   authentication.
 
-  `Phauxth.Otp` checks the one-time password, and returns a
-  `phauxth_user` message (the user model) if the one-time password is
-  correct or a `phauxth_error` message if there is an error.
+  `Phauxth.Otp.verify/3` checks the one-time password, and returns
+  {:ok, user} if the one-time password is correct or {:error, message}
+  if there is an error.
 
   After this function has been called, you need to either add the user
   to the session, by running `put_session(conn, :user_id, id)`, or send
@@ -35,59 +35,8 @@ defmodule Phauxth.Otp do
 
   ## Examples
 
-  Add the following line to your controller to call Otp with the
-  default values:
-
-      plug Phauxth.Otp when action in [:login_twofa]
-
-  And to set the token length to 8 characters:
-
-      plug Phauxth.Otp, [token_length: 8] when action in [:login_twofa]
-
   """
 
-  @behaviour Plug
+  use Phauxth.Otp.Base
 
-  import Ecto.{Changeset, Query}
-  import Phauxth.Login.Base
-  alias Comeonin.Otp
-  alias Phauxth.Config
-
-  @doc false
-  def init(opts), do: opts
-
-  @doc false
-  def call(%Plug.Conn{params: %{"user" => %{"id" => id, "hotp" => hotp}}} = conn, opts) do
-    {:ok, result} = Config.repo.transaction(fn ->
-      get_user_with_lock(Config.user_mod, id)
-      |> check_hotp(hotp, opts)
-      |> update_otp
-    end)
-    report(result, conn, id, "successful one-time password login")
-  end
-  def call(%Plug.Conn{params: %{"user" => %{"id" => id, "totp" => totp}}} = conn, opts) do
-    Config.repo.get(Config.user_mod, id)
-    |> check_totp(totp, opts)
-    |> update_otp
-    |> report(conn, id, "successful one-time password login")
-  end
-
-  defp check_hotp(user, hotp, opts) do
-    {user, Otp.check_hotp(hotp, user.otp_secret, [last: user.otp_last] ++ opts)}
-  end
-
-  defp check_totp(user, totp, opts) do
-    {user, Otp.check_totp(totp, user.otp_secret, opts)}
-  end
-
-  defp get_user_with_lock(user_model, id) do
-    from(u in user_model, where: u.id == ^id, lock: "FOR UPDATE")
-    |> Config.repo.one!
-  end
-
-  defp update_otp({_, false}), do: {:error, "invalid one-time password"}
-  defp update_otp({%{otp_last: otp_last} = user, last}) when last > otp_last do
-    change(user, %{otp_last: last}) |> Config.repo.update
-  end
-  defp update_otp(_), do: {:error, "invalid user-identifier"}
 end
