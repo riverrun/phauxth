@@ -31,10 +31,10 @@ defmodule Phauxth.Authenticate.Base do
   @doc false
   defmacro __using__(options) do
     quote do
+      import unquote(__MODULE__)
+
       @behaviour Plug
       @max_age unquote(options)[:max_age] || 7 * 24 * 60 * 60
-
-      import unquote(__MODULE__)
 
       @doc false
       def init(opts) do
@@ -44,10 +44,10 @@ defmodule Phauxth.Authenticate.Base do
 
       @doc false
       def call(conn, {nil, _}) do
-        check_session(conn) |> log_user(conn) |> set_user(conn)
+        check_session(conn) |> log_user |> set_user(conn)
       end
       def call(%Plug.Conn{req_headers: headers} = conn, {context, max_age}) do
-        check_headers(headers, context, max_age) |> log_user(conn) |> set_user(conn)
+        check_headers(headers, context, max_age) |> log_user |> set_user(conn)
       end
 
       @doc """
@@ -99,14 +99,14 @@ defmodule Phauxth.Authenticate.Base do
   @doc """
   Log the result of the authentication and return the user struct or nil.
   """
-  def log_user(nil, conn) do
-    Log.info(conn, %Log{}) && nil
+  def log_user(nil) do
+    Log.info(%Log{}) && nil
   end
-  def log_user({:error, msg}, conn) do
-    Log.info(conn, %Log{message: "#{msg} token"}) && nil
+  def log_user({:error, msg}) do
+    Log.info(%Log{message: "#{msg} token"}) && nil
   end
-  def log_user(user, conn) do
-    Log.info(conn, %Log{user: user.id, message: "User authenticated"})
+  def log_user(user) do
+    Log.info(%Log{user: user.id, message: "User authenticated"})
     Map.drop(user, Config.drop_user_keys)
   end
 end

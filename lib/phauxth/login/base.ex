@@ -6,16 +6,17 @@ defmodule Phauxth.Login.Base do
   @doc false
   defmacro __using__(_) do
     quote do
+      import unquote(__MODULE__)
       alias Comeonin.Bcrypt
-      alias Phauxth.{Config, Log}
+      alias Phauxth.Config
 
       @doc false
-      def verify(conn, params, opts \\ [identifier: :email]) do
+      def verify(params, opts \\ [identifier: :email]) do
         user_params = to_string(opts[:identifier])
         %{^user_params => user_id, "password" => password} = params
         Config.repo.get_by(Config.user_mod, [{opts[:identifier], user_id}])
         |> check_pass(password)
-        |> log(conn, user_id, "successful login")
+        |> log(user_id, "successful login")
       end
 
       @doc false
@@ -28,19 +29,21 @@ defmodule Phauxth.Login.Base do
         {:ok, user} || {:error, "invalid password"}
       end
 
-      @doc """
-      Prints out a log message.
-      """
-      def log({:ok, user}, conn, user_id, ok_log) do
-        Log.info(conn, %Log{user: user_id, message: ok_log})
-        {:ok, Map.drop(user, Config.drop_user_keys)}
-      end
-      def log({:error, error_log}, conn, user_id, _) do
-        Log.warn(conn, %Log{user: user_id, message: error_log})
-        {:error, "Invalid credentials"}
-      end
-
-      defoverridable [verify: 3, check_pass: 2, log: 4]
+      defoverridable [verify: 2, check_pass: 2]
     end
+  end
+
+  alias Phauxth.{Config, Log}
+
+  @doc """
+  Prints out a log message.
+  """
+  def log({:ok, user}, user_id, ok_log) do
+    Log.info(%Log{user: user_id, message: ok_log})
+    {:ok, Map.drop(user, Config.drop_user_keys)}
+  end
+  def log({:error, error_log}, user_id, _) do
+    Log.warn(%Log{user: user_id, message: error_log})
+    {:error, "Invalid credentials"}
   end
 end

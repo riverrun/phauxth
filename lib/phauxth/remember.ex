@@ -13,9 +13,7 @@ defmodule Phauxth.Remember do
       * the default is four weeks
   """
 
-  @max_age 28 * 24 * 60 * 60
-
-  use Phauxth.Authenticate.Base, max_age: @max_age
+  use Phauxth.Authenticate.Base, max_age: 28 * 24 * 60 * 60
   import Plug.Conn
   alias Phoenix.Token
 
@@ -23,7 +21,7 @@ defmodule Phauxth.Remember do
     if conn.assigns[:current_user] do
       conn
     else
-      check_token(token, context || conn, max_age) |> log_user(conn) |> set_user(conn)
+      check_token(token, context || conn, max_age) |> log_user |> set_user(conn)
     end
   end
   def call(conn, _), do: conn

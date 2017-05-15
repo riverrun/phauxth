@@ -7,67 +7,66 @@ defmodule Phauxth.Confirm.Base do
   """
 
   @doc false
-  defmacro __using__(_) do
+  defmacro __using__(options) do
     quote do
       import unquote(__MODULE__)
+      import Plug.Crypto
       alias Phauxth.{Config, Log}
 
+      @ok_log unquote(options)[:ok_log] || "account confirmed"
+
       @doc false
-      def verify(conn, params, opts \\ [identifier: :email, key_validity: 60]) do
+      def verify(params, opts \\ [identifier: :email, key_validity: 60]) do
         user_params = to_string(opts[:identifier])
-        with %{^user_params => user_id, "key" => key} <- conn.query_params do
-          check_confirm(conn, {opts[:identifier], user_id,
-            key, opts[:key_validity], "account confirmed"})
+        with %{^user_params => user_id, "key" => key} <- params do
+          check_confirm({opts[:identifier], user_id,
+            key, opts[:key_validity], @ok_log})
         else
-          _ -> check_confirm(conn, nil)
+          _ -> check_confirm(nil)
         end
       end
 
       @doc """
       Function to confirm the user by checking the token.
       """
-      def check_confirm(conn, {identifier, user_id, key, key_expiry, ok_log})
+      def check_confirm({identifier, user_id, key, key_expiry, ok_log})
           when byte_size(key) == 32 do
         Config.repo.get_by(Config.user_mod, [{identifier, user_id}])
         |> check_key(key, key_expiry * 60)
-        |> log(conn, user_id, ok_log)
+        |> log(user_id, ok_log)
       end
-      def check_confirm(conn, _) do
-        Log.warn(conn, %Log{message: "invalid query string",
-          meta: [{"query", conn.query_string}]})
+      def check_confirm(_) do
+        Log.warn(%Log{message: "invalid query string"})
         {:error, "Invalid credentials"}
       end
 
       @doc """
       """
-      def log({:ok, user}, conn, user_id, ok_log) do
-        Log.info(conn, %Log{user: user_id, message: ok_log})
+      def check_key(%{confirmed_at: nil, confirmation_sent_at: sent_time,
+          confirmation_token: token} = user, key, valid_secs) do
+        check_time(sent_time, valid_secs) and secure_compare(token, key) and {:ok, user}
+      end
+      def check_key(nil, _, _), do: {:error, "invalid credentials"}
+      def check_key(_, _, _), do: {:error, "user account already confirmed"}
+
+      @doc """
+      """
+      def log({:ok, user}, user_id, ok_log) do
+        Log.info(%Log{user: user_id, message: ok_log})
         {:ok, Map.drop(user, Config.drop_user_keys)}
       end
-      def log(false, conn, user_id, _) do
-        log({:error, "invalid token"}, conn, user_id, nil)
+      def log(false, user_id, _) do
+        log({:error, "invalid token"}, user_id, nil)
         {:error, "Invalid credentials"}
       end
-      def log({:error, message}, conn, user_id, _) do
-        Log.warn(conn, %Log{user: user_id, message: message,
-          meta: [{"current_user_id", Log.current_user_id(conn.assigns)}]})
+      def log({:error, message}, user_id, _) do
+        Log.warn(%Log{user: user_id, message: message})
         {:error, "Invalid credentials"}
       end
 
-      defoverridable [verify: 4, check_confirm: 2, log: 4]
+      defoverridable [verify: 2, check_confirm: 1, check_key: 3, log: 3]
     end
   end
-
-  import Plug.Crypto
-
-  @doc """
-  """
-  def check_key(%{confirmed_at: nil, confirmation_sent_at: sent_time,
-      confirmation_token: token} = user, key, valid_secs) do
-    check_time(sent_time, valid_secs) and secure_compare(token, key) and {:ok, user}
-  end
-  def check_key(nil, _, _), do: {:error, "invalid credentials"}
-  def check_key(_, _, _), do: {:error, "user account already confirmed"}
 
   @doc """
   """
