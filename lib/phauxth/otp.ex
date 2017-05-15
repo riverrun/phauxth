@@ -42,6 +42,8 @@ defmodule Phauxth.Otp do
   alias Comeonin.Otp
   alias Phauxth.Config
 
+  @behaviour Phauxth
+
   def verify(params, opts \\ [])
   def verify(%{"id" => id, "hotp" => hotp}, opts) do
     {:ok, result} = Config.repo.transaction(fn ->

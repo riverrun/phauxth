@@ -18,23 +18,23 @@ defmodule Phauxth do
 
   ## Login
 
-    * Phauxth.Login
+    * Phauxth.Login.verify
       * login using a password
       * this uses Comeonin.Bcrypt by default, but a custom hash function can be used
-    * Phauxth.Otp
+    * Phauxth.Otp.verify
       * login using a one-time password
 
   ## Email / phone confirmation and password resetting
 
-    * Phauxth.Confirm
+    * Phauxth.Confirm.verify
       * user confirmation
-    * Phauxth.Confirm.PassReset
+    * Phauxth.Confirm.PassReset.verify
       * password resetting using email / phone confirmation
 
   ## Helper functions
 
   There are also helper functions provided to add and delete the
-  remember_me cookie, and to add a password hash to the database.
+  remember_me cookie.
 
   ## Getting started with Phauxth
 
@@ -58,5 +58,10 @@ defmodule Phauxth do
   [Phauxth wiki](https://github.com/riverrun/phauxth/wiki).
 
   """
+
+  @type opts :: map | Keyword.t
+
+  @callback verify(map, opts) ::
+    {:ok, user :: Ecto.Schema.t} | {:error, message :: String.t}
 
 end

@@ -10,6 +10,8 @@ defmodule Phauxth.Login.Base do
       alias Comeonin.Bcrypt
       alias Phauxth.Config
 
+      @behaviour Phauxth
+
       @doc false
       def verify(params, opts \\ [identifier: :email]) do
         user_params = to_string(opts[:identifier])

@@ -13,6 +13,8 @@ defmodule Phauxth.Confirm.Base do
       import Plug.Crypto
       alias Phauxth.{Config, Log}
 
+      @behaviour Phauxth
+
       @ok_log unquote(options)[:ok_log] || "account confirmed"
 
       @doc false
