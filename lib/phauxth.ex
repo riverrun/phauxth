@@ -59,9 +59,7 @@ defmodule Phauxth do
 
   """
 
-  @type opts :: map | Keyword.t
-
-  @callback verify(map, opts) ::
+  @callback verify(map, Keyword.t) ::
     {:ok, user :: Ecto.Schema.t} | {:error, message :: String.t}
 
 end

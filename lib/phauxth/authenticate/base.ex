@@ -29,17 +29,16 @@ defmodule Phauxth.Authenticate.Base do
   """
 
   @doc false
-  defmacro __using__(options) do
+  defmacro __using__(_) do
     quote do
       import unquote(__MODULE__)
 
       @behaviour Plug
-      @max_age unquote(options)[:max_age] || 7 * 24 * 60 * 60
 
       @doc false
       def init(opts) do
         {Keyword.get(opts, :context),
-        Keyword.get(opts, :max_age, @max_age)}
+        Keyword.get(opts, :max_age, 7 * 24 * 60 * 60)}
       end
 
       @doc false

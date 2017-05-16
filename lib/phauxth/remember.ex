@@ -13,9 +13,16 @@ defmodule Phauxth.Remember do
       * the default is four weeks
   """
 
-  use Phauxth.Authenticate.Base, max_age: 28 * 24 * 60 * 60
+  use Phauxth.Authenticate.Base
   import Plug.Conn
   alias Phoenix.Token
+
+  @max_age 28 * 24 * 60 * 60
+
+  def init(opts) do
+    {Keyword.get(opts, :context),
+    Keyword.get(opts, :max_age, @max_age)}
+  end
 
   def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn, {context, max_age}) do
     if conn.assigns[:current_user] do

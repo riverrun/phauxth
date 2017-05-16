@@ -18,11 +18,12 @@ defmodule Phauxth.Confirm.Base do
       @ok_log unquote(options)[:ok_log] || "account confirmed"
 
       @doc false
-      def verify(params, opts \\ [identifier: :email, key_validity: 60]) do
-        user_params = to_string(opts[:identifier])
+      def verify(params, opts \\ []) do
+        {identifier, key_validity} = {Keyword.get(opts, :identifier, :email),
+          Keyword.get(opts, :key_validity, 60)}
+        user_params = to_string(identifier)
         with %{^user_params => user_id, "key" => key} <- params do
-          check_confirm({opts[:identifier], user_id,
-            key, opts[:key_validity], @ok_log})
+          check_confirm({identifier, user_id, key, key_validity, @ok_log})
         else
           _ -> check_confirm(nil)
         end

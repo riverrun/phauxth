@@ -13,10 +13,11 @@ defmodule Phauxth.Login.Base do
       @behaviour Phauxth
 
       @doc false
-      def verify(params, opts \\ [identifier: :email]) do
-        user_params = to_string(opts[:identifier])
+      def verify(params, opts \\ []) do
+        identifier = Keyword.get(opts, :identifier, :email)
+        user_params = to_string(identifier)
         %{^user_params => user_id, "password" => password} = params
-        Config.repo.get_by(Config.user_mod, [{opts[:identifier], user_id}])
+        Config.repo.get_by(Config.user_mod, [{identifier, user_id}])
         |> check_pass(password)
         |> log(user_id, "successful login")
       end

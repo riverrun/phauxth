@@ -2,7 +2,7 @@ defmodule Phauxth.ConfirmTest do
   use Phauxth.TestCase
   use Plug.Test
 
-  alias Phauxth.{TestRepo, TestUser, UserHelper}
+  alias Phauxth.{Confirm, TestRepo, TestUser, UserHelper}
 
   @valid_link "email=fred%2B1%40mail.com&key=lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
   @invalid_link "email=wrong%40mail.com&key=lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
@@ -11,11 +11,6 @@ defmodule Phauxth.ConfirmTest do
   setup do
     UserHelper.add_confirm_user()
     :ok
-  end
-
-  def call_confirm(link, opts) do
-    %{params: params} = conn(:get, "/confirm?" <> link) |> fetch_query_params
-    Phauxth.Confirm.verify(params, opts) |> update_repo
   end
 
   def update_repo({:error, message}), do: {:error, message}
@@ -30,37 +25,43 @@ defmodule Phauxth.ConfirmTest do
   end
 
   test "confirmation succeeds for valid token" do
-    {:ok, _user} = call_confirm(@valid_link, [identifier: :email, key_validity: 60])
+    %{params: params} = conn(:get, "/confirm?" <> @valid_link) |> fetch_query_params
+    {:ok, _user} = Confirm.verify(params) |> update_repo
     assert user_confirmed()
   end
 
   test "confirmation fails for invalid token" do
-    {:error, message} = call_confirm(@invalid_link, [identifier: :email, key_validity: 60])
+    %{params: params} = conn(:get, "/confirm?" <> @invalid_link) |> fetch_query_params
+    {:error, message} = Confirm.verify(params) |> update_repo
     refute user_confirmed()
     assert message =~ "Invalid credentials"
   end
 
   test "confirmation fails for expired token" do
-    {:error, message} = call_confirm(@valid_link, [identifier: :email, key_validity: 0])
+    %{params: params} = conn(:get, "/confirm?" <> @valid_link) |> fetch_query_params
+    {:error, message} = Confirm.verify(params, key_validity: 0) |> update_repo
     refute user_confirmed()
     assert message =~ "Invalid credentials"
   end
 
   test "invalid link error" do
-    {:error, _message} = call_confirm(@incomplete_link, [identifier: :email, key_validity: 60])
+    %{params: params} = conn(:get, "/confirm?" <> @incomplete_link) |> fetch_query_params
+    {:error, _message} = Confirm.verify(params) |> update_repo
     refute user_confirmed()
   end
 
   test "confirmation fails for already confirmed account" do
-    call_confirm(@valid_link, [identifier: :email, key_validity: 60])
-    {:error, message} = call_confirm(@valid_link, [identifier: :email, key_validity: 60])
+    %{params: params} = conn(:get, "/confirm?" <> @valid_link) |> fetch_query_params
+    {:ok, _user} = Confirm.verify(params) |> update_repo
+    {:error, message} = Confirm.verify(params) |> update_repo
     assert user_confirmed()
     assert message =~ "Invalid credentials"
   end
 
   test "confirmation succeeds with custom identifier" do
     phone_link = "phone=55555555555&key=lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
-    {:ok, _user} = call_confirm(phone_link, [identifier: :phone, key_validity: 60])
+    %{params: params} = conn(:get, "/confirm?" <> phone_link) |> fetch_query_params
+    {:ok, _user} = Confirm.verify(params, identifier: :phone) |> update_repo
     assert user_confirmed()
   end
 
@@ -87,5 +88,4 @@ defmodule Phauxth.ConfirmTest do
     assert link =~ "phone=55555555555&key="
     assert :binary.match(link, [key]) == {22, 32}
   end
-
 end
