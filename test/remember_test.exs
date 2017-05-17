@@ -46,7 +46,7 @@ defmodule Phauxth.RememberTest do
       |> recycle_cookies(conn)
       |> SessionHelper.sign_conn
       |> Remember.call({Endpoint, @max_age})
-    end) =~ ~s(path=/ user=nil message="invalid token")
+    end) =~ ~s(user=nil message="invalid token")
   end
 
   test "call remember with no remember cookie" do
