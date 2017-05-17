@@ -11,7 +11,7 @@ defmodule Phauxth.Confirm.Login do
     {:error, "invalid user-identifier"}
   end
   def check_pass(%{confirmed_at: nil}, _),
-    do: {:error, "account unconfirmed", "You have to confirm your account"}
+    do: {:error, "account unconfirmed"}
   def check_pass(%{password_hash: hash} = user, password) do
     Bcrypt.checkpw(password, hash) and
     {:ok, user} || {:error, "invalid password"}

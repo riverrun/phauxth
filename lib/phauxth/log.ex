@@ -6,9 +6,8 @@ defmodule Phauxth.Log do
 
   Phauxth uses logfmt to provide a standard logging format.
 
-    15:31:08.575 [warn] path=/session/create user=ray@mail.com message=invalid password
+    15:31:08.575 [warn] user=ray@mail.com message="invalid password"
 
-    * path - the request path
     * user - the user identifier (one of email, username, nil)
     * message - error / info message
     * meta - additional metadata that does not fit into any of the other categories
@@ -35,15 +34,14 @@ defmodule Phauxth.Log do
 
   defstruct user: "nil", message: "no user", meta: []
 
-  for level <- [:info, :warn, :error] do
+  for level <- [:debug, :info, :warn, :error] do
     @doc """
     Returns the #{level} log message.
     """
-    def unquote(level)(conn, %Phauxth.Log{user: user, message: message, meta: meta}) do
+    def unquote(level)(%Phauxth.Log{user: user, message: message, meta: meta}) do
       if Config.log_level && Logger.compare_levels(unquote(level), Config.log_level) != :lt do
         Logger.log unquote(level), fn ->
-          Enum.map_join([{"path", conn.request_path}, {"user", user},
-                         {"message", message}] ++ meta, " ", &format/1)
+          Enum.map_join([{"user", user}, {"message", message}] ++ meta, " ", &format/1)
         end
       end
       :ok

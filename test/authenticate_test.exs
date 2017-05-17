@@ -79,13 +79,13 @@ defmodule Phauxth.AuthenticateTest do
   test "log reports error message for invalid token" do
     assert capture_log(fn ->
       call_api("garbage")
-    end) =~ ~s(path=/ user=nil message="invalid token")
+    end) =~ ~s(user=nil message="invalid token")
   end
 
   test "log reports error message for expired token", %{user: user} do
     assert capture_log(fn ->
       call_api(sign_token(user.id), -1000)
-    end) =~ ~s(path=/ user=nil message="expired token")
+    end) =~ ~s(user=nil message="expired token")
   end
 
   test "authenticate api with no token sets the current_user to nil" do

@@ -18,7 +18,7 @@ defmodule Phauxth.Login do
 
   There is one option:
 
-    * unique_id - the name which is used to identify the user (in the database)
+    * identifier - the name which is used to identify the user (in the database)
       * this should be an atom, and the default is `:email`
 
   """

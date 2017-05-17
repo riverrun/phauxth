@@ -14,26 +14,24 @@ defmodule Phauxth.Confirm.LoginTest do
     :ok
   end
 
-  def login(name, password) do
-    conn(:post, "/login",
-         %{"session" => %{"email" => name, "password" => password}})
-    |> Phauxth.Confirm.Login.call({:email, "email"})
+  def login(name, password, identifier \\ :email, user_params \\ "email") do
+    params = %{user_params => name, "password" => password}
+    Phauxth.Confirm.Login.verify(params, identifier: identifier)
   end
 
   test "login succeeds if account has been confirmed" do
-    conn = login("ray@mail.com", "h4rd2gU3$$")
-    %{email: email} = conn.private[:phauxth_user]
+    {:ok, %{email: email}} = login("ray@mail.com", "h4rd2gU3$$")
     assert email == "ray@mail.com"
   end
 
   test "login fails when account is not yet confirmed" do
-    conn = login("fred+1@mail.com", "h4rd2gU3$$")
-    assert conn.private[:phauxth_error] =~ "have to confirm your account"
+    {:error, message} = login("fred+1@mail.com", "h4rd2gU3$$")
+    assert message =~ "Invalid credentials"
   end
 
   test "login fails for incorrect password" do
-    conn = login("ray", "oohwhatwasitagain")
-    assert conn.private[:phauxth_error] =~ "Invalid credentials"
+    {:error, message} = login("ray", "oohwhatwasitagain")
+    assert message =~ "Invalid credentials"
   end
 
 end

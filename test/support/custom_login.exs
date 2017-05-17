@@ -21,7 +21,7 @@ defmodule Phauxth.CustomHashname do
   def check_pass(nil, _), do: {:error, "invalid user-identifier"}
   def check_pass(%{encrypted_password: hash} = user, password) do
     DummyCrypto.checkpw(password, hash) and
-    {:ok, user} || {:error, "invalid password", "Oh no you don't"}
+    {:ok, user} || {:error, "invalid password"}
   end
 
 end
