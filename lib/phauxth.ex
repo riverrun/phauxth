@@ -15,6 +15,8 @@ defmodule Phauxth do
       * set the current_user value
     * Phauxth.Remember
       * authenticates the user using a remember_me cookie
+      * There are also helper functions provided to add and delete the
+      remember_me cookie.
 
   ## Login
 
@@ -30,11 +32,6 @@ defmodule Phauxth do
       * user confirmation
     * Phauxth.Confirm.PassReset.verify
       * password resetting using email / phone confirmation
-
-  ## Helper functions
-
-  There are also helper functions provided to add and delete the
-  remember_me cookie.
 
   ## Getting started with Phauxth
 
