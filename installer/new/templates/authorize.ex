@@ -2,7 +2,7 @@ defmodule <%= base %>.Web.Authorize do
 
   import Plug.Conn
   import Phoenix.Controller<%= if not api do %>
-  import <%= base %>.Web.Router.Helpers<% end %>
+  import <%= base %>.Router.Helpers<% end %>
 
   def auth_action(%Plug.Conn{assigns: %{current_user: nil}} = conn, _) do<%= if api do %>
     error(conn, :unauthorized, 401)<% else %>
