@@ -44,7 +44,7 @@ Make sure you are using Elixir 1.4 or above.
 
     ```elixir
     defp deps do
-      [{:phauxth, "~> 0.8"}]
+      [{:phauxth, "~> 0.10"}]
     end
     ```
 

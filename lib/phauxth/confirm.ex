@@ -16,18 +16,22 @@ defmodule Phauxth.Confirm do
 
   ## Examples
 
-  Add the following command to the `web/router.ex` file:
+  Add the following line to the `web/router.ex` file:
 
       get "/new", ConfirmController, :new
 
-  Then add the following to the `confirm_controller.ex` file:
+  Then add the following to the `confirm_controller.ex` new function:
 
-      plug Phauxth.Confirm
+      def new(conn, params) do
+        case Phauxth.Confirm.verify(params) do
+          {:ok, user} -> handle_successful_confirmation
+          {:error, message} -> handle_error
+        end
+      end
 
-  Or with options:
-
-      plug Phauxth.Confirm, [key_validity: 20]
-
+  In `handle_successful_confirmation`, you still need to update the
+  database, setting the `confirmed_at` value, and send an email to
+  the user, stating that confirmation was successful.
   """
 
   use Phauxth.Confirm.Base

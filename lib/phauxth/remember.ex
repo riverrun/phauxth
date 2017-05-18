@@ -11,6 +11,16 @@ defmodule Phauxth.Remember do
       * see the documentation for Phoenix.Token for more information
     * max_age - the length of the validity of the token
       * the default is four weeks
+
+  ## Examples
+
+  Add the following line to the pipeline you want to authenticate in
+  the `web/router.ex` file:
+
+      plug Phauxth.Authenticate
+      plug Phauxth.Remember
+
+  Make sure you add the Phauxth.Remember Plug after Phauxth.Authenticate.
   """
 
   use Phauxth.Authenticate.Base

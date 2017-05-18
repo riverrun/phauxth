@@ -20,17 +20,17 @@ defmodule Phauxth do
 
   ## Login
 
-    * Phauxth.Login.verify
+    * Phauxth.Login.verify/2
       * login using a password
       * this uses Comeonin.Bcrypt by default, but a custom hash function can be used
-    * Phauxth.Otp.verify
+    * Phauxth.Otp.verify/2
       * login using a one-time password
 
   ## Email / phone confirmation and password resetting
 
-    * Phauxth.Confirm.verify
+    * Phauxth.Confirm.verify/2
       * user confirmation
-    * Phauxth.Confirm.PassReset.verify
+    * Phauxth.Confirm.PassReset.verify/2
       * password resetting using email / phone confirmation
 
   ## Getting started with Phauxth

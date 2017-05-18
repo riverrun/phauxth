@@ -39,7 +39,7 @@ defmodule Phauxth.Login.Base do
   alias Phauxth.{Config, Log}
 
   @doc """
-  Prints out a log message.
+  Prints out a log message and returns {:ok, user} or {:error, message}.
   """
   def log({:ok, user}, user_id, ok_log) do
     Log.info(%Log{user: user_id, message: ok_log})

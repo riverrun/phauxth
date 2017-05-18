@@ -3,7 +3,7 @@ defmodule Phauxth.Otp do
   Module to handle one-time passwords, usually for use in two factor
   authentication.
 
-  `Phauxth.Otp.verify/3` checks the one-time password, and returns
+  `Phauxth.Otp.verify/2` checks the one-time password, and returns
   {:ok, user} if the one-time password is correct or {:error, message}
   if there is an error.
 

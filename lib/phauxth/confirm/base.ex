@@ -44,6 +44,7 @@ defmodule Phauxth.Confirm.Base do
       end
 
       @doc """
+      Check the confirmation key.
       """
       def check_key(%{confirmed_at: nil, confirmation_sent_at: sent_time,
           confirmation_token: token} = user, key, valid_secs) do
@@ -53,6 +54,7 @@ defmodule Phauxth.Confirm.Base do
       def check_key(_, _, _), do: {:error, "user account already confirmed"}
 
       @doc """
+      Print out the log message and return {:ok, user} or {:error, message}.
       """
       def log({:ok, user}, user_id, ok_log) do
         Log.info(%Log{user: user_id, message: ok_log})
