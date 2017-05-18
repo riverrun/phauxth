@@ -4,17 +4,18 @@ defmodule <%= base %>.Web.ConfirmController do
   import <%= base %>.Web.Authorize
   alias <%= base %>.{Accounts, Message}
 
-  plug Phauxth.Confirm
-
-  def new(%Plug.Conn{private: %{phauxth_error: message}} = conn, _) do<%= if api do %>
-    error(conn, :unauthorized, 401)<% else %>
-    error(conn, message, session_path(conn, :new))<% end %>
-  end
-  def new(%Plug.Conn{private: %{phauxth_user: user}} = conn, _) do
-    Accounts.confirm_user(user)
-    message = "Your account has been confirmed"
-    Message.confirm_success(user.email)<%= if api do %>
-    render(conn, <%= base %>.Web.ConfirmView, "info.json", %{info: message})<% else %>
-    success(conn, message, session_path(conn, :new))<% end %>
+  def new(conn, params) do
+    case Phauxth.Confirm.verify(params) do
+      {:ok, user} ->
+        Accounts.confirm_user(user)
+        message = "Your account has been confirmed"
+        Message.confirm_success(user.email)<%= if api do %>
+        render(conn, <%= base %>.Web.ConfirmView, "info.json", %{info: message})
+      {:error, _message} ->
+        error(conn, :unauthorized, 401)<% else %>
+        success(conn, message, session_path(conn, :new))
+      {:error, message} ->
+        error(conn, message, session_path(conn, :new))<% end %>
+    end
   end
 end

@@ -5,9 +5,7 @@ defmodule <%= base %>.Web.PasswordResetController do
 
   action_fallback <%= base %>.Web.FallbackController<% else %>
   import <%= base %>.Web.Authorize
-  alias <%= base %>.{Accounts, Message}<% end %>
-
-  plug Phauxth.Confirm.PassReset when action in [:update]<%= if not api do %>
+  alias <%= base %>.{Accounts, Message}
 
   def new(conn, _params) do
     render(conn, "new.html")
@@ -27,36 +25,28 @@ defmodule <%= base %>.Web.PasswordResetController do
         message = "Check your inbox for instructions on how to reset your password"
         success(conn, message, user_path(conn, :index))
       {:error, _changeset} ->
-        render(conn, "new.html")<% end %>
+        render(conn, "new.html")
     end
-  end<%= if api do %>
-
-  def update(%Plug.Conn{private: %{phauxth_error: message}} = conn, _) do
-    conn
-    |> put_status(:unprocessable_entity)
-    |> render(<%= base %>.Web.PasswordResetView, "error.json", error: message)
   end
-  def update(%Plug.Conn{private: %{phauxth_user: user}} = conn, params) do
-    Accounts.update_user(user, params)
-    Message.reset_success(user.email)
-    message = "Your password has been reset"
-    render(conn, <%= base %>.Web.PasswordResetView, "info.json", %{info: message})
-  end<% else %>
 
   def edit(conn, %{"email" => email, "key" => key}) do
     render(conn, "edit.html", email: email, key: key)
-  end
-
-  def update(%Plug.Conn{private: %{phauxth_error: message}} = conn,
-   %{"password_reset" => %{"email" => email, "key" => key}}) do
-    conn
-    |> put_flash(:error, message)
-    |> render("edit.html", email: email, key: key)
-  end
-  def update(%Plug.Conn{private: %{phauxth_user: user}} = conn, params) do
-    Accounts.update_user(user, params)
-    Message.reset_success(user.email)
-    message = "Your password has been reset"
-    configure_session(conn, drop: true) |> success(message, session_path(conn, :new))
   end<% end %>
+
+  def update(conn, %{"password_reset" => params}) do
+    case Phauxth.Confirm.PassReset.verify(params) do
+      {:ok, user} ->
+        Accounts.update_user(user, params)
+        Message.reset_success(user.email)
+        message = "Your password has been reset"<%= if api do %>
+        render(conn, <%= base %>.Web.PasswordResetView, "info.json", %{info: message})<% else %>
+        configure_session(conn, drop: true) |> success(message, session_path(conn, :new))<% end %>
+      {:error, message} ->
+        conn<%= if api do %>
+        |> put_status(:unprocessable_entity)
+        |> render(<%= base %>.Web.PasswordResetView, "error.json", error: message)<% else %>
+        |> put_flash(:error, message)
+        |> render("edit.html", email: params["email"], key: params["key"])<% end %>
+    end
+  end
 end

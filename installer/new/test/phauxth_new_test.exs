@@ -17,8 +17,7 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       assert_file "lib/phauxth_new/web/templates/session/new.html.eex"
 
       assert_file "lib/phauxth_new/web/controllers/session_controller.ex", fn file ->
-        assert file =~ "plug Phauxth.Login when action in [:create]"
-        assert file =~ "put_session(conn, :user_id, id)"
+        assert file =~ "put_session(conn, :user_id, user.id)"
       end
 
       assert_file "lib/phauxth_new/web/views/user_view.ex", fn file ->
@@ -70,7 +69,6 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       assert_file "lib/phauxth_new/web/controllers/authorize.ex"
 
       assert_file "lib/phauxth_new/web/controllers/session_controller.ex", fn file ->
-        assert file =~ "plug Phauxth.Login when action in [:create]"
         assert file =~ ~s(PhauxthNew.Web.SessionView, "info.json", %{info: token})
       end
 
