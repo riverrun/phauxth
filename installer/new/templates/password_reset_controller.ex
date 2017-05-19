@@ -18,7 +18,9 @@ defmodule <%= base %>.Web.PasswordResetController do
       message = "Check your inbox for instructions on how to reset your password"
       conn
       |> put_status(:created)
-      |> render(<%= base %>.Web.PasswordResetView, "info.json", %{info: message})<% else %>
+      |> render(<%= base %>.Web.PasswordResetView, "info.json", %{info: message})
+    end
+  end<% else %>
     case Accounts.add_reset_token(user_params, key) do
       {:ok, _user} ->
         Message.reset_request(email, key)
