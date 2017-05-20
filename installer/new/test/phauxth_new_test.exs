@@ -16,6 +16,11 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       assert_file "lib/phauxth_new/web/controllers/authorize.ex"
       assert_file "lib/phauxth_new/web/templates/session/new.html.eex"
 
+      assert_file "lib/phauxth_new/web/router.ex", fn file ->
+        assert file =~ ~s(plug Phauxth.Authenticate)
+        assert file =~ ~s(resources "/sessions", SessionController, only: [:new, :create, :delete])
+      end
+
       assert_file "lib/phauxth_new/web/controllers/session_controller.ex", fn file ->
         assert file =~ "put_session(conn, :user_id, user.id)"
       end
@@ -26,9 +31,9 @@ defmodule Mix.Tasks.Phauxth.NewTest do
 
       assert_received {:mix_shell, :info, ["\nWe are almost ready!" <> _ = message]}
       assert message =~ ~s(You need to first edit the `mix.exs` file)
-      assert message =~ ~s({:phauxth, "~> 0.9"})
+      assert message =~ ~s({:phauxth, "~> 0.10"})
       assert message =~ ~s(And to start the server)
-      refute message =~ ~s(will need to create a module that contacts the user, by email)
+      refute message =~ ~s(You will need to edit the Message module)
     end
   end
 
@@ -38,6 +43,11 @@ defmodule Mix.Tasks.Phauxth.NewTest do
 
       assert_file "lib/phauxth_new/web/controllers/confirm_controller.ex"
       assert_file "test/web/controllers/confirm_controller_test.exs"
+
+      assert_file "lib/phauxth_new/web/router.ex", fn file ->
+        assert file =~ ~s(plug Phauxth.Authenticate)
+        assert file =~ ~s(resources "/password_resets", PasswordResetController, only: [:new, :create])
+      end
 
       assert_file "test/support/auth_case.ex", fn file ->
         assert file =~ "import Ecto.Changeset"
@@ -56,7 +66,6 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       end
 
       assert_received {:mix_shell, :info, ["\nWe are almost ready!" <> _ = message]}
-      assert message =~ ~s(resources "/password_resets", PasswordResetController, only: [:new, :create])
       assert message =~ ~s(will need to edit the Message module)
     end
   end
@@ -68,6 +77,11 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       assert_file "lib/phauxth_new/web/views/auth_view.ex"
       assert_file "lib/phauxth_new/web/controllers/authorize.ex"
 
+      assert_file "lib/phauxth_new/web/router.ex", fn file ->
+        assert file =~ ~s(plug Phauxth.Authenticate, context: PhauxthNew.Web.Endpoint)
+        assert file =~ ~s(post "/sessions/create", SessionController, :create)
+      end
+
       assert_file "lib/phauxth_new/web/controllers/session_controller.ex", fn file ->
         assert file =~ ~s(PhauxthNew.Web.SessionView, "info.json", %{info: token})
       end
@@ -75,10 +89,6 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       assert_file "lib/phauxth_new/web/views/user_view.ex", fn file ->
         assert file =~ ~s(%{data: render_one(user, UserView, "user.json"\)})
       end
-
-      assert_received {:mix_shell, :info, ["\nWe are almost ready!" <> _ = message]}
-      assert message =~ ~s(plug Phauxth.Authenticate, context: PhauxthNew.Web.Endpoint)
-      assert message =~ ~s(post "/sessions/create", SessionController, :create)
     end
   end
 
@@ -89,6 +99,11 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       assert_file "lib/phauxth_new/web/controllers/confirm_controller.ex"
       assert_file "lib/phauxth_new/web/views/confirm_view.ex"
 
+      assert_file "lib/phauxth_new/web/router.ex", fn file ->
+        assert file =~ ~s(plug Phauxth.Authenticate, context: PhauxthNew.Web.Endpoint)
+        assert file =~ ~s(post "/password_resets/create", PasswordResetController, :create)
+      end
+
       assert_file "lib/phauxth_new/web/views/auth_view.ex"
       assert_file "lib/phauxth_new/web/controllers/password_reset_controller.ex"
 
@@ -97,8 +112,6 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       end
 
       assert_received {:mix_shell, :info, ["\nWe are almost ready!" <> _ = message]}
-      assert message =~ ~s(plug Phauxth.Authenticate, context: PhauxthNew.Web.Endpoint)
-      assert message =~ ~s(post "/password_resets/create", PasswordResetController, :create)
       assert message =~ ~s(will need to edit the Message module)
     end
   end

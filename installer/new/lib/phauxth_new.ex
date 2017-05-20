@@ -36,6 +36,7 @@ defmodule Mix.Tasks.Phauxth.New do
     {:eex, "user.ex", "accounts/user.ex"},
     {:eex, "accounts.ex", "accounts/accounts.ex"},
     {:eex, "accounts_test.exs", "test/accounts_test.exs"},
+    {:eex, "router.ex", "web/router.ex"},
     {:eex, "authorize.ex", "web/controllers/authorize.ex"},
     {:eex, "session_controller.ex", "web/controllers/session_controller.ex"},
     {:eex, "session_controller_test.exs", "test/web/controllers/session_controller_test.exs"},
@@ -96,12 +97,10 @@ defmodule Mix.Tasks.Phauxth.New do
 
     We are almost ready!
 
-    You need to first edit the `mix.exs` file, adding `{:phauxth, "~> 0.9"},`
+    You need to first edit the `mix.exs` file, adding `{:phauxth, "~> 0.10"},`
     to the deps. Then, run `mix deps.get`.
 
-    Now edit the `lib/#{base_name()}/web/router.ex` file.
-
-    #{router_message(api)}#{confirm_message(confirm, api)}
+    #{confirm_message(confirm)}
 
     To run the tests:
 
@@ -154,58 +153,15 @@ defmodule Mix.Tasks.Phauxth.New do
     Mix.Project.config |> Keyword.fetch!(:app) |> to_string
   end
 
-  defp router_message(true) do
+  defp confirm_message(true) do
     """
-    Add the following line to the :api pipeline:
-
-        plug Phauxth.Authenticate, context: #{base_module()}.Web.Endpoint
-
-    Then add the following lines to the routes:
-
-        post "/sessions/create", SessionController, :create
-        resources "/users", UserController, except: [:new, :edit]
-    """
-  end
-  defp router_message(_) do
-    """
-    Add the following line to the :browser pipeline (below
-    `plug :put_secure_browser_headers`):
-
-        plug Phauxth.Authenticate
-
-    Then add the following lines to the routes (below `get "/", PageController, :index`):
-
-        resources "/users", UserController
-        resources "/sessions", SessionController, only: [:new, :create, :delete]
-    """
-  end
-
-  defp confirm_message(true, api) do
-    """
-    #{confirm_routes(api)}
 
     You will need to edit the Message module, which is in the web directory.
     Add the email / phone library of your choice to this module and edit the
     functions so that they send messages to the user.
     """
   end
-  defp confirm_message(_, _), do: ""
-
-  defp confirm_routes(true) do
-    """
-        get "/confirm/new", ConfirmController, :new
-        post "/password_resets/create", PasswordResetController, :create
-        put "/password_resets/update", PasswordResetController, :update
-    """
-  end
-  defp confirm_routes(_) do
-    """
-        get "/confirm/new", ConfirmController, :new
-        resources "/password_resets", PasswordResetController, only: [:new, :create]
-        get "/password_resets/edit", PasswordResetController, :edit
-        put "/password_resets/update", PasswordResetController, :update
-    """
-  end
+  defp confirm_message(_), do: ""
 
   defp timestamp do
     {{y, m, d}, {hh, mm, ss}} = :calendar.universal_time()
