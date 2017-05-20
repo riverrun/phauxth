@@ -5,3 +5,4 @@ tmp
 /doc
 /.fetch
 erl_crash.dump
+phx_integration_test.log
