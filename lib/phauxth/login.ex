@@ -11,7 +11,7 @@ defmodule Phauxth.Login do
   an API token to the user.
 
   If you are using two-factor authentication, you need to first check
-  the user model for `otp_required: true` and, if necessary, redirect
+  the user schema for `otp_required: true` and, if necessary, redirect
   the user to the one-time password input page.
 
   ## Options

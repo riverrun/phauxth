@@ -6,7 +6,7 @@ defmodule Phauxth.Confirm.PassReset do
 
   There are two options:
 
-    * identifier - how user is identified in the confirmation request
+    * identifier - how the user is identified in the confirmation request
       * this should be an atom, and the default is :email
     * key_validity - the length, in minutes, that the token is valid for
       * the default is 60 minutes (1 hour)

@@ -68,8 +68,8 @@ defmodule Phauxth.Otp do
     {user, Otp.check_totp(totp, user.otp_secret, opts)}
   end
 
-  def get_user_with_lock(user_model, id) do
-    from(u in user_model, where: u.id == ^id, lock: "FOR UPDATE")
+  def get_user_with_lock(user_schema, id) do
+    from(u in user_schema, where: u.id == ^id, lock: "FOR UPDATE")
     |> Config.repo.one!
   end
 

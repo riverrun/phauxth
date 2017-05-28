@@ -26,6 +26,14 @@ defmodule Phauxth.Authenticate.Base do
           put_private(conn, :absinthe, %{context: %{current_user: user}})
         end
       end
+
+  And in the `router.ex` file, call this plug in the pipeline you
+  want to authenticate (setting the context to the app's endpoint).
+
+      plug :api do
+        plug AbsintheAuthenticate, context: MyApp.Web.Endpoint
+      end
+
   """
 
   @doc false

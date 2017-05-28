@@ -37,7 +37,7 @@ defmodule Phauxth.Config do
   end
 
   @doc """
-  The user model module.
+  The user schema module.
   """
   def user_mod do
     Application.get_env(:phauxth, :user_mod)
