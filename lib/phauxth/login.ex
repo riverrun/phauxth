@@ -21,6 +21,18 @@ defmodule Phauxth.Login do
     * identifier - the name which is used to identify the user (in the database)
       * this should be an atom, and the default is `:email`
 
+  ## Examples
+
+  In the example below, Phauxth.Login.verify is called within the create
+  function in the session controller.
+
+      def create(conn, %{"session" => params}) do
+        case Phauxth.Login.verify(params) do
+          {:ok, user} -> handle_successful_login
+          {:error, message} -> handle_error
+        end
+      end
+
   """
 
   use Phauxth.Login.Base

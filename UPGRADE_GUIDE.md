@@ -4,7 +4,7 @@
 
 ### Config
 
-The default repo and user model (user_mod) need to be set in the config.
+The default repo and user schema (user_mod) need to be set in the config.
 
 Add the following to the config/config.exs file:
 
@@ -63,9 +63,7 @@ Openmaize.ResetPassword is now Phauxth.Confirm.PassReset.verify.
 There is now an option to change the user-identifier -- to phone, for example, from email.
 
 With Openmaize, the database was updated and an email sent to the user within
-the Plug.
-
-With Phauxth, the two functions to update the database and send the email are
+the Plug. With Phauxth, the two functions to update the database and send the email are
 moved outside, and so developers need to call these functions themselves
 in the confirm_controller, or password_reset_controller. You can see
 examples of this in the installer.

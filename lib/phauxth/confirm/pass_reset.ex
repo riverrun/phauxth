@@ -24,18 +24,27 @@ defmodule Phauxth.Confirm.PassReset do
       post "/password_resets/create", PasswordResetController, :create
       put "/password_resets/update", PasswordResetController, :update
 
-  Then add the following to the `password_reset_controller.ex` update function:
+  Then add the following to the `password_reset_controller.ex` update function
+  (this example is for a html app):
 
       def update(conn, %{"password_reset" => params}) do
-        case Phauxth.Confirm.PassReset.verify(params) do
-          {:ok, user} -> handle_successful_password_reset
-          {:error, message} -> handle_error
+        case Phauxth.Confirm.PassReset.verify(params, key_validity: 20) do
+          {:ok, user} ->
+            Accounts.update_user(user, params)
+            Message.reset_success(user.email)
+            message = "Your password has been reset"
+            configure_session(conn, drop: true)
+            |> handle_success(message, session_path(conn, :new))
+          {:error, message} ->
+            conn
+            |> put_flash(:error, message)
+            |> render("edit.html", email: params["email"], key: params["key"])
         end
       end
 
-  In `handle_successful_password_reset`, you still need to update the
-  database, setting the new value for the password hash, and send an
-  email to the user, stating that the password reset was successful.
+  In this example, the `Accounts.update_user` function updates the
+  database, setting the `password_hash` value to the hash for the
+  new password and the `reset_token` and `reset_sent_at` values to nil.
   """
 
   use Phauxth.Confirm.Base, ok_log: "password reset"

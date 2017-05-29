@@ -24,14 +24,18 @@ defmodule Phauxth.Confirm do
 
       def new(conn, params) do
         case Phauxth.Confirm.verify(params) do
-          {:ok, user} -> handle_successful_confirmation
-          {:error, message} -> handle_error
+          {:ok, user} ->
+            Accounts.confirm_user(user)
+            message = "Your account has been confirmed"
+            Message.confirm_success(user.email)
+            handle_success(conn, message, session_path(conn, :new))
+          {:error, message} ->
+            handle_error(conn, message, session_path(conn, :new))
         end
       end
 
-  In `handle_successful_confirmation`, you still need to update the
-  database, setting the `confirmed_at` value, and send an email to
-  the user, stating that confirmation was successful.
+  In this example, the `Accounts.confirm_user` function updates the
+  database, setting the `confirmed_at` value to the current time.
   """
 
   use Phauxth.Confirm.Base

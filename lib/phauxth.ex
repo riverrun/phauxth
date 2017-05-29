@@ -58,43 +58,8 @@ defmodule Phauxth do
 
   ### User confirmation
 
-  Phauxth.Confirm.verify is used for user confirmation, using email or phone.
-
-  In the following example, the verify function is called within the
-  new function in the confirm controller.
-
-      def new(conn, params) do
-        case Phauxth.Confirm.verify(params) do
-          {:ok, user} ->
-            Accounts.confirm_user(user)
-            message = "Your account has been confirmed"
-            Message.confirm_success(user.email)
-            handle_success(conn, message, session_path(conn, :new))
-          {:error, message} ->
-            handle_error(conn, message, session_path(conn, :new))
-        end
-      end
-
-  Phauxth.Confirm.PassReset.verify is used for password resetting.
-
-  In the following example, the verify function is called within the update
-  function in the password reset controller, and the key validity is set
-  to 20 minutes (the default is 60 minutes).
-
-      def update(conn, %{"password_reset" => params}) do
-        case Phauxth.Confirm.PassReset.verify(params, key_validity: 20) do
-          {:ok, user} ->
-            Accounts.update_user(user, params)
-            Message.reset_success(user.email)
-            message = "Your password has been reset"
-            configure_session(conn, drop: true)
-            |> handle_success(message, session_path(conn, :new))
-          {:error, message} ->
-            conn
-            |> put_flash(:error, message)
-            |> render("edit.html", email: params["email"], key: params["key"])
-        end
-      end
+  Phauxth.Confirm.verify is used for user confirmation, using email or phone,
+  and Phauxth.Confirm.PassReset.verify is used for password resetting.
 
   ## Phauxth with a new Phoenix project
 

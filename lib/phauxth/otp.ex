@@ -3,15 +3,7 @@ defmodule Phauxth.Otp do
   Module to handle one-time passwords, usually for use in two factor
   authentication.
 
-  `Phauxth.Otp.verify/2` checks the one-time password, and returns
-  {:ok, user} if the one-time password is correct or {:error, message}
-  if there is an error.
-
-  After this function has been called, you need to either add the user
-  to the session, by running `put_session(conn, :user_id, id)`, or send
-  an API token to the user.
-
-  ## Options
+  ## One-time password options
 
   There are the following options for the one-time passwords:
 
@@ -32,9 +24,6 @@ defmodule Phauxth.Otp do
 
   See the documentation for the Comeonin.Otp module for more details
   about generating and verifying one-time passwords.
-
-  ## Examples
-
   """
 
   import Ecto.{Changeset, Query}
@@ -44,6 +33,31 @@ defmodule Phauxth.Otp do
 
   @behaviour Phauxth
 
+  @doc """
+  Check the one-time password, and return {:ok, user} if the one-time
+  password is correct or {:error, message} if there is an error.
+
+  After this function has been called, you need to either add the user
+  to the session, by running `put_session(conn, :user_id, id)`, or send
+  an API token to the user.
+
+  See the `One-time password options` in this module's documentation
+  for available options to be used as the second argument to this
+  function.
+
+  ## Examples
+
+  In the example below, Phauxth.Otp.verify is called within the create
+  function in the controller.
+
+      def create(conn, %{"otp_session" => params}) do
+        case Phauxth.Otp.verify(params) do
+          {:ok, user} -> handle_successful_otp_login
+          {:error, message} -> handle_error
+        end
+      end
+
+  """
   def verify(params, opts \\ [])
   def verify(%{"id" => id, "hotp" => hotp}, opts) do
     {:ok, result} = Config.repo.transaction(fn ->
@@ -60,22 +74,22 @@ defmodule Phauxth.Otp do
     |> log(id, "successful one-time password login")
   end
 
-  def check_hotp(user, hotp, opts) do
+  defp check_hotp(user, hotp, opts) do
     {user, Otp.check_hotp(hotp, user.otp_secret, [last: user.otp_last] ++ opts)}
   end
 
-  def check_totp(user, totp, opts) do
+  defp check_totp(user, totp, opts) do
     {user, Otp.check_totp(totp, user.otp_secret, opts)}
   end
 
-  def get_user_with_lock(user_schema, id) do
+  defp get_user_with_lock(user_schema, id) do
     from(u in user_schema, where: u.id == ^id, lock: "FOR UPDATE")
     |> Config.repo.one!
   end
 
-  def update_otp({_, false}), do: {:error, "invalid one-time password"}
-  def update_otp({%{otp_last: otp_last} = user, last}) when last > otp_last do
+  defp update_otp({_, false}), do: {:error, "invalid one-time password"}
+  defp update_otp({%{otp_last: otp_last} = user, last}) when last > otp_last do
     change(user, %{otp_last: last}) |> Config.repo.update
   end
-  def update_otp(_), do: {:error, "invalid user-identifier"}
+  defp update_otp(_), do: {:error, "invalid user-identifier"}
 end
