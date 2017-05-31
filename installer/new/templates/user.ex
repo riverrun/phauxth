@@ -1,7 +1,7 @@
 defmodule <%= base %>.Accounts.User do
   use Ecto.Schema
 
-  schema "accounts_users" do
+  schema "users" do
     field :email, :string
     field :password, :string, virtual: true
     field :password_hash, :string<%= if confirm do %>

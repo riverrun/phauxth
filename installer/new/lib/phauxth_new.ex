@@ -32,8 +32,8 @@ defmodule Mix.Tasks.Phauxth.New do
   """
 
   @phx_base [{:eex, "auth_case.ex", "test/support/auth_case.ex"},
-    {:eex, "create_accounts_user.exs", "priv/repo/migrations/timestamp_create_accounts_user.exs"},
     {:eex, "user.ex", "accounts/user.ex"},
+    {:eex, "user_migration.exs", "priv/repo/migrations/timestamp_create_users.exs"},
     {:eex, "accounts.ex", "accounts/accounts.ex"},
     {:eex, "accounts_test.exs", "test/accounts_test.exs"},
     {:eex, "router.ex", "web/router.ex"},
