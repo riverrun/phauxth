@@ -9,6 +9,7 @@ defmodule Phauxth.Confirm.Base do
   @doc false
   defmacro __using__(options) do
     quote do
+      import Phauxth.Utils
       import unquote(__MODULE__)
       import Plug.Crypto
       alias Phauxth.{Config, Log}
@@ -21,24 +22,26 @@ defmodule Phauxth.Confirm.Base do
       def verify(params, opts \\ []) do
         {identifier, key_validity} = {Keyword.get(opts, :identifier, :email),
           Keyword.get(opts, :key_validity, 60)}
+        database = {Keyword.get(opts, :repo, default_repo()),
+          Keyword.get(opts, :user_schema, default_user_schema())}
         user_params = to_string(identifier)
         with %{^user_params => user_id, "key" => key} <- params do
-          check_confirm({identifier, user_id, key, key_validity, @ok_log})
+          check_confirm({identifier, user_id, key, key_validity, @ok_log}, database)
         else
-          _ -> check_confirm(nil)
+          _ -> check_confirm(nil, database)
         end
       end
 
       @doc """
       Function to confirm the user by checking the token.
       """
-      def check_confirm({identifier, user_id, key, key_expiry, ok_log})
+      def check_confirm({identifier, user_id, key, key_expiry, ok_log}, {repo, user_schema})
           when byte_size(key) == 32 do
-        Config.repo.get_by(Config.user_mod, [{identifier, user_id}])
+        repo.get_by(user_schema, [{identifier, user_id}])
         |> check_key(key, key_expiry * 60)
         |> log(user_id, ok_log)
       end
-      def check_confirm(_) do
+      def check_confirm(_, _) do
         Log.warn(%Log{message: "invalid query string"})
         {:error, "Invalid credentials"}
       end
@@ -69,7 +72,7 @@ defmodule Phauxth.Confirm.Base do
         {:error, "Invalid credentials"}
       end
 
-      defoverridable [verify: 2, check_confirm: 1, check_key: 3, log: 3]
+      defoverridable [verify: 2, check_confirm: 2, check_key: 3, log: 3]
     end
   end
 

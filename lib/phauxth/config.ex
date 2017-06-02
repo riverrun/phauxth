@@ -7,14 +7,8 @@ defmodule Phauxth.Config do
 
   | name               | type          | default          |
   | :----------------- | :-----------  | ---------------: |
-  | repo               | module        | N/A              |
-  | user_mod           | module        | N/A              |
   | log_level          | atom          | :info            |
   | drop_user_keys     | list of atoms | []               |
-
-  ## Required values
-
-  The `repo` and `user_mod` values have to be set to use Phauxth.
 
   ## Examples
 
@@ -23,25 +17,9 @@ defmodule Phauxth.Config do
   like the following example.
 
       config :phauxth,
-        repo: MyApp.Repo,
-        user_mod: MyApp.Accounts.User,
         drop_user_keys: [:shoe_size]
 
   """
-
-  @doc """
-  The repository module.
-  """
-  def repo do
-    Application.get_env(:phauxth, :repo)
-  end
-
-  @doc """
-  The user schema module.
-  """
-  def user_mod do
-    Application.get_env(:phauxth, :user_mod)
-  end
 
   @doc """
   The log level for Phauxth logs.

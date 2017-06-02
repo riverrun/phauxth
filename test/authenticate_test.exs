@@ -4,9 +4,10 @@ defmodule Phauxth.AuthenticateTest do
   import ExUnit.CaptureLog
 
   alias Phoenix.Token
-  alias Phauxth.{Authenticate, SessionHelper, UserHelper}
+  alias Phauxth.{Authenticate, SessionHelper, UserHelper, TestRepo, TestUser}
 
   @max_age 24 * 60 * 60
+  @db {TestRepo, TestUser}
 
   defmodule TokenEndpoint do
     def config(:secret_key_base), do: "abc123"
@@ -30,13 +31,13 @@ defmodule Phauxth.AuthenticateTest do
     conn(:get, "/")
     |> SessionHelper.sign_conn
     |> put_session(:user_id, id)
-    |> Authenticate.call({nil, @max_age})
+    |> Authenticate.call({nil, @max_age, @db})
   end
 
   def call_api(token, max_age \\ @max_age) do
     conn(:get, "/")
     |> put_req_header("authorization", token)
-    |> Authenticate.call({TokenEndpoint, max_age})
+    |> Authenticate.call({TokenEndpoint, max_age, @db})
   end
 
   def sign_token(id) do
@@ -103,7 +104,7 @@ defmodule Phauxth.AuthenticateTest do
   test "customized set_user", %{user: user} do
     conn = conn(:get, "/")
            |> put_req_header("authorization", sign_token(user.id))
-           |> AbsintheAuthenticate.call({TokenEndpoint, @max_age})
+           |> AbsintheAuthenticate.call({TokenEndpoint, @max_age, @db})
     %{context: %{current_user: user}} = conn.private.absinthe
     assert user.email == "fred+1@mail.com"
     assert user.role == "user"

@@ -39,6 +39,7 @@ defmodule Phauxth.Authenticate.Base do
   @doc false
   defmacro __using__(_) do
     quote do
+      import Phauxth.Utils
       import unquote(__MODULE__)
 
       @behaviour Plug
@@ -46,15 +47,17 @@ defmodule Phauxth.Authenticate.Base do
       @doc false
       def init(opts) do
         {Keyword.get(opts, :context),
-        Keyword.get(opts, :max_age, 7 * 24 * 60 * 60)}
+        Keyword.get(opts, :max_age, 7 * 24 * 60 * 60),
+        {Keyword.get(opts, :repo, default_repo()),
+        Keyword.get(opts, :user_schema, default_user_schema())}}
       end
 
       @doc false
-      def call(conn, {nil, _}) do
-        check_session(conn) |> log_user |> set_user(conn)
+      def call(conn, {nil, _, database}) do
+        check_session(conn, database) |> log_user |> set_user(conn)
       end
-      def call(%Plug.Conn{req_headers: headers} = conn, {context, max_age}) do
-        check_headers(headers, context, max_age) |> log_user |> set_user(conn)
+      def call(%Plug.Conn{req_headers: headers} = conn, opts) do
+        check_headers(headers, opts) |> log_user |> set_user(conn)
       end
 
       @doc """
@@ -78,9 +81,9 @@ defmodule Phauxth.Authenticate.Base do
 
   This function also calls the database to get user information.
   """
-  def check_session(conn) do
+  def check_session(conn, {repo, user_schema}) do
     with id when not is_nil(id) <- get_session(conn, :user_id),
-        do: Config.repo.get(Config.user_mod, id)
+        do: repo.get(user_schema, id)
   end
 
   @doc """
@@ -88,9 +91,9 @@ defmodule Phauxth.Authenticate.Base do
 
   This function also calls the database to get user information.
   """
-  def check_headers(headers, context, max_age) do
+  def check_headers(headers, opts) do
     with {_, token} <- List.keyfind(headers, "authorization", 0),
-        do: check_token(token, context, max_age)
+        do: check_token(token, opts)
   end
 
   @doc """
@@ -98,9 +101,9 @@ defmodule Phauxth.Authenticate.Base do
 
   This function also calls the database to get user information.
   """
-  def check_token(token, context, max_age) do
+  def check_token(token, {context, max_age, {repo, user_schema}}) do
     with {:ok, user_id} <- Token.verify(context, "user auth", token, max_age: max_age),
-        do: Config.repo.get(Config.user_mod, user_id)
+        do: repo.get(user_schema, user_id)
   end
 
   @doc """

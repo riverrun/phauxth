@@ -91,7 +91,6 @@ defmodule Mix.Tasks.Phauxth.New do
     end
 
     copy_files(files, base: base_module(), api: api, confirm: confirm)
-    update_config()
 
     Mix.shell.info """
 
@@ -133,16 +132,6 @@ defmodule Mix.Tasks.Phauxth.New do
       end
       create_file target, contents
     end
-  end
-
-  defp update_config do
-    entry = "config :phauxth,\n  repo: <%= base %>.Repo,\n  user_mod: <%= base %>.Accounts.User"
-            |> EEx.eval_string(base: base_module())
-    {:ok, conf} = File.read("config/config.exs")
-    new_conf = String.split(conf, "\n\n")
-      |> List.insert_at(-3, entry)
-      |> Enum.join("\n\n")
-    File.write("config/config.exs", new_conf)
   end
 
   defp base_module do
