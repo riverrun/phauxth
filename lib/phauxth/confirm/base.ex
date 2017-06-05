@@ -18,12 +18,16 @@ defmodule Phauxth.Confirm.Base do
 
       @ok_log unquote(options)[:ok_log] || "account confirmed"
 
+      def init(opts) do
+        {Keyword.get(opts, :identifier, :email),
+        Keyword.get(opts, :key_validity, 60),
+        {Keyword.get(opts, :repo, default_repo()),
+        Keyword.get(opts, :user_schema, default_user_schema())}}
+      end
+
       @doc false
       def verify(params, opts \\ []) do
-        {identifier, key_validity} = {Keyword.get(opts, :identifier, :email),
-          Keyword.get(opts, :key_validity, 60)}
-        database = {Keyword.get(opts, :repo, default_repo()),
-          Keyword.get(opts, :user_schema, default_user_schema())}
+        {identifier, key_validity, database} = init(opts)
         user_params = to_string(identifier)
         with %{^user_params => user_id, "key" => key} <- params do
           check_confirm({identifier, user_id, key, key_validity, @ok_log}, database)
@@ -72,7 +76,7 @@ defmodule Phauxth.Confirm.Base do
         {:error, "Invalid credentials"}
       end
 
-      defoverridable [verify: 2, check_confirm: 2, check_key: 3, log: 3]
+      defoverridable [init: 1, verify: 2, check_confirm: 2, check_key: 3, log: 3]
     end
   end
 
