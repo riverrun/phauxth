@@ -28,10 +28,15 @@ defmodule Phauxth.Otp do
 
   import Ecto.{Changeset, Query}
   import Phauxth.Login.Base
+  import Phauxth.Utils
   alias Comeonin.Otp
-  alias Phauxth.Config
 
   @behaviour Phauxth
+
+  def init(opts) do
+    {Keyword.get(opts, :repo, default_repo()),
+    Keyword.get(opts, :user_schema, default_user_schema())}
+  end
 
   @doc """
   Check the one-time password, and return {:ok, user} if the one-time
@@ -60,17 +65,19 @@ defmodule Phauxth.Otp do
   """
   def verify(params, opts \\ [])
   def verify(%{"id" => id, "hotp" => hotp}, opts) do
-    {:ok, result} = Config.repo.transaction(fn ->
-      get_user_with_lock(Config.user_mod, id)
+    {repo, user_schema} = init(opts)
+    {:ok, result} = repo.transaction(fn ->
+      get_user_with_lock(repo, user_schema, id)
       |> check_hotp(hotp, opts)
-      |> update_otp
+      |> update_otp(repo)
     end)
     log(result, id, "successful one-time password login")
   end
   def verify(%{"id" => id, "totp" => totp}, opts) do
-    Config.repo.get(Config.user_mod, id)
+    {repo, user_schema} = {Keyword.get(opts, :repo), Keyword.get(opts, :user_schema)}
+    repo.get(user_schema, id)
     |> check_totp(totp, opts)
-    |> update_otp
+    |> update_otp(repo)
     |> log(id, "successful one-time password login")
   end
 
@@ -82,14 +89,14 @@ defmodule Phauxth.Otp do
     {user, Otp.check_totp(totp, user.otp_secret, opts)}
   end
 
-  defp get_user_with_lock(user_schema, id) do
+  defp get_user_with_lock(repo, user_schema, id) do
     from(u in user_schema, where: u.id == ^id, lock: "FOR UPDATE")
-    |> Config.repo.one!
+    |> repo.one!
   end
 
-  defp update_otp({_, false}), do: {:error, "invalid one-time password"}
-  defp update_otp({%{otp_last: otp_last} = user, last}) when last > otp_last do
-    change(user, %{otp_last: last}) |> Config.repo.update
+  defp update_otp({_, false}, _), do: {:error, "invalid one-time password"}
+  defp update_otp({%{otp_last: otp_last} = user, last}, repo) when last > otp_last do
+    change(user, %{otp_last: last}) |> repo.update
   end
-  defp update_otp(_), do: {:error, "invalid user-identifier"}
+  defp update_otp(_, _), do: {:error, "invalid user-identifier"}
 end

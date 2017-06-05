@@ -6,18 +6,24 @@ defmodule Phauxth.Login.Base do
   @doc false
   defmacro __using__(_) do
     quote do
+      import Phauxth.Utils
       import unquote(__MODULE__)
       alias Comeonin.Bcrypt
-      alias Phauxth.Config
 
       @behaviour Phauxth
 
+      def init(opts) do
+        {Keyword.get(opts, :identifier, :email),
+        {Keyword.get(opts, :repo, default_repo()),
+        Keyword.get(opts, :user_schema, default_user_schema())}}
+      end
+
       @doc false
       def verify(params, opts \\ []) do
-        identifier = Keyword.get(opts, :identifier, :email)
+        {identifier, {repo, user_schema}} = init(opts)
         user_params = to_string(identifier)
         %{^user_params => user_id, "password" => password} = params
-        Config.repo.get_by(Config.user_mod, [{identifier, user_id}])
+        repo.get_by(user_schema, [{identifier, user_id}])
         |> check_pass(password)
         |> log(user_id, "successful login")
       end
@@ -32,7 +38,7 @@ defmodule Phauxth.Login.Base do
         {:ok, user} || {:error, "invalid password"}
       end
 
-      defoverridable [verify: 2, check_pass: 2]
+      defoverridable [init: 1, verify: 2, check_pass: 2]
     end
   end
 

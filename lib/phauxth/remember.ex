@@ -24,6 +24,7 @@ defmodule Phauxth.Remember do
   """
 
   use Phauxth.Authenticate.Base
+  import Phauxth.Utils
   import Plug.Conn
   alias Phoenix.Token
 
@@ -31,14 +32,18 @@ defmodule Phauxth.Remember do
 
   def init(opts) do
     {Keyword.get(opts, :context),
-    Keyword.get(opts, :max_age, @max_age)}
+    Keyword.get(opts, :max_age, @max_age),
+    {Keyword.get(opts, :repo, default_repo()),
+    Keyword.get(opts, :user_schema, default_user_schema())}}
   end
 
-  def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn, {context, max_age}) do
+  def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn,
+           {context, max_age, database}) do
     if conn.assigns[:current_user] do
       conn
     else
-      check_token(token, context || conn, max_age) |> log_user |> set_user(conn)
+      check_token(token, {context || conn, max_age, database})
+      |> log_user |> set_user(conn)
     end
   end
   def call(conn, _), do: conn

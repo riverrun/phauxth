@@ -15,7 +15,7 @@ defmodule Phauxth.OtpTest do
   end
 
   def login(params, opts) do
-    Phauxth.Otp.verify(params, opts)
+    Phauxth.Otp.verify(params, opts ++ [repo: TestRepo, user_schema: TestUser])
   end
 
   def update_repo(user_id, otp_last) do

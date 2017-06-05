@@ -6,6 +6,3 @@ Code.require_file "support/dummy_crypto.exs", __DIR__
 Code.require_file "support/ecto_helper.exs", __DIR__
 Code.require_file "support/session_helper.exs", __DIR__
 Code.require_file "support/user_helper.exs", __DIR__
-
-Application.put_env(:phauxth, :repo, Phauxth.TestRepo)
-Application.put_env(:phauxth, :user_mod, Phauxth.TestUser)

@@ -7,6 +7,8 @@ defmodule Phauxth.Confirm.PassResetTest do
   alias Phauxth.{TestRepo, TestUser, UserHelper}
   alias Phauxth.Confirm.PassReset
 
+  @db [repo: TestRepo, user_schema: TestUser]
+
   setup do
     attrs = %{email: "frank@mail.com", role: "user", password: "h4rd2gU3$$",
       confirmed_at: Ecto.DateTime.utc}
@@ -16,14 +18,14 @@ defmodule Phauxth.Confirm.PassResetTest do
 
   def login(name, password, identifier \\ :email, user_params \\ "email") do
     params = %{user_params => name, "password" => password}
-    Phauxth.Login.verify(params, identifier: identifier)
+    Phauxth.Login.verify(params, [identifier: identifier] ++ @db)
   end
 
   def call_reset(password, opts) do
     params = %{"email" => "frank@mail.com",
       "key" => "lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw",
       "password" => password}
-    PassReset.verify(params, opts) |> update_repo(password)
+    PassReset.verify(params, opts ++ @db) |> update_repo(password)
   end
 
   def update_repo({:error, message}, _), do: {:error, message}
