@@ -33,11 +33,6 @@ defmodule Phauxth.Otp do
 
   @behaviour Phauxth
 
-  def init(opts) do
-    {Keyword.get(opts, :repo, default_repo()),
-    Keyword.get(opts, :user_schema, default_user_schema())}
-  end
-
   @doc """
   Check the one-time password, and return {:ok, user} if the one-time
   password is correct or {:error, message} if there is an error.
@@ -65,7 +60,7 @@ defmodule Phauxth.Otp do
   """
   def verify(params, opts \\ [])
   def verify(%{"id" => id, "hotp" => hotp}, opts) do
-    {repo, user_schema} = init(opts)
+    {repo, user_schema} = unpack(opts)
     {:ok, result} = repo.transaction(fn ->
       get_user_with_lock(repo, user_schema, id)
       |> check_hotp(hotp, opts)
@@ -79,6 +74,11 @@ defmodule Phauxth.Otp do
     |> check_totp(totp, opts)
     |> update_otp(repo)
     |> log(id, "successful one-time password login")
+  end
+
+  defp unpack(opts) do
+    {Keyword.get(opts, :repo, default_repo()),
+    Keyword.get(opts, :user_schema, default_user_schema())}
   end
 
   defp check_hotp(user, hotp, opts) do

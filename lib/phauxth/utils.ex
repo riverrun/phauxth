@@ -1,5 +1,6 @@
 defmodule Phauxth.Utils do
   @moduledoc """
+  Tools for use with Phauxth.
   """
 
   @doc """
@@ -22,5 +23,4 @@ defmodule Phauxth.Utils do
     |> to_string
     |> Macro.camelize
   end
-
 end

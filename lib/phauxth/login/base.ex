@@ -12,15 +12,9 @@ defmodule Phauxth.Login.Base do
 
       @behaviour Phauxth
 
-      def init(opts) do
-        {Keyword.get(opts, :identifier, :email),
-        {Keyword.get(opts, :repo, default_repo()),
-        Keyword.get(opts, :user_schema, default_user_schema())}}
-      end
-
       @doc false
       def verify(params, opts \\ []) do
-        {identifier, {repo, user_schema}} = init(opts)
+        {identifier, {repo, user_schema}} = unpack(opts)
         user_params = to_string(identifier)
         %{^user_params => user_id, "password" => password} = params
         repo.get_by(user_schema, [{identifier, user_id}])
@@ -38,7 +32,13 @@ defmodule Phauxth.Login.Base do
         {:ok, user} || {:error, "invalid password"}
       end
 
-      defoverridable [init: 1, verify: 2, check_pass: 2]
+      defp unpack(opts) do
+        {Keyword.get(opts, :identifier, :email),
+        {Keyword.get(opts, :repo, default_repo()),
+        Keyword.get(opts, :user_schema, default_user_schema())}}
+      end
+
+      defoverridable [verify: 2, check_pass: 2]
     end
   end
 
