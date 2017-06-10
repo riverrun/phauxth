@@ -3,6 +3,15 @@ defmodule Phauxth.Otp do
   Module to handle one-time passwords, usually for use in two factor
   authentication.
 
+  ## Database options
+
+  There are two options:
+
+    * repo - the repo to be used
+      * the default is MyApp.Repo
+    * user_schema - the user schema to be used
+      * the default is MyApp.Accounts.User
+
   ## One-time password options
 
   There are the following options for the one-time passwords:

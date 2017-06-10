@@ -4,13 +4,17 @@ defmodule Phauxth.Remember do
 
   ## Options
 
-  There are two options:
+  There are four options:
 
     * context - the context to use when using Phoenix token
       * in most cases, this will be the name of the endpoint you are using
       * see the documentation for Phoenix.Token for more information
     * max_age - the length of the validity of the token
       * the default is four weeks
+    * repo - the repo to be used
+      * the default is MyApp.Repo
+    * user_schema - the user schema to be used
+      * the default is MyApp.Accounts.User
 
   ## Examples
 

@@ -16,10 +16,14 @@ defmodule Phauxth.Login do
 
   ## Options
 
-  There is one option:
+  There are three options:
 
     * identifier - the name which is used to identify the user (in the database)
       * this should be an atom, and the default is `:email`
+    * repo - the repo to be used
+      * the default is MyApp.Repo
+    * user_schema - the user schema to be used
+      * the default is MyApp.Accounts.User
 
   ## Examples
 

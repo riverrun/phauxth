@@ -7,12 +7,16 @@ defmodule Phauxth.Confirm do
 
   ## Options
 
-  There are two options:
+  There are four options:
 
     * identifier - how the user is identified in the confirmation request
       * this should be an atom, and the default is :email
     * key_validity - the length, in minutes, that the token is valid for
       * the default is 60 minutes (1 hour)
+    * repo - the repo to be used
+      * the default is MyApp.Repo
+    * user_schema - the user schema to be used
+      * the default is MyApp.Accounts.User
 
   ## Examples
 

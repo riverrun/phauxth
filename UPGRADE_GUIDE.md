@@ -1,18 +1,16 @@
 # Upgrading to Phauxth from Openmaize
 
+This document shows the changes you need to make when upgrading from Openmaize
+to Phauxth. For more information, see the each module's documentation.
+
 ## Changes
 
-### Config
+### Interaction with the database
 
-The default repo and user schema (user_mod) need to be set in the config.
+The repo and user schema is set in the `opts` argument for the Plugs
+and verify/2 functions.
 
-Add the following to the config/config.exs file:
-
-    ```elixir
-    config, :phauxth,
-      repo: MyApp.Repo,
-      user_mod: MyApp.Accounts.User
-    ```
+The default repo is MyApp.Repo and the default user_schema is MyApp.Accounts.User
 
 ### Plugs
 
