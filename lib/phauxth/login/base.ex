@@ -10,11 +10,9 @@ defmodule Phauxth.Login.Base do
       import unquote(__MODULE__)
       alias Comeonin.Bcrypt
 
-      @behaviour Phauxth
-
       @doc false
-      def verify(params, opts \\ []) do
-        {identifier, user_data} = unpack(opts)
+      def verify(params, user_data, opts \\ []) do
+        identifier = Keyword.get(opts, :identifier, :email)
         user_params = to_string(identifier)
         %{^user_params => user_id, "password" => password} = params
         user_data.get_by([{identifier, user_id}])
@@ -30,11 +28,6 @@ defmodule Phauxth.Login.Base do
       def check_pass(%{password_hash: hash} = user, password) do
         Bcrypt.checkpw(password, hash) and
         {:ok, user} || {:error, "invalid password"}
-      end
-
-      defp unpack(opts) do
-        {Keyword.get(opts, :identifier, :email),
-        Keyword.get(opts, :user_data, default_user_data())}
       end
 
       defoverridable [verify: 2, check_pass: 2]

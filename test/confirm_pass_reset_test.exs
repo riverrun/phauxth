@@ -16,14 +16,14 @@ defmodule Phauxth.Confirm.PassResetTest do
 
   def login(name, password, identifier \\ :email, user_params \\ "email") do
     params = %{user_params => name, "password" => password}
-    Phauxth.Login.verify(params, [identifier: identifier, user_data: TestAccounts])
+    Phauxth.Login.verify(params, TestAccounts, [identifier: identifier])
   end
 
   def call_reset(password, opts) do
     params = %{"email" => "frank@mail.com",
       "key" => "lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw",
       "password" => password}
-    PassReset.verify(params, opts ++ [user_data: TestAccounts]) |> update_repo(password)
+    PassReset.verify(params, TestAccounts, opts) |> update_repo(password)
   end
 
   def update_repo({:error, message}, _), do: {:error, message}

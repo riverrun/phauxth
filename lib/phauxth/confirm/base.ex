@@ -14,18 +14,16 @@ defmodule Phauxth.Confirm.Base do
       import Plug.Crypto
       alias Phauxth.{Config, Log}
 
-      @behaviour Phauxth
-
       @ok_log unquote(options)[:ok_log] || "account confirmed"
 
       @doc false
-      def verify(params, opts \\ []) do
-        {identifier, key_validity, database} = unpack(opts)
+      def verify(params, user_data, opts \\ []) do
+        {identifier, key_validity} = unpack(opts)
         user_params = to_string(identifier)
         with %{^user_params => user_id, "key" => key} <- params do
-          check_confirm({identifier, user_id, key, key_validity, @ok_log}, database)
+          check_confirm({identifier, user_id, key, key_validity, @ok_log}, user_data)
         else
-          _ -> check_confirm(nil, database)
+          _ -> check_confirm(nil, user_data)
         end
       end
 
@@ -71,8 +69,7 @@ defmodule Phauxth.Confirm.Base do
 
       defp unpack(opts) do
         {Keyword.get(opts, :identifier, :email),
-        Keyword.get(opts, :key_validity, 60),
-        Keyword.get(opts, :user_data, default_user_data())}
+        Keyword.get(opts, :key_validity, 60)}
       end
 
       defoverridable [verify: 2, check_confirm: 2, check_key: 3, log: 3]

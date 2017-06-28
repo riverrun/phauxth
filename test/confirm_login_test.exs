@@ -2,7 +2,7 @@ defmodule Phauxth.Confirm.LoginTest do
   use Phauxth.TestCase
   use Plug.Test
 
-  alias Phauxth.{TestAccounts, UserHelper}
+  alias Phauxth.UserHelper
 
   setup do
     attrs = %{email: "ray@mail.com", role: "user", password: "h4rd2gU3$$",
@@ -16,7 +16,7 @@ defmodule Phauxth.Confirm.LoginTest do
 
   def login(name, password, identifier \\ :email, user_params \\ "email") do
     params = %{user_params => name, "password" => password}
-    Phauxth.Confirm.Login.verify(params, [identifier: identifier, user_data: TestAccounts])
+    Phauxth.Confirm.Login.verify(params, Phauxth.TestAccounts, [identifier: identifier])
   end
 
   test "login succeeds if account has been confirmed" do

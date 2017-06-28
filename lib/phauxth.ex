@@ -84,7 +84,4 @@ defmodule Phauxth do
 
   """
 
-  @callback verify(map, Keyword.t) ::
-    {:ok, user :: Ecto.Schema.t} | {:error, message :: String.t}
-
 end
