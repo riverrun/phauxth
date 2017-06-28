@@ -3,6 +3,10 @@ defmodule Phauxth.Utils do
   Tools for use with Phauxth.
   """
 
+  def default_user_data do
+    base_module() |> Module.concat(Accounts)
+  end
+
   @doc """
   The default repo.
   """

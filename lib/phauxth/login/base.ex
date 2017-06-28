@@ -14,10 +14,10 @@ defmodule Phauxth.Login.Base do
 
       @doc false
       def verify(params, opts \\ []) do
-        {identifier, {repo, user_schema}} = unpack(opts)
+        {identifier, user_data} = unpack(opts)
         user_params = to_string(identifier)
         %{^user_params => user_id, "password" => password} = params
-        repo.get_by(user_schema, [{identifier, user_id}])
+        user_data.get_by([{identifier, user_id}])
         |> check_pass(password)
         |> log(user_id, "successful login")
       end
@@ -34,8 +34,7 @@ defmodule Phauxth.Login.Base do
 
       defp unpack(opts) do
         {Keyword.get(opts, :identifier, :email),
-        {Keyword.get(opts, :repo, default_repo()),
-        Keyword.get(opts, :user_schema, default_user_schema())}}
+        Keyword.get(opts, :user_data, default_user_data())}
       end
 
       defoverridable [verify: 2, check_pass: 2]

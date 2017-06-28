@@ -32,9 +32,9 @@ defmodule Phauxth.Confirm.Base do
       @doc """
       Function to confirm the user by checking the token.
       """
-      def check_confirm({identifier, user_id, key, key_expiry, ok_log}, {repo, user_schema})
+      def check_confirm({identifier, user_id, key, key_expiry, ok_log}, user_data)
           when byte_size(key) == 32 do
-        repo.get_by(user_schema, [{identifier, user_id}])
+        user_data.get_by([{identifier, user_id}])
         |> check_key(key, key_expiry * 60)
         |> log(user_id, ok_log)
       end
@@ -72,8 +72,7 @@ defmodule Phauxth.Confirm.Base do
       defp unpack(opts) do
         {Keyword.get(opts, :identifier, :email),
         Keyword.get(opts, :key_validity, 60),
-        {Keyword.get(opts, :repo, default_repo()),
-        Keyword.get(opts, :user_schema, default_user_schema())}}
+        Keyword.get(opts, :user_data, default_user_data())}
       end
 
       defoverridable [verify: 2, check_confirm: 2, check_key: 3, log: 3]

@@ -37,8 +37,7 @@ defmodule Phauxth.Remember do
   def init(opts) do
     {Keyword.get(opts, :context),
     Keyword.get(opts, :max_age, @max_age),
-    {Keyword.get(opts, :repo, default_repo()),
-    Keyword.get(opts, :user_schema, default_user_schema())}}
+    Keyword.get(opts, :user_data, default_user_data())}
   end
 
   def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn,

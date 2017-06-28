@@ -4,10 +4,8 @@ defmodule Phauxth.Confirm.PassResetTest do
 
   import Ecto.Changeset
   alias Comeonin.Bcrypt
-  alias Phauxth.{TestRepo, TestUser, UserHelper}
+  alias Phauxth.{TestAccounts, UserHelper}
   alias Phauxth.Confirm.PassReset
-
-  @db [repo: TestRepo, user_schema: TestUser]
 
   setup do
     attrs = %{email: "frank@mail.com", role: "user", password: "h4rd2gU3$$",
@@ -18,14 +16,14 @@ defmodule Phauxth.Confirm.PassResetTest do
 
   def login(name, password, identifier \\ :email, user_params \\ "email") do
     params = %{user_params => name, "password" => password}
-    Phauxth.Login.verify(params, [identifier: identifier] ++ @db)
+    Phauxth.Login.verify(params, [identifier: identifier, user_data: TestAccounts])
   end
 
   def call_reset(password, opts) do
     params = %{"email" => "frank@mail.com",
       "key" => "lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw",
       "password" => password}
-    PassReset.verify(params, opts ++ @db) |> update_repo(password)
+    PassReset.verify(params, opts ++ [user_data: TestAccounts]) |> update_repo(password)
   end
 
   def update_repo({:error, message}, _), do: {:error, message}
@@ -35,7 +33,7 @@ defmodule Phauxth.Confirm.PassResetTest do
   end
 
   def password_changed(password) do
-    user = TestRepo.get_by(TestUser, email: "frank@mail.com")
+    user = TestAccounts.get_by(email: "frank@mail.com")
     Bcrypt.checkpw(password, user.password_hash)
   end
 
@@ -53,7 +51,7 @@ defmodule Phauxth.Confirm.PassResetTest do
   end
 
   test "reset password fails when reset_sent_at is nil" do
-    user = TestRepo.get_by(TestUser, email: "frank@mail.com")
+    user = TestAccounts.get_by(email: "frank@mail.com")
     change(user, %{reset_sent_at: nil})
     |> Phauxth.TestRepo.update
     {:error, message} = call_reset("password", [identifier: :email, key_validity: 60])

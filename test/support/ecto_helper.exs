@@ -30,9 +30,6 @@ defmodule UsersMigration do
       add :confirmation_sent_at, :utc_datetime
       add :reset_token, :string
       add :reset_sent_at, :utc_datetime
-      add :otp_required, :boolean
-      add :otp_secret, :string
-      add :otp_last, :integer
     end
 
     create unique_index :users, [:email]
@@ -57,9 +54,6 @@ defmodule Phauxth.TestUser do
     field :confirmation_sent_at, Ecto.DateTime
     field :reset_token, :string
     field :reset_sent_at, Ecto.DateTime
-    field :otp_required, :boolean
-    field :otp_secret, :string
-    field :otp_last, :integer
   end
 
   def changeset(struct, params \\ :empty) do
@@ -67,6 +61,17 @@ defmodule Phauxth.TestUser do
     |> cast(params, [:email, :confirmed_at])
     |> validate_required([:email])
     |> unique_constraint(:email)
+  end
+end
+
+defmodule Phauxth.TestAccounts do
+
+  def get(id) do
+    TestRepo.get(Phauxth.TestUser, id)
+  end
+
+  def get_by(attrs) do
+    TestRepo.get_by(Phauxth.TestUser, attrs)
   end
 end
 
