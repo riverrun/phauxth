@@ -71,7 +71,7 @@ defmodule <%= base %>.Web.UserControllerTest do
     conn = put conn, user_path(conn, :update, user), user: @update_attrs<%= if api do %>
     assert json_response(conn, 200)["data"]["id"] == user.id<% else %>
     assert redirected_to(conn) == user_path(conn, :show, user)<% end %>
-    updated_user = Accounts.get_user(user.id)
+    updated_user = Accounts.get(user.id)
     assert updated_user.email == "william@mail.com"<%= if not api do %>
     conn = get conn, user_path(conn, :show, user)
     assert html_response(conn, 200) =~ "william@mail.com"<% end %>
@@ -89,7 +89,7 @@ defmodule <%= base %>.Web.UserControllerTest do
     conn = delete conn, user_path(conn, :delete, user)<%= if api do %>
     assert response(conn, 204)<% else %>
     assert redirected_to(conn) == session_path(conn, :new)<% end %>
-    refute Accounts.get_user(user.id)
+    refute Accounts.get(user.id)
   end
 
   @tag login: "reg@mail.com"
@@ -97,6 +97,6 @@ defmodule <%= base %>.Web.UserControllerTest do
     conn = delete conn, user_path(conn, :delete, other)<%= if api do %>
     assert json_response(conn, 403)["errors"]["detail"] =~ "not authorized"<% else %>
     assert redirected_to(conn) == user_path(conn, :index)<% end %>
-    assert Accounts.get_user(other.id)
+    assert Accounts.get(other.id)
   end
 end

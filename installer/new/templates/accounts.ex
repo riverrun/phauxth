@@ -14,6 +14,8 @@ defmodule <%= base %>.Accounts do
 
   def get(id), do: Repo.get(User, id)
 
+  def get_user!(id), do: Repo.get!(User, id)
+
   def get_by(attrs) do
     Repo.get_by(User, attrs)
   end<%= if confirm do %>
