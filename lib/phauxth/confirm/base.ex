@@ -80,8 +80,11 @@ defmodule Phauxth.Confirm.Base do
   """
   def check_time(nil, _), do: false
   def check_time(sent_at, valid_secs) do
-    (sent_at |> Ecto.DateTime.to_erl
-     |> :calendar.datetime_to_gregorian_seconds) + valid_secs >
+    (to_erl(sent_at) |> :calendar.datetime_to_gregorian_seconds) + valid_secs >
     (:calendar.universal_time |> :calendar.datetime_to_gregorian_seconds)
+  end
+
+  defp to_erl(%{year: year, month: month, day: day, hour: hour, min: min, sec: sec}) do
+    {{year, month, day}, {hour, min, sec}}
   end
 end
