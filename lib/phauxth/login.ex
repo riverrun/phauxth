@@ -16,14 +16,10 @@ defmodule Phauxth.Login do
 
   ## Options
 
-  There are three options:
+  There is one option:
 
     * identifier - the name which is used to identify the user (in the database)
       * this should be an atom, and the default is `:email`
-    * repo - the repo to be used
-      * the default is MyApp.Repo
-    * user_schema - the user schema to be used
-      * the default is MyApp.Accounts.User
 
   ## Examples
 
@@ -31,7 +27,7 @@ defmodule Phauxth.Login do
   function in the session controller.
 
       def create(conn, %{"session" => params}) do
-        case Phauxth.Login.verify(params) do
+        case Phauxth.Login.verify(params, MyApp.Accounts) do
           {:ok, user} -> handle_successful_login
           {:error, message} -> handle_error
         end

@@ -1,9 +1,9 @@
 defmodule Phauxth.RememberTest do
-  use Phauxth.TestCase
+  use ExUnit.Case
   use Plug.Test
   import ExUnit.CaptureLog
 
-  alias Phauxth.{Authenticate, Remember, SessionHelper, TestAccounts, UserHelper}
+  alias Phauxth.{Authenticate, Remember, SessionHelper, TestAccounts}
 
   @max_age 7 * 24 * 60 * 60
 
@@ -12,15 +12,12 @@ defmodule Phauxth.RememberTest do
   end
 
   setup do
-    attrs = %{email: "brian@mail.com", role: "user", password: "h4rd2gU3$$"}
-    user = UserHelper.add_user()
-    other = UserHelper.add_user(attrs)
     conn = conn(:get, "/")
            |> put_private(:phoenix_endpoint, Endpoint)
            |> SessionHelper.sign_conn
-           |> Remember.add_rem_cookie(user.id)
+           |> Remember.add_rem_cookie(1)
 
-    {:ok, %{conn: conn, other: other}}
+    {:ok, %{conn: conn}}
   end
 
   test "init function" do
@@ -57,14 +54,14 @@ defmodule Phauxth.RememberTest do
     refute conn.assigns[:current_user]
   end
 
-  test "call remember with current_user already set", %{conn: conn, other: other} do
+  test "call remember with current_user already set", %{conn: conn} do
     conn = SessionHelper.recycle_and_sign(conn)
-           |> put_session(:user_id, other.id)
+           |> put_session(:user_id, 4)
            |> Authenticate.call({nil, @max_age, TestAccounts})
            |> Remember.call({Endpoint, @max_age, TestAccounts})
     %{current_user: user} = conn.assigns
-    assert user.id == other.id
-    assert user.email == other.email
+    assert user.id == 4
+    assert user.email == "brian@mail.com"
   end
 
   test "add cookie", %{conn: conn} do

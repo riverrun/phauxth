@@ -4,16 +4,12 @@ defmodule Phauxth.Confirm.PassReset do
 
   ## Options
 
-  There are four options:
+  There are two options:
 
     * identifier - how the user is identified in the confirmation request
       * this should be an atom, and the default is :email
     * key_validity - the length, in minutes, that the token is valid for
       * the default is 60 minutes (1 hour)
-    * repo - the repo to be used
-      * the default is MyApp.Repo
-    * user_schema - the user schema to be used
-      * the default is MyApp.Accounts.User
 
   ## Examples
 
@@ -32,7 +28,7 @@ defmodule Phauxth.Confirm.PassReset do
   (this example is for a html app):
 
       def update(conn, %{"password_reset" => params}) do
-        case Phauxth.Confirm.PassReset.verify(params, key_validity: 20) do
+        case Phauxth.Confirm.PassReset.verify(params, MyApp.Accounts, key_validity: 20) do
           {:ok, user} ->
             Accounts.update_user(user, params)
             Message.reset_success(user.email)
