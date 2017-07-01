@@ -12,8 +12,7 @@ defmodule <%= base %>.Accounts do
     Repo.all(User)
   end
 
-  def get_user!(id), do: Repo.get!(User, id)
-  def get_user(id), do: Repo.get(User, id)
+  def get(id), do: Repo.get(User, id)
 
   def get_by(attrs) do
     Repo.get_by(User, attrs)
