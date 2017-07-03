@@ -43,19 +43,19 @@ defmodule Phauxth.LoginTest do
 
   test "can customize to use different crypto" do
     params = %{"email" => "frank@mail.com", "password" => "h4rd2gU3$$"}
-    {:ok, %{email: email}} = Phauxth.CustomCrypto.verify(params, TestAccounts)
+    {:ok, %{email: email}} = Login.verify(params, TestAccounts, crypto: Phauxth.DummyCrypto)
     assert email == "frank@mail.com"
   end
 
   test "can customize to use different hash name in the database" do
     params = %{"email" => "eddie@mail.com", "password" => "h4rd2gU3$$"}
-    {:ok, %{email: email}} = Phauxth.CustomHashname.verify(params, TestAccounts)
+    {:ok, %{email: email}} = Phauxth.CustomHashname.verify(params, TestAccounts, crypto: Phauxth.DummyCrypto)
     assert email == "eddie@mail.com"
   end
 
   test "login fails for invalid email with custom crypto" do
     params = %{"email" => "oranges@mail.com", "password" => "h4rd2gU3$$"}
-    {:error, message} = Phauxth.CustomCrypto.verify(params, TestAccounts)
+    {:error, message} = Login.verify(params, TestAccounts, crypto: Phauxth.DummyCrypto)
     assert message =~ "Invalid credentials"
   end
 

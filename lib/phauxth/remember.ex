@@ -26,7 +26,6 @@ defmodule Phauxth.Remember do
   """
 
   use Phauxth.Authenticate.Base
-  import Phauxth.Utils
   import Plug.Conn
   alias Phoenix.Token
 

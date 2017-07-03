@@ -3,15 +3,15 @@ defmodule Phauxth.DummyCrypto do
   A dummy crypto module for testing purposes.
   """
 
-  def hashpwsalt(password) do
+  def hash_pwd_salt(password, _opts) do
     "dumb-#{password}-crypto"
   end
 
-  def dummy_checkpw do
+  def no_user_verify(_opts) do
     false
   end
 
-  def checkpw(password, hash) do
-    hash == hashpwsalt(password)
+  def verify_hash(hash, password, opts) do
+    hash == hash_pwd_salt(password, opts)
   end
 end

@@ -9,7 +9,6 @@ defmodule Phauxth.Confirm.Base do
   @doc false
   defmacro __using__(options) do
     quote do
-      import Phauxth.Utils
       import unquote(__MODULE__)
       import Plug.Crypto
       alias Phauxth.{Config, Log}
@@ -86,5 +85,8 @@ defmodule Phauxth.Confirm.Base do
 
   defp to_erl(%{year: year, month: month, day: day, hour: hour, min: min, sec: sec}) do
     {{year, month, day}, {hour, min, sec}}
+  end
+  defp to_erl(%{year: year, month: month, day: day, hour: hour, minute: minute, second: second}) do
+    {{year, month, day}, {hour, minute, second}}
   end
 end

@@ -47,8 +47,8 @@ defmodule Phauxth.ConfirmTest do
   end
 
   test "check time" do
-    assert Phauxth.Confirm.Base.check_time(Ecto.DateTime.utc, 60)
-    refute Phauxth.Confirm.Base.check_time(Ecto.DateTime.utc, -60)
+    assert Phauxth.Confirm.Base.check_time(DateTime.utc_now, 60)
+    refute Phauxth.Confirm.Base.check_time(DateTime.utc_now, -60)
     refute Phauxth.Confirm.Base.check_time(nil, 60)
   end
 

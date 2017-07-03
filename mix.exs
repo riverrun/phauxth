@@ -25,10 +25,7 @@ defmodule Phauxth.Mixfile do
 
   defp deps do
     [{:phoenix, "~> 1.3.0-rc"},
-     {:ecto, "~> 2.1", only: :test},
-     {:cowboy, "~> 1.1"},
-     {:comeonin, "~> 3.0"},
-     {:postgrex, "~> 0.13", optional: true},
+     {:argon2_elixir, "~> 0.12", optional: true},
      {:earmark, "~> 1.2", only: :dev},
      {:ex_doc,  "~> 0.16", only: :dev}]
   end

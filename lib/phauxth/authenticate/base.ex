@@ -39,7 +39,6 @@ defmodule Phauxth.Authenticate.Base do
   @doc false
   defmacro __using__(_) do
     quote do
-      import Phauxth.Utils
       import unquote(__MODULE__)
 
       @behaviour Plug
@@ -64,6 +63,14 @@ defmodule Phauxth.Authenticate.Base do
       """
       def set_user(user, conn) do
         Plug.Conn.assign(conn, :current_user, user)
+      end
+
+      defp default_user_data do
+        Mix.Project.config
+        |> Keyword.fetch!(:app)
+        |> to_string
+        |> Macro.camelize
+        |> Module.concat(Accounts)
       end
 
       defoverridable [init: 1, call: 2, set_user: 2]
