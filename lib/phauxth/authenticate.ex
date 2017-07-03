@@ -4,7 +4,7 @@ defmodule Phauxth.Authenticate do
 
   ## Options
 
-  There are four options:
+  There are three options:
 
     * context - the context to use when using Phoenix token
       * the default is nil, meaning the user will be authenticated using sessions
@@ -12,10 +12,8 @@ defmodule Phauxth.Authenticate do
       * see the documentation for Phoenix.Token for more information
     * max_age - the length of the validity of the token
       * the default is one week
-    * repo - the repo to be used
-      * the default is MyApp.Repo
-    * user_schema - the user schema to be used
-      * the default is MyApp.Accounts.User
+    * user_data - the user data module to be used
+      * the default is MyApp.Accounts
 
   ## Examples
 

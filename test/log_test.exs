@@ -13,6 +13,19 @@ defmodule Phauxth.LogTest do
     end) =~ ~s(user=arrr@mail.com message="bossman's arrived")
   end
 
+  test "logs default values" do
+    assert capture_log(fn ->
+      Log.warn(%Log{})
+    end) =~ ~s(user=nil message="")
+  end
+
+  test "logs metadata" do
+    assert capture_log(fn ->
+      Log.warn(%Log{user: "arrr@mail.com",
+        meta: [{"error", "mmm"}]})
+    end) =~ ~s(user=arrr@mail.com message="" error=mmm)
+  end
+
   test "logs to console for nil current_user" do
     assert capture_log(fn ->
       Log.warn(%Log{user: "arrr@mail.com",

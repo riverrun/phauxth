@@ -4,17 +4,15 @@ defmodule Phauxth.Remember do
 
   ## Options
 
-  There are four options:
+  There are three options:
 
     * context - the context to use when using Phoenix token
       * in most cases, this will be the name of the endpoint you are using
       * see the documentation for Phoenix.Token for more information
     * max_age - the length of the validity of the token
       * the default is four weeks
-    * repo - the repo to be used
-      * the default is MyApp.Repo
-    * user_schema - the user schema to be used
-      * the default is MyApp.Accounts.User
+    * user_data - the user data module to be used
+      * the default is MyApp.Accounts
 
   ## Examples
 
@@ -28,7 +26,6 @@ defmodule Phauxth.Remember do
   """
 
   use Phauxth.Authenticate.Base
-  import Phauxth.Utils
   import Plug.Conn
   alias Phoenix.Token
 
@@ -37,8 +34,7 @@ defmodule Phauxth.Remember do
   def init(opts) do
     {Keyword.get(opts, :context),
     Keyword.get(opts, :max_age, @max_age),
-    {Keyword.get(opts, :repo, default_repo()),
-    Keyword.get(opts, :user_schema, default_user_schema())}}
+    Keyword.get(opts, :user_data, default_user_data())}
   end
 
   def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn,

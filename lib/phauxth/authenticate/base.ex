@@ -39,7 +39,6 @@ defmodule Phauxth.Authenticate.Base do
   @doc false
   defmacro __using__(_) do
     quote do
-      import Phauxth.Utils
       import unquote(__MODULE__)
 
       @behaviour Plug
@@ -48,13 +47,12 @@ defmodule Phauxth.Authenticate.Base do
       def init(opts) do
         {Keyword.get(opts, :context),
         Keyword.get(opts, :max_age, 7 * 24 * 60 * 60),
-        {Keyword.get(opts, :repo, default_repo()),
-        Keyword.get(opts, :user_schema, default_user_schema())}}
+        Keyword.get(opts, :user_data, default_user_data())}
       end
 
       @doc false
-      def call(conn, {nil, _, database}) do
-        check_session(conn, database) |> log_user |> set_user(conn)
+      def call(conn, {nil, _, user_data}) do
+        check_session(conn, user_data) |> log_user |> set_user(conn)
       end
       def call(%Plug.Conn{req_headers: headers} = conn, opts) do
         check_headers(headers, opts) |> log_user |> set_user(conn)
@@ -65,6 +63,14 @@ defmodule Phauxth.Authenticate.Base do
       """
       def set_user(user, conn) do
         Plug.Conn.assign(conn, :current_user, user)
+      end
+
+      defp default_user_data do
+        Mix.Project.config
+        |> Keyword.fetch!(:app)
+        |> to_string
+        |> Macro.camelize
+        |> Module.concat(Accounts)
       end
 
       defoverridable [init: 1, call: 2, set_user: 2]
@@ -81,9 +87,9 @@ defmodule Phauxth.Authenticate.Base do
 
   This function also calls the database to get user information.
   """
-  def check_session(conn, {repo, user_schema}) do
+  def check_session(conn, user_data) do
     with id when not is_nil(id) <- get_session(conn, :user_id),
-        do: repo.get(user_schema, id)
+        do: user_data.get(id)
   end
 
   @doc """
@@ -101,9 +107,9 @@ defmodule Phauxth.Authenticate.Base do
 
   This function also calls the database to get user information.
   """
-  def check_token(token, {context, max_age, {repo, user_schema}}) do
+  def check_token(token, {context, max_age, user_data}) do
     with {:ok, user_id} <- Token.verify(context, "user auth", token, max_age: max_age),
-        do: repo.get(user_schema, user_id)
+        do: user_data.get(user_id)
   end
 
   @doc """

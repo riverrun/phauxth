@@ -9,32 +9,29 @@ defmodule Phauxth.Confirm.Base do
   @doc false
   defmacro __using__(options) do
     quote do
-      import Phauxth.Utils
       import unquote(__MODULE__)
       import Plug.Crypto
       alias Phauxth.{Config, Log}
 
-      @behaviour Phauxth
-
       @ok_log unquote(options)[:ok_log] || "account confirmed"
 
       @doc false
-      def verify(params, opts \\ []) do
-        {identifier, key_validity, database} = unpack(opts)
+      def verify(params, user_data, opts \\ []) do
+        {identifier, key_validity} = unpack(opts)
         user_params = to_string(identifier)
         with %{^user_params => user_id, "key" => key} <- params do
-          check_confirm({identifier, user_id, key, key_validity, @ok_log}, database)
+          check_confirm({identifier, user_id, key, key_validity, @ok_log}, user_data)
         else
-          _ -> check_confirm(nil, database)
+          _ -> check_confirm(nil, user_data)
         end
       end
 
       @doc """
       Function to confirm the user by checking the token.
       """
-      def check_confirm({identifier, user_id, key, key_expiry, ok_log}, {repo, user_schema})
+      def check_confirm({identifier, user_id, key, key_expiry, ok_log}, user_data)
           when byte_size(key) == 32 do
-        repo.get_by(user_schema, [{identifier, user_id}])
+        user_data.get_by([{identifier, user_id}])
         |> check_key(key, key_expiry * 60)
         |> log(user_id, ok_log)
       end
@@ -71,9 +68,7 @@ defmodule Phauxth.Confirm.Base do
 
       defp unpack(opts) do
         {Keyword.get(opts, :identifier, :email),
-        Keyword.get(opts, :key_validity, 60),
-        {Keyword.get(opts, :repo, default_repo()),
-        Keyword.get(opts, :user_schema, default_user_schema())}}
+        Keyword.get(opts, :key_validity, 60)}
       end
 
       defoverridable [verify: 2, check_confirm: 2, check_key: 3, log: 3]
@@ -84,8 +79,14 @@ defmodule Phauxth.Confirm.Base do
   """
   def check_time(nil, _), do: false
   def check_time(sent_at, valid_secs) do
-    (sent_at |> Ecto.DateTime.to_erl
-     |> :calendar.datetime_to_gregorian_seconds) + valid_secs >
+    (to_erl(sent_at) |> :calendar.datetime_to_gregorian_seconds) + valid_secs >
     (:calendar.universal_time |> :calendar.datetime_to_gregorian_seconds)
+  end
+
+  defp to_erl(%{year: year, month: month, day: day, hour: hour, min: min, sec: sec}) do
+    {{year, month, day}, {hour, min, sec}}
+  end
+  defp to_erl(%{year: year, month: month, day: day, hour: hour, minute: minute, second: second}) do
+    {{year, month, day}, {hour, minute, second}}
   end
 end

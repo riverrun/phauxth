@@ -32,7 +32,7 @@ defmodule Phauxth.Log do
   require Logger
   alias Phauxth.Config
 
-  defstruct user: "nil", message: "no user", meta: []
+  defstruct user: "nil", message: "", meta: []
 
   for level <- [:debug, :info, :warn, :error] do
     @doc """
@@ -55,7 +55,7 @@ defmodule Phauxth.Log do
   def current_user_id(_), do: "nil"
 
   defp format({key, val}) when is_binary(val) do
-    if String.contains?(val, [" ", "="]) do
+    if String.contains?(val, [" ", "="]) or val == "" do
       ~s(#{key}="#{val}")
     else
       ~s(#{key}=#{val})

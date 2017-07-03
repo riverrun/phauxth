@@ -36,7 +36,7 @@ defmodule <%= base %>.Web.PasswordResetController do
   end<% end %>
 
   def update(conn, %{"password_reset" => params}) do
-    case Phauxth.Confirm.PassReset.verify(params) do
+    case Phauxth.Confirm.PassReset.verify(params, Accounts) do
       {:ok, user} ->
         Accounts.update_user(user, params)
         Message.reset_success(user.email)

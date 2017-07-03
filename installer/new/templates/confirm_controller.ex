@@ -5,7 +5,7 @@ defmodule <%= base %>.Web.ConfirmController do
   alias <%= base %>.{Accounts, Message}
 
   def new(conn, params) do
-    case Phauxth.Confirm.verify(params) do
+    case Phauxth.Confirm.verify(params, Accounts) do
       {:ok, user} ->
         Accounts.confirm_user(user)
         message = "Your account has been confirmed"

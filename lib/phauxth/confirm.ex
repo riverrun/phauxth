@@ -7,16 +7,12 @@ defmodule Phauxth.Confirm do
 
   ## Options
 
-  There are four options:
+  There are two options:
 
     * identifier - how the user is identified in the confirmation request
       * this should be an atom, and the default is :email
     * key_validity - the length, in minutes, that the token is valid for
       * the default is 60 minutes (1 hour)
-    * repo - the repo to be used
-      * the default is MyApp.Repo
-    * user_schema - the user schema to be used
-      * the default is MyApp.Accounts.User
 
   ## Examples
 
@@ -27,7 +23,7 @@ defmodule Phauxth.Confirm do
   Then add the following to the `confirm_controller.ex` new function:
 
       def new(conn, params) do
-        case Phauxth.Confirm.verify(params) do
+        case Phauxth.Confirm.verify(params, MyApp.Accounts) do
           {:ok, user} ->
             Accounts.confirm_user(user)
             message = "Your account has been confirmed"

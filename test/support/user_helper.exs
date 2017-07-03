@@ -1,68 +1,31 @@
-defmodule Phauxth.UserHelper do
+defmodule Phauxth.TestAccounts do
 
-  import Ecto.Changeset
-  alias Phauxth.{TestRepo, TestUser}
-
-  @attrs %{email: "fred+1@mail.com", username: "fred", phone: "55555555555",
-    role: "user", password: "h4rd2gU3$$", confirmed_at: nil,
-    confirmation_sent_at: Ecto.DateTime.utc, reset_sent_at: Ecto.DateTime.utc}
   @key "lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
+  @users [
+    %{id: 1, email: "fred+1@mail.com", username: "fred", phone: "55555555555",
+      role: "user", password_hash: Argon2.hash_pwd_salt("h4rd2gU3$$"),
+      confirmed_at: nil, confirmation_token: @key, confirmation_sent_at: DateTime.utc_now},
+    %{id: 2, email: "ray@mail.com", role: "user",
+      password_hash: Argon2.hash_pwd_salt("h4rd2gU3$$"), confirmed_at: DateTime.utc_now},
+    %{id: 3, email: "froderick@mail.com", role: "user", confirmed_at: DateTime.utc_now,
+      password_hash: Argon2.hash_pwd_salt("h4rd2gU3$$"),
+      reset_token: @key, reset_sent_at: DateTime.utc_now},
+    %{id: 4, email: "brian@mail.com", role: "user"},
+    %{id: 5, email: "igor@mail.com", role: "user",
+      reset_token: @key, reset_sent_at: nil},
+    %{id: 6, email: "frank@mail.com", password_hash: "dumb-h4rd2gU3$$-crypto"},
+    %{id: 7, email: "eddie@mail.com", encrypted_password: "dumb-h4rd2gU3$$-crypto"}
+  ]
 
-  def add_user(attrs \\ @attrs) do
-    %TestUser{}
-    |> user_changeset(attrs)
-    |> TestRepo.insert!
-  end
+  def get(id), do: Enum.at(@users, id - 1)
 
-  def add_confirm_user(attrs \\ @attrs, key \\ @key) do
-    %TestUser{}
-    |> user_changeset(attrs)
-    |> add_confirm_token(key)
-    |> TestRepo.insert!
-  end
+  def get_by(email: "fred+1@mail.com"), do: Enum.at(@users, 0)
+  def get_by(email: "ray@mail.com"), do: Enum.at(@users, 1)
+  def get_by(email: "froderick@mail.com"), do: Enum.at(@users, 2)
+  def get_by(email: "frank@mail.com"), do: Enum.at(@users, 5)
+  def get_by(email: "eddie@mail.com"), do: Enum.at(@users, 6)
+  def get_by(username: "fred"), do: Enum.at(@users, 0)
+  def get_by(phone: "55555555555"), do: Enum.at(@users, 0)
+  def get_by(_), do: nil
 
-  def add_reset_user(attrs, key \\ @key) do
-    %TestUser{}
-    |> user_changeset(attrs)
-    |> add_reset_token(key)
-    |> TestRepo.insert!
-  end
-
-  def add_custom_user(attrs) do
-    %TestUser{}
-    |> cast(%{email: "froderick@mail.com"}, [:email])
-    |> change(attrs)
-    |> TestRepo.insert!
-  end
-
-  def add_confirm_token(user, key \\ @key) do
-    change(user, %{confirmation_token: key, confirmation_sent_at: Ecto.DateTime.utc})
-  end
-
-  def add_reset_token(user, key \\ @key) do
-    change(user, %{reset_token: key, reset_sent_at: Ecto.DateTime.utc})
-  end
-
-  def confirm_user(user) do
-    change(user, %{confirmed_at: Ecto.DateTime.utc}) |> TestRepo.update!
-  end
-
-  def reset_password(user, password) do
-    change(user, %{password_hash: Comeonin.Bcrypt.hashpwsalt(password)})
-    |> TestRepo.update!
-  end
-
-  defp user_changeset(user, params) do
-    user
-    |> cast(params, Map.keys(params))
-    |> validate_required([:email])
-    |> unique_constraint(:email)
-    |> put_pass_hash()
-  end
-
-  defp put_pass_hash(%Ecto.Changeset{valid?: true, changes:
-      %{password: pass}} = changeset) do
-    put_change(changeset, :password_hash, Comeonin.Bcrypt.hashpwsalt(pass))
-  end
-  defp put_pass_hash(changeset), do: changeset
 end

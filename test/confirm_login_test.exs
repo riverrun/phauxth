@@ -1,24 +1,10 @@
 defmodule Phauxth.Confirm.LoginTest do
-  use Phauxth.TestCase
+  use ExUnit.Case
   use Plug.Test
-
-  alias Phauxth.{TestRepo, TestUser, UserHelper}
-
-  @db [repo: TestRepo, user_schema: TestUser]
-
-  setup do
-    attrs = %{email: "ray@mail.com", role: "user", password: "h4rd2gU3$$",
-      confirmed_at: Ecto.DateTime.utc}
-    key = "lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
-    UserHelper.add_user()
-    UserHelper.add_confirm_user(attrs, key)
-    |> UserHelper.confirm_user
-    :ok
-  end
 
   def login(name, password, identifier \\ :email, user_params \\ "email") do
     params = %{user_params => name, "password" => password}
-    Phauxth.Confirm.Login.verify(params, [identifier: identifier] ++ @db)
+    Phauxth.Confirm.Login.verify(params, Phauxth.TestAccounts, [identifier: identifier])
   end
 
   test "login succeeds if account has been confirmed" do
