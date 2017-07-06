@@ -11,7 +11,7 @@ defmodule Phauxth.Login.Base do
       @doc false
       def verify(params, user_data, opts \\ []) do
         {identifier, crypto} = {Keyword.get(opts, :identifier, :email),
-          Keyword.get(opts, :crypto, Argon2)}
+          Keyword.get(opts, :crypto, Bcrypt)}
         user_params = to_string(identifier)
         %{^user_params => user_id, "password" => password} = params
         user_data.get_by([{identifier, user_id}])

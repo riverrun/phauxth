@@ -46,6 +46,18 @@ the create function, as in the example below.
       end
     ```
 
+You can also now decide to use a different password hashing library,
+which is set in the `opts` for Login.verify (the default is Bcrypt):
+
+    Phauxth.Login.verify(session_params, crypto: Argon2)
+
+Phauxth is tested with `argon2_elixir`, `bcrypt_elixir` and `pbkdf2_elixir`.
+These are optional dependencies, and so you need to add one of them to
+the `deps` section in your mix.exs file.
+
+You can use any other library, but the library has to implement the following
+three functions: `hash_pwd_salt/2`, `verify_hash/3` and `no_user_verify/1`.
+
 #### One time password
 
 The Openmaize.OnetimePass is now Phauxth.Otp.verify.
