@@ -31,7 +31,7 @@ defmodule Mix.Tasks.Phauxth.NewTest do
 
       assert_received {:mix_shell, :info, ["\nWe are almost ready!" <> _ = message]}
       assert message =~ ~s(You need to first edit the `mix.exs` file)
-      assert message =~ ~s({:phauxth, "~> 0.10"})
+      assert message =~ ~s({:phauxth, "~> 0.12-rc"})
       assert message =~ ~s(And to start the server)
       refute message =~ ~s(You will need to edit the Message module)
     end
