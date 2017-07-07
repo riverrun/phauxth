@@ -1,4 +1,4 @@
-%{"argon2_elixir": {:hex, :argon2_elixir, "0.12.0", "03197e420672fa864d43e2bc51c42eba4399596887b8873879900c9abe43b577", [:make, :mix], [{:elixir_make, "~> 0.4", [hex: :elixir_make, optional: false]}]},
+%{"argon2_elixir": {:hex, :argon2_elixir, "1.0.0", "378d4965c7b4b245a0599ae2652426b16bdb92c85de978d0a4c63fe265d3b211", [:make, :mix], [{:elixir_make, "~> 0.4", [hex: :elixir_make, optional: false]}]},
   "bcrypt_elixir": {:hex, :bcrypt_elixir, "0.1.0", "2a43662190a766353abffbc1879077a1af9d07641a8f171434293d54bf70d4ed", [:make, :mix], [{:elixir_make, "~> 0.4", [hex: :elixir_make, optional: false]}]},
   "earmark": {:hex, :earmark, "1.2.2", "f718159d6b65068e8daeef709ccddae5f7fdc770707d82e7d126f584cd925b74", [:mix], []},
   "elixir_make": {:hex, :elixir_make, "0.4.0", "992f38fabe705bb45821a728f20914c554b276838433349d4f2341f7a687cddf", [:mix], []},

@@ -98,7 +98,7 @@ defmodule Mix.Tasks.Phauxth.New do
 
     You need to first edit the `mix.exs` file, adding `{:phauxth, "~> 0.12-rc"},`
     and one of the following: `{:bcrypt_elixir, "~> 0.1"},`, `{:pbkdf2_elixir, "~> 0.8"},`,
-    or `{:argon2_elixir, "~> 0.12"},` to the deps. Then, run `mix deps.get`.
+    or `{:argon2_elixir, "~> 1.0"},` to the deps. Then, run `mix deps.get`.
 
     #{confirm_message(confirm)}
 
