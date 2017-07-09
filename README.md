@@ -20,6 +20,10 @@ To create an api, change the `mix phx.new` command to:
 
 ### Run the Phauxth installer
 
+N.B. if you are not using Erlang 20, you might have to build the installer
+yourself. You can find the instructions in the README in the installer/new
+directory.
+
 Download and install the [phauxth_new installer](https://github.com/riverrun/phauxth/raw/master/installer/archives/phauxth_new.ez).
 
     mix archive.install https://github.com/riverrun/phauxth/raw/master/installer/archives/phauxth_new.ez
