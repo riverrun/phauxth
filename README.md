@@ -42,17 +42,19 @@ If you want to create authentication files for an api, use the `--api` option:
 
 ### Add phauxth to deps
 
-Make sure you are using Elixir 1.4 or above.
+1. Make sure you are using Elixir 1.4 or above.
 
-1. Add phauxth to your `mix.exs` dependencies
+2. Add phauxth to your `mix.exs` dependencies
 
     ```elixir
     defp deps do
-      [{:phauxth, "~> 0.10"}]
+      [{:phauxth, "~> 0.12-rc"}]
     end
     ```
 
-2. Run `mix deps.get`
+3. Run `mix deps.get`
+
+4. Add the `get(id)` and `get_by(attrs)` functions to your user Accounts module
 
 See the [wiki](https://github.com/riverrun/phauxth/wiki) for more
 information about Phauxth.

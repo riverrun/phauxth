@@ -30,9 +30,10 @@ defmodule Phauxth.Mixfile do
   defp deps do
     [
       {:phoenix, "~> 1.3.0-rc"},
-      {:argon2_elixir, "~> 1.0", optional: true},
-      {:bcrypt_elixir, "~> 0.1", optional: true},
-      {:pbkdf2_elixir, "~> 0.8", optional: true},
+      {:comeonin, git: "https://github.com/riverrun/comeonin.git", branch: "version_4"},
+      {:argon2_elixir, "~> 1.2", optional: true},
+      {:bcrypt_elixir, "~> 0.11", optional: true},
+      {:pbkdf2_elixir, "~> 0.11", optional: true},
       {:earmark, "~> 1.2", only: :dev},
       {:ex_doc,  "~> 0.16", only: :dev}
     ]

@@ -15,21 +15,11 @@ defmodule Phauxth.Login.Base do
         user_params = to_string(identifier)
         %{^user_params => user_id, "password" => password} = params
         user_data.get_by([{identifier, user_id}])
-        |> check_pass(password, crypto, opts)
+        |> Comeonin.check_pass(password, crypto, opts)
         |> log(user_id, "successful login")
       end
 
-      @doc false
-      def check_pass(nil, _, crypto, opts) do
-        crypto.no_user_verify(opts)
-        {:error, "invalid user-identifier"}
-      end
-      def check_pass(%{password_hash: hash} = user, password, crypto, opts) do
-        crypto.verify_hash(hash, password, opts) and
-        {:ok, user} || {:error, "invalid password"}
-      end
-
-      defoverridable [verify: 2, check_pass: 4]
+      defoverridable [verify: 2]
     end
   end
 

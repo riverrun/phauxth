@@ -5,7 +5,7 @@ defmodule Phauxth do
   Phauxth is designed to be secure, extensible and well-documented.
 
   Phauxth offers two types of functions: Plugs, which are called with plug,
-  and verify/2 functions, which are called inside the function bodies.
+  and verify/3 functions, which are called inside the function bodies.
 
   ## Plugs
 
@@ -35,9 +35,9 @@ defmodule Phauxth do
 
   This needs to be called after plug Phauxth.Authenticate.
 
-  ## Phauxth verify/2
+  ## Phauxth verify/3
 
-  Each verify/2 function takes a map (usually Phoenix params) and opts
+  Each verify/3 function takes a map (usually Phoenix params) and opts
   (an empty list by default) and returns {:ok, user} or {:error, message}.
 
   ### Login and One-time passwords
@@ -46,15 +46,11 @@ defmodule Phauxth do
   function in the session controller.
 
       def create(conn, %{"session" => params}) do
-        case Phauxth.Login.verify(params) do
+        case Phauxth.Login.verify(params, MyApp.Accounts) do
           {:ok, user} -> handle_successful_login
           {:error, message} -> handle_error
         end
       end
-
-  Phauxth.Otp.verify is used for logging in with one-time passwords, which
-  are often used with two-factor authentication. It is used in the same
-  way as Phauxth.Login.verify.
 
   ### User confirmation
 
@@ -73,6 +69,9 @@ defmodule Phauxth do
 
     * `--api` - create files for an api
     * `--confirm` - add files for email confirmation
+
+  Phauxth uses the `get(id)` and `get_by(attrs)` functions in the user Accounts
+  module, so make sure that these functions are defined.
 
   ## Customizing Phauxth
 

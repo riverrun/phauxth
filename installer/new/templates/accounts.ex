@@ -98,7 +98,7 @@ defmodule <%= base %>.Accounts do
 
   defp put_pass_hash(%Ecto.Changeset{valid?: true, changes:
       %{password: password}} = changeset) do
-    change(changeset, %{password_hash: Bcrypt.hash_pwd_salt(password), password: nil})
+    change(changeset, Comeonin.add_hash(password, Bcrypt))
   end
   defp put_pass_hash(changeset), do: changeset
 end
