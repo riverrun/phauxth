@@ -1,16 +1,19 @@
 # Upgrading to Phauxth from Openmaize
 
 This document shows the changes you need to make when upgrading from Openmaize
-to Phauxth. For more information, see the each module's documentation.
+to Phauxth. For more information, see each module's documentation.
 
 ## Changes
 
 ### Interaction with the database
 
-The repo and user schema is set in the `opts` argument for the Plugs
-and verify/2 functions.
+Instead of setting a default repo and user schema, Phauxth now uses
+the user `Accounts` module, which is new in Phoenix 1.3.
 
-The default repo is MyApp.Repo and the default user_schema is MyApp.Accounts.User
+The default Accounts (:user_data) is set in the `opts` argument for the Plugs,
+and it is the second argument in the verify/3 functions.
+
+The default is MyApp.Accounts.
 
 ### Plugs
 
@@ -25,10 +28,10 @@ The underlying implementation now uses Phoenix token in a cookie. When upgrading
 the old Openmaize.Remember cookie will not be recognised, forcing the user to
 login again.
 
-### Login, Otp, Confirm and Confirm.PassReset
+### Login, Confirm and Confirm.PassReset
 
 The Login, Otp, Confirm (ConfirmEmail) and Confirm.PassReset (ResetPassword)
-Plugs have been removed, and replaced with verify/2 functions, which are
+Plugs have been removed, and replaced with verify/3 functions, which are
 called within the controller function.
 
 #### Login
@@ -39,7 +42,7 @@ the create function, as in the example below.
 
     ```elixir
       def create(conn, %{"session" => session_params}) do
-        case Phauxth.Login.verify(session_params) do
+        case Phauxth.Login.verify(session_params, MyApp.Accounts) do
           {:ok, user} -> handle_successful_login
           {:error, _message} -> handle_error
         end
@@ -47,23 +50,14 @@ the create function, as in the example below.
     ```
 
 You can also now decide to use a different password hashing library,
-which is set in the `opts` for Login.verify (the default is Bcrypt):
+which is set in the `opts` for Login.verify (the default is Comeonin.Bcrypt):
 
-    Phauxth.Login.verify(session_params, crypto: Argon2)
+    Phauxth.Login.verify(session_params, crypto: Comeonin.Argon2)
 
-Phauxth is tested with `argon2_elixir`, `bcrypt_elixir` and `pbkdf2_elixir`.
-These are optional dependencies, and so you need to add one of them to
-the `deps` section in your mix.exs file.
-
-You can use any other library, but the library has to implement the following
-three functions: `hash_pwd_salt/2`, `verify_hash/3` and `no_user_verify/1`.
-
-#### One time password
-
-The Openmaize.OnetimePass is now Phauxth.Otp.verify.
-
-It should be called the same way as the Login.verify in the example
-above. The options are the same.
+Phauxth is tested with Comeonin and the three algorithms it now supports:
+`argon2_elixir`, `bcrypt_elixir` and `pbkdf2_elixir`. These are optional
+dependencies, and so you need to add one of them to the `deps` section
+in your mix.exs file.
 
 #### Email confirmation and password resetting
 

@@ -71,7 +71,7 @@ defmodule Phauxth.Confirm.Base do
         Keyword.get(opts, :key_validity, 60)}
       end
 
-      defoverridable [verify: 2, check_confirm: 2, check_key: 3, log: 3]
+      defoverridable [verify: 3, check_confirm: 2, check_key: 3, log: 3]
     end
   end
 

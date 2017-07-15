@@ -11,15 +11,18 @@ defmodule Phauxth.Login.Base do
       @doc false
       def verify(params, user_data, opts \\ []) do
         {identifier, crypto} = {Keyword.get(opts, :identifier, :email),
-          Keyword.get(opts, :crypto, Bcrypt)}
+          Keyword.get(opts, :crypto, Comeonin.Bcrypt)}
         user_params = to_string(identifier)
         %{^user_params => user_id, "password" => password} = params
         user_data.get_by([{identifier, user_id}])
-        |> Comeonin.check_pass(password, crypto, opts)
+        |> check_pass(password, opts)
         |> log(user_id, "successful login")
       end
 
-      defoverridable [verify: 2]
+      @doc false
+      defdelegate check_pass(user, password, opts), to: Comeonin.Bcrypt
+
+      defoverridable [verify: 3, check_pass: 3]
     end
   end
 

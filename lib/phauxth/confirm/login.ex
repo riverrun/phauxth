@@ -6,14 +6,7 @@ defmodule Phauxth.Confirm.Login do
 
   use Phauxth.Login.Base
 
-  def check_pass(nil, _, crypto, opts) do
-    crypto.no_user_verify(opts)
-    {:error, "invalid user-identifier"}
-  end
-  def check_pass(%{confirmed_at: nil}, _, _, _),
+  def check_pass(%{confirmed_at: nil}, _, _),
     do: {:error, "account unconfirmed"}
-  def check_pass(%{password_hash: hash} = user, password, crypto, opts) do
-    crypto.verify_hash(hash, password, opts) and
-    {:ok, user} || {:error, "invalid password"}
-  end
+  def check_pass(user, password, opts), do: super(user, password, opts)
 end

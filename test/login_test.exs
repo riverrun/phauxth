@@ -2,7 +2,7 @@ defmodule Phauxth.LoginTest do
   use ExUnit.Case
   use Plug.Test
 
-  alias Phauxth.{Login, TestAccounts}
+  alias Phauxth.{CustomLogin, Login, TestAccounts}
 
   test "login succeeds with email" do
     params = %{"email" => "fred+1@mail.com", "password" => "h4rd2gU3$$"}
@@ -41,15 +41,15 @@ defmodule Phauxth.LoginTest do
     refute Map.has_key?(user, :otp_secret)
   end
 
-  test "can customize to use different crypto" do
+  test "use a custom check_pass" do
     params = %{"email" => "frank@mail.com", "password" => "h4rd2gU3$$"}
-    {:ok, %{email: email}} = Login.verify(params, TestAccounts, crypto: Phauxth.DummyCrypto)
+    {:ok, %{email: email}} = CustomLogin.verify(params, TestAccounts)
     assert email == "frank@mail.com"
   end
 
-  test "login fails for invalid email with custom crypto" do
+  test "login fails for invalid email with custom check_pass" do
     params = %{"email" => "oranges@mail.com", "password" => "h4rd2gU3$$"}
-    {:error, message} = Login.verify(params, TestAccounts, crypto: Phauxth.DummyCrypto)
+    {:error, message} = CustomLogin.verify(params, TestAccounts)
     assert message =~ "Invalid credentials"
   end
 
