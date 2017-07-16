@@ -15,7 +15,9 @@ defmodule Phauxth.Confirm.Base do
 
       @ok_log unquote(options)[:ok_log] || "account confirmed"
 
-      @doc false
+      @doc """
+      Verify the confirmation key.
+      """
       def verify(params, user_data, opts \\ []) do
         {identifier, key_validity} = unpack(opts)
         user_params = to_string(identifier)

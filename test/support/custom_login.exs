@@ -13,3 +13,13 @@ defmodule Phauxth.CustomLogin do
   end
 
 end
+
+defmodule Phauxth.Argon2Login do
+  @moduledoc """
+  Login module using Argon2 for testing purposes.
+  """
+
+  use Phauxth.Login.Base
+
+  defdelegate check_pass(user, password, opts), to: Comeonin.Argon2
+end

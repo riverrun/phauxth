@@ -2,7 +2,7 @@ defmodule Phauxth.LoginTest do
   use ExUnit.Case
   use Plug.Test
 
-  alias Phauxth.{CustomLogin, Login, TestAccounts}
+  alias Phauxth.{Argon2Login, CustomLogin, Login, TestAccounts}
 
   test "login succeeds with email" do
     params = %{"email" => "fred+1@mail.com", "password" => "h4rd2gU3$$"}
@@ -50,6 +50,18 @@ defmodule Phauxth.LoginTest do
   test "login fails for invalid email with custom check_pass" do
     params = %{"email" => "oranges@mail.com", "password" => "h4rd2gU3$$"}
     {:error, message} = CustomLogin.verify(params, TestAccounts)
+    assert message =~ "Invalid credentials"
+  end
+
+  test "login with different crypto module" do
+    params = %{"email" => "frank@mail.com", "password" => "h4rd2gU3$$"}
+    {:ok, %{email: email}} = Argon2Login.verify(params, TestAccounts)
+    assert email == "frank@mail.com"
+  end
+
+  test "login with different crypto module fails for wrong password" do
+    params = %{"email" => "frank@mail.com", "password" => "password"}
+    {:error, message} = Argon2Login.verify(params, TestAccounts)
     assert message =~ "Invalid credentials"
   end
 

@@ -17,6 +17,7 @@ defmodule Phauxth.Config do
   like the following example.
 
       config :phauxth,
+        log_level: :warn,
         drop_user_keys: [:shoe_size]
 
   """

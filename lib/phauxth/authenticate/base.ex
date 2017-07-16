@@ -28,7 +28,7 @@ defmodule Phauxth.Authenticate.Base do
       end
 
   And in the `router.ex` file, call this plug in the pipeline you
-  want to authenticate (setting the context to the app's endpoint).
+  want to authenticate (setting the token context to the app's endpoint).
 
       plug :api do
         plug AbsintheAuthenticate, context: MyApp.Web.Endpoint

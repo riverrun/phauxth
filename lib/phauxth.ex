@@ -9,8 +9,8 @@ defmodule Phauxth do
 
   ## Plugs
 
-  Plugs take a conn (connection) struct and opts as arguments and return
-  a conn struct.
+  Plugs take a conn (connection) struct, a context module (MyApp.Accounts
+  by default) and opts as arguments and return a conn struct.
 
   ### Authenticate
 
@@ -23,6 +23,11 @@ defmodule Phauxth do
       pipeline :browser do
         plug Phauxth.Authenticate
       end
+
+  To authenticate an api, using Phoenix token, you need to add a token
+  context, usually the app's endpoint, to this function.
+
+      plug Phauxth.Authenticate, context: MyApp.Web.Endpoint
 
   ### Remember
 
@@ -37,10 +42,11 @@ defmodule Phauxth do
 
   ## Phauxth verify/3
 
-  Each verify/3 function takes a map (usually Phoenix params) and opts
-  (an empty list by default) and returns {:ok, user} or {:error, message}.
+  Each verify/3 function takes a map (usually Phoenix params), a context
+  module (usually MyApp.Accounts) and opts (an empty list by default)
+  and returns {:ok, user} or {:error, message}.
 
-  ### Login and One-time passwords
+  ### Login
 
   In the example below, Phauxth.Login.verify is called within the create
   function in the session controller.
@@ -52,10 +58,29 @@ defmodule Phauxth do
         end
       end
 
-  ### User confirmation
+  ### User confirmation and password resetting
 
   Phauxth.Confirm.verify is used for user confirmation, using email or phone,
   and Phauxth.Confirm.PassReset.verify is used for password resetting.
+
+  The function below is an example of how you would call Phauxth.Confirm.verify.
+  Note that the verify function does not update the database or send
+  an email to the user. These need to be handled in your app.
+
+      def new(conn, params) do
+        case Phauxth.Confirm.verify(params, MyApp.Accounts) do
+          {:ok, user} ->
+            Accounts.confirm_user(user)
+            message = "Your account has been confirmed"
+            Message.confirm_success(user.email)
+            handle_success(conn, message, session_path(conn, :new))
+          {:error, message} ->
+            handle_error(conn, message, session_path(conn, :new))
+        end
+      end
+
+  Similarly, the Phauxth.Confirm.PassReset.verify function does not
+  reset the password. Its job is to verify the confirmation key.
 
   ## Phauxth with a new Phoenix project
 

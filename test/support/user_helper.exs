@@ -13,7 +13,7 @@ defmodule Phauxth.TestAccounts do
     %{id: 4, email: "brian@mail.com", role: "user"},
     %{id: 5, email: "igor@mail.com", role: "user",
       reset_token: @key, reset_sent_at: nil},
-    %{id: 6, email: "frank@mail.com", password_hash: "dumb-h4rd2gU3$$-crypto"},
+    %{id: 6, email: "frank@mail.com", password_hash: Argon2.hash_pwd_salt("h4rd2gU3$$")},
     %{id: 7, email: "eddie@mail.com", encrypted_password: "dumb-h4rd2gU3$$-crypto"}
   ]
 
