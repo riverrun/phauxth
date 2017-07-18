@@ -52,7 +52,7 @@ the create function, as in the example below.
 You can also now decide to use a different password hashing library,
 which is set in the `opts` for Login.verify (the default is Comeonin.Bcrypt):
 
-    Phauxth.Login.verify(session_params, crypto: Comeonin.Argon2)
+    Phauxth.Login.verify(session_params, MyApp.Accounts, crypto: Comeonin.Argon2)
 
 Phauxth is tested with Comeonin and the three algorithms it now supports:
 `argon2_elixir`, `bcrypt_elixir` and `pbkdf2_elixir`. These are optional

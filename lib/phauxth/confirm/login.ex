@@ -10,6 +10,6 @@ defmodule Phauxth.Confirm.Login do
   If `confirmed_at: nil` is in the user struct, this function will return
   {:error, message}. Otherwise, it will run the default `check_pass` function.
   """
-  def check_pass(%{confirmed_at: nil}, _, _), do: {:error, "account unconfirmed"}
-  def check_pass(user, password, opts), do: super(user, password, opts)
+  def check_pass(%{confirmed_at: nil}, _, _, _), do: {:error, "account unconfirmed"}
+  def check_pass(user, password, crypto, opts), do: super(user, password, crypto, opts)
 end

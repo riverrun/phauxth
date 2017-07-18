@@ -2,7 +2,7 @@ defmodule Phauxth.Login do
   @moduledoc """
   Module to handle login.
 
-  `Phauxth.Login.verify/2` checks the user's password, and returns
+  `Phauxth.Login.verify/3` checks the user's password, and returns
   {:ok, user} if login is successful or {:error, message} if there
   is an error.
 
@@ -16,10 +16,15 @@ defmodule Phauxth.Login do
 
   ## Options
 
-  There is one option:
+  There are two options for the verify function:
 
     * identifier - the name which is used to identify the user (in the database)
       * this should be an atom, and the default is `:email`
+    * crypto - the password hashing algorithm to use
+      * the default is Comeonin.Bcrypt
+
+  The check_pass function also has options. See the documentation for
+  the password hashing module you are using for details.
 
   ## Examples
 

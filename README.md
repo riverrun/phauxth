@@ -44,17 +44,25 @@ If you want to create authentication files for an api, use the `--api` option:
 
 1. Make sure you are using Elixir 1.4 or above.
 
-2. Add phauxth to your `mix.exs` dependencies
+2. Add phauxth and the password hashing algorithm you want to use
+(argon2_elixir, bcrypt_elixir or pbkdf2_elixir) to your `mix.exs` dependencies.
 
     ```elixir
     defp deps do
-      [{:phauxth, "~> 0.12-rc"}]
+      [
+        {:phauxth, "~> 0.12-rc"},
+        {:bcrypt_elixir, "~> 0.11"},
+      ]
     end
     ```
 
-3. Run `mix deps.get`
+3. Run `mix deps.get`.
 
-4. Add the `get(id)` and `get_by(attrs)` functions to your user Accounts module
+4. Add the `get(id)` and `get_by(attrs)` functions to your user Accounts module.
+
+5. If you are using argon2_elixir or pbkdf2_elixir as the password hashing
+module, you will need to create a custom login module using that algorithm.
+See the documentation for Phauxth.Login.Base.check_pass for details.
 
 See the [wiki](https://github.com/riverrun/phauxth/wiki) for more
 information about Phauxth.

@@ -25,32 +25,23 @@ defmodule Phauxth.Login.Base do
 
       """
       def verify(params, user_data, opts \\ []) do
-        identifier = Keyword.get(opts, :identifier, :email)
+        {identifier, crypto} = {Keyword.get(opts, :identifier, :email),
+          Keyword.get(opts, :crypto, Comeonin.Bcrypt)}
         user_params = to_string(identifier)
         %{^user_params => user_id, "password" => password} = params
         user_data.get_by([{identifier, user_id}])
-        |> check_pass(password, opts)
+        |> check_pass(password, crypto, opts)
         |> log(user_id, "successful login")
       end
 
       @doc """
       Check the password by comparing it with a stored hash.
-
-      This uses Comeonin.Bcrypt by default. You can define a
-      custom module to use a different crypto module in the
-      following way:
-
-          defmodule Phauxth.Argon2Login do
-            use Phauxth.Login.Base
-            defdelegate check_pass(user, password, opts), to: Comeonin.Argon2
-          end
-
-      Then you can use the Phauxth.Argon2Login.verify function to check
-      the user's password.
       """
-      defdelegate check_pass(user, password, opts), to: Comeonin.Bcrypt
+      def check_pass(user, password, crypto, opts) do
+        crypto.check_pass(user, password, opts)
+      end
 
-      defoverridable [verify: 3, check_pass: 3]
+      defoverridable [verify: 3, check_pass: 4]
     end
   end
 
