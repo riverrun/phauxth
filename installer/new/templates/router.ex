@@ -3,7 +3,7 @@ defmodule <%= base %>.Web.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
-    plug Phauxth.Authenticate, context: <%= base %>.Web.Endpoint
+    plug Phauxth.Authenticate, token: <%= base %>.Web.Endpoint
   end
 
   scope "/api", <%= base %>.Web do

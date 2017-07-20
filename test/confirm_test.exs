@@ -39,10 +39,10 @@ defmodule Phauxth.ConfirmTest do
     assert message =~ "Invalid credentials"
   end
 
-  test "confirmation succeeds with custom identifier" do
+  test "confirmation succeeds with different identifier" do
     phone_link = "phone=55555555555&key=lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
     %{params: params} = conn(:get, "/confirm?" <> phone_link) |> fetch_query_params
-    {:ok, user} = Confirm.verify(params, TestAccounts, [identifier: :phone])
+    {:ok, user} = Confirm.verify(params, TestAccounts)
     assert user
   end
 

@@ -78,7 +78,7 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       assert_file "lib/phauxth_new/web/controllers/authorize.ex"
 
       assert_file "lib/phauxth_new/web/router.ex", fn file ->
-        assert file =~ ~s(plug Phauxth.Authenticate, context: PhauxthNew.Web.Endpoint)
+        assert file =~ ~s(plug Phauxth.Authenticate, token: PhauxthNew.Web.Endpoint)
         assert file =~ ~s(post "/sessions/create", SessionController, :create)
       end
 
@@ -100,7 +100,7 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       assert_file "lib/phauxth_new/web/views/confirm_view.ex"
 
       assert_file "lib/phauxth_new/web/router.ex", fn file ->
-        assert file =~ ~s(plug Phauxth.Authenticate, context: PhauxthNew.Web.Endpoint)
+        assert file =~ ~s(plug Phauxth.Authenticate, token: PhauxthNew.Web.Endpoint)
         assert file =~ ~s(post "/password_resets/create", PasswordResetController, :create)
       end
 

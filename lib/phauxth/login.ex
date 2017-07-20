@@ -16,10 +16,8 @@ defmodule Phauxth.Login do
 
   ## Options
 
-  There are two options for the verify function:
+  There is one option for the verify function:
 
-    * identifier - the name which is used to identify the user (in the database)
-      * this should be an atom, and the default is `:email`
     * crypto - the password hashing algorithm to use
       * the default is Comeonin.Bcrypt
 

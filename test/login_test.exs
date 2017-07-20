@@ -12,7 +12,7 @@ defmodule Phauxth.LoginTest do
 
   test "login succeeds with username" do
     params = %{"username" => "fred", "password" => "h4rd2gU3$$"}
-    {:ok, %{username: username}} = Login.verify(params, TestAccounts, [identifier: :username])
+    {:ok, %{username: username}} = Login.verify(params, TestAccounts)
     assert username == "fred"
   end
 
@@ -24,7 +24,7 @@ defmodule Phauxth.LoginTest do
 
   test "login fails for invalid username" do
     params = %{"username" => "dick", "password" => "h4rd2gU3$$"}
-    {:error, message} = Login.verify(params, TestAccounts, [identifier: :username])
+    {:error, message} = Login.verify(params, TestAccounts)
     assert message =~ "Invalid credentials"
   end
 

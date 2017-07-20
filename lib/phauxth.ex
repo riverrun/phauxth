@@ -25,9 +25,10 @@ defmodule Phauxth do
       end
 
   To authenticate an api, using Phoenix token, you need to add a token
-  context, usually the app's endpoint, to this function.
+  key source, which is usually the app's endpoint, but can also be `Plug.Conn`,
+  `Phoenix.Socket` or a string representing the secret key base, to this function.
 
-      plug Phauxth.Authenticate, context: MyApp.Web.Endpoint
+      plug Phauxth.Authenticate, token: MyApp.Web.Endpoint
 
   ### Remember
 

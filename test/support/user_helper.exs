@@ -19,13 +19,13 @@ defmodule Phauxth.TestAccounts do
 
   def get(id), do: Enum.at(@users, id - 1)
 
-  def get_by(email: "fred+1@mail.com"), do: Enum.at(@users, 0)
-  def get_by(email: "ray@mail.com"), do: Enum.at(@users, 1)
-  def get_by(email: "froderick@mail.com"), do: Enum.at(@users, 2)
-  def get_by(email: "frank@mail.com"), do: Enum.at(@users, 5)
-  def get_by(email: "eddie@mail.com"), do: Enum.at(@users, 6)
-  def get_by(username: "fred"), do: Enum.at(@users, 0)
-  def get_by(phone: "55555555555"), do: Enum.at(@users, 0)
+  def get_by(%{"email" => "fred+1@mail.com"}), do: Enum.at(@users, 0)
+  def get_by(%{"email" => "ray@mail.com"}), do: Enum.at(@users, 1)
+  def get_by(%{"email" => "froderick@mail.com"}), do: Enum.at(@users, 2)
+  def get_by(%{"email" => "frank@mail.com"}), do: Enum.at(@users, 5)
+  def get_by(%{"email" => "eddie@mail.com"}), do: Enum.at(@users, 6)
+  def get_by(%{"username" => "fred"}), do: Enum.at(@users, 0)
+  def get_by(%{"phone" => "55555555555"}), do: Enum.at(@users, 0)
   def get_by(_), do: nil
 
 end

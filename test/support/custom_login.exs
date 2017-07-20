@@ -9,7 +9,7 @@ defmodule Phauxth.CustomLogin do
     {:error, "Invalid credentials"}
   end
   def check_pass(_, _, _, _) do
-    {:ok, %{email: "frank@mail.com"}}
+    {:ok, %{id: 6, email: "frank@mail.com"}}
   end
 
 end

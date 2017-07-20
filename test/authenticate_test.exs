@@ -17,7 +17,7 @@ defmodule Phauxth.AuthenticateTest do
     import Plug.Conn
 
     def set_user(user, conn) do
-      put_private(conn, :absinthe, %{context: %{current_user: user}})
+      put_private(conn, :absinthe, %{token: %{current_user: user}})
     end
   end
 
@@ -98,7 +98,7 @@ defmodule Phauxth.AuthenticateTest do
     conn = conn(:get, "/")
            |> put_req_header("authorization", sign_token(1))
            |> AbsintheAuthenticate.call({TokenEndpoint, @max_age, TestAccounts})
-    %{context: %{current_user: user}} = conn.private.absinthe
+    %{token: %{current_user: user}} = conn.private.absinthe
     assert user.email == "fred+1@mail.com"
     assert user.role == "user"
   end

@@ -6,13 +6,14 @@ defmodule Phauxth.Authenticate do
 
   There are three options:
 
-    * context - the context to use when using Phoenix token
+    * token - the token key source to use when using Phoenix token
       * the default is nil, meaning the user will be authenticated using sessions
       * in most cases, this will be the name of the endpoint you are using
+        * can also be `Plug.Conn`, `Phoenix.Socket` or a string representing the secret key base
       * see the documentation for Phoenix.Token for more information
     * max_age - the length of the validity of the token
       * the default is one week
-    * user_data - the user data module to be used
+    * user_context - the user context module to be used
       * the default is MyApp.Accounts
 
   ## Examples
@@ -22,9 +23,9 @@ defmodule Phauxth.Authenticate do
 
       plug Phauxth.Authenticate
 
-  To use with an api, add a context:
+  To use with an api, add the token key source:
 
-      plug Phauxth.Authenticate, context: MyApp.Web.Endpoint
+      plug Phauxth.Authenticate, token: MyApp.Web.Endpoint
 
   """
 

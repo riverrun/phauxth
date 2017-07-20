@@ -23,15 +23,15 @@ defmodule Phauxth.Authenticate.Base do
         import Plug.Conn
 
         def set_user(user, conn) do
-          put_private(conn, :absinthe, %{context: %{current_user: user}})
+          put_private(conn, :absinthe, %{token: %{current_user: user}})
         end
       end
 
   And in the `router.ex` file, call this plug in the pipeline you
-  want to authenticate (setting the token context to the app's endpoint).
+  want to authenticate (setting the token key source to the app's endpoint).
 
       plug :api do
-        plug AbsintheAuthenticate, context: MyApp.Web.Endpoint
+        plug AbsintheAuthenticate, token: MyApp.Web.Endpoint
       end
 
   """
@@ -45,14 +45,14 @@ defmodule Phauxth.Authenticate.Base do
 
       @doc false
       def init(opts) do
-        {Keyword.get(opts, :context),
+        {Keyword.get(opts, :token),
         Keyword.get(opts, :max_age, 7 * 24 * 60 * 60),
-        Keyword.get(opts, :user_data, default_user_data())}
+        Keyword.get(opts, :user_context, default_user_context())}
       end
 
       @doc false
-      def call(conn, {nil, _, user_data}) do
-        check_session(conn, user_data) |> log_user |> set_user(conn)
+      def call(conn, {nil, _, user_context}) do
+        check_session(conn, user_context) |> log_user |> set_user(conn)
       end
       def call(%Plug.Conn{req_headers: headers} = conn, opts) do
         check_headers(headers, opts) |> log_user |> set_user(conn)
@@ -65,7 +65,7 @@ defmodule Phauxth.Authenticate.Base do
         Plug.Conn.assign(conn, :current_user, user)
       end
 
-      defp default_user_data do
+      defp default_user_context do
         Mix.Project.config
         |> Keyword.fetch!(:app)
         |> to_string
@@ -87,9 +87,9 @@ defmodule Phauxth.Authenticate.Base do
 
   This function also calls the database to get user information.
   """
-  def check_session(conn, user_data) do
+  def check_session(conn, user_context) do
     with id when not is_nil(id) <- get_session(conn, :user_id),
-        do: user_data.get(id)
+        do: user_context.get(id)
   end
 
   @doc """
@@ -107,9 +107,9 @@ defmodule Phauxth.Authenticate.Base do
 
   This function also calls the database to get user information.
   """
-  def check_token(token, {context, max_age, user_data}) do
-    with {:ok, user_id} <- Token.verify(context, "user auth", token, max_age: max_age),
-        do: user_data.get(user_id)
+  def check_token(token, {key_source, max_age, user_context}) do
+    with {:ok, user_id} <- Token.verify(key_source, "user auth", token, max_age: max_age),
+        do: user_context.get(user_id)
   end
 
   @doc """

@@ -8,9 +8,13 @@ to Phauxth. For more information, see each module's documentation.
 ### Interaction with the database
 
 Instead of setting a default repo and user schema, Phauxth now uses
-the user `Accounts` module, which is new in Phoenix 1.3.
+the user context module (`Accounts` by default), which is new in Phoenix
+1.3. This module needs to have the following two functions:
 
-The default Accounts (:user_data) is set in the `opts` argument for the Plugs,
+* get(id) - get the user by id
+* get_by(params) - get the user by using the params output by the Phoenix function
+
+The default context (:user_context) is set in the `opts` argument for the Plugs,
 and it is the second argument in the verify/3 functions.
 
 The default is MyApp.Accounts.
@@ -30,9 +34,12 @@ login again.
 
 ### Login, Confirm and Confirm.PassReset
 
-The Login, Otp, Confirm (ConfirmEmail) and Confirm.PassReset (ResetPassword)
+The Login, Confirm (ConfirmEmail) and Confirm.PassReset (ResetPassword)
 Plugs have been removed, and replaced with verify/3 functions, which are
 called within the controller function.
+
+For all of these functions, there is no longer any need to set the
+user-identifier (email, username, etc.).
 
 #### Login
 
@@ -63,8 +70,6 @@ in your mix.exs file.
 
 Openmaize.ConfirmEmail is now Phauxth.Confirm.verify and
 Openmaize.ResetPassword is now Phauxth.Confirm.PassReset.verify.
-
-There is now an option to change the user-identifier -- to phone, for example, from email.
 
 With Openmaize, the database was updated and an email sent to the user within
 the Plug. With Phauxth, the two functions to update the database and send the email are

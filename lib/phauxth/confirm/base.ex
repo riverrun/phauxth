@@ -18,24 +18,21 @@ defmodule Phauxth.Confirm.Base do
       @doc """
       Verify the confirmation key.
       """
-      def verify(params, user_data, opts \\ []) do
-        {identifier, key_validity} = unpack(opts)
-        user_params = to_string(identifier)
-        with %{^user_params => user_id, "key" => key} <- params do
-          check_confirm({identifier, user_id, key, key_validity, @ok_log}, user_data)
-        else
-          _ -> check_confirm(nil, user_data)
-        end
+      def verify(params, user_context, opts \\ [])
+      def verify(%{"key" => key} = params, user_context, opts) do
+        key_validity = Keyword.get(opts, :key_validity, 60)
+        check_confirm({params, key, key_validity, @ok_log}, user_context)
       end
+      def verify(_, _, _), do: check_confirm(nil, :no_key)
 
       @doc """
       Function to confirm the user by checking the token.
       """
-      def check_confirm({identifier, user_id, key, key_expiry, ok_log}, user_data)
+      def check_confirm({params, key, key_expiry, ok_log}, user_context)
           when byte_size(key) == 32 do
-        user_data.get_by([{identifier, user_id}])
+        user_context.get_by(params)
         |> check_key(key, key_expiry * 60)
-        |> log(user_id, ok_log)
+        |> log(ok_log)
       end
       def check_confirm(_, _) do
         Log.warn(%Log{message: "invalid query string"})
@@ -55,25 +52,20 @@ defmodule Phauxth.Confirm.Base do
       @doc """
       Print out the log message and return {:ok, user} or {:error, message}.
       """
-      def log({:ok, user}, user_id, ok_log) do
-        Log.info(%Log{user: user_id, message: ok_log})
+      def log({:ok, user}, ok_log) do
+        Log.info(%Log{user: user.id, message: ok_log})
         {:ok, Map.drop(user, Config.drop_user_keys)}
       end
-      def log(false, user_id, _) do
-        log({:error, "invalid token"}, user_id, nil)
+      def log(false, _) do
+        log({:error, "invalid token"}, nil)
         {:error, "Invalid credentials"}
       end
-      def log({:error, message}, user_id, _) do
-        Log.warn(%Log{user: user_id, message: message})
+      def log({:error, message}, _) do
+        Log.warn(%Log{message: message})
         {:error, "Invalid credentials"}
       end
 
-      defp unpack(opts) do
-        {Keyword.get(opts, :identifier, :email),
-        Keyword.get(opts, :key_validity, 60)}
-      end
-
-      defoverridable [verify: 3, check_confirm: 2, check_key: 3, log: 3]
+      defoverridable [verify: 3, check_confirm: 2, check_key: 3, log: 2]
     end
   end
 
