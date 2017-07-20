@@ -50,7 +50,7 @@ defmodule <%= base %>.Web.UserControllerTest do
   test "creates user when data is valid", %{conn: conn} do
     conn = post conn, user_path(conn, :create), user: @create_attrs<%= if api do %>
     assert json_response(conn, 201)["data"]["id"]
-    assert Accounts.get_by(%{email: "bill@mail.com"})<% else %>
+    assert Accounts.get_by(%{"email" => "bill@mail.com"})<% else %>
     assert redirected_to(conn) == session_path(conn, :new)<% end %>
   end
 
