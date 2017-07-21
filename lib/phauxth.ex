@@ -59,14 +59,16 @@ defmodule Phauxth do
         end
       end
 
+  Note that Login.verify does not add the user to the session or send
+  the user a token. You need to do that in the handle_successful_login
+  function.
+
   ### User confirmation and password resetting
 
   Phauxth.Confirm.verify is used for user confirmation, using email or phone,
   and Phauxth.Confirm.PassReset.verify is used for password resetting.
 
   The function below is an example of how you would call Phauxth.Confirm.verify.
-  Note that the verify function does not update the database or send
-  an email to the user. These need to be handled in your app.
 
       def new(conn, params) do
         case Phauxth.Confirm.verify(params, MyApp.Accounts) do
@@ -79,6 +81,9 @@ defmodule Phauxth do
             handle_error(conn, message, session_path(conn, :new))
         end
       end
+
+  Note that the verify function does not update the database or send
+  an email to the user. Those need to be handled in your app.
 
   Similarly, the Phauxth.Confirm.PassReset.verify function does not
   reset the password. Its job is to verify the confirmation key.

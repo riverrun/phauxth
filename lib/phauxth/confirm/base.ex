@@ -62,17 +62,10 @@ defmodule Phauxth.Confirm.Base do
   end
 
   @doc """
+  Check that the key is still valid.
   """
   def check_time(nil, _), do: false
   def check_time(sent_at, valid_secs) do
-    (to_erl(sent_at) |> :calendar.datetime_to_gregorian_seconds) + valid_secs >
-    (:calendar.universal_time |> :calendar.datetime_to_gregorian_seconds)
-  end
-
-  defp to_erl(%{year: year, month: month, day: day, hour: hour, min: min, sec: sec}) do
-    {{year, month, day}, {hour, min, sec}}
-  end
-  defp to_erl(%{year: year, month: month, day: day, hour: hour, minute: minute, second: second}) do
-    {{year, month, day}, {hour, minute, second}}
+    DateTime.to_unix(sent_at, :second) + valid_secs > System.system_time(:second)
   end
 end

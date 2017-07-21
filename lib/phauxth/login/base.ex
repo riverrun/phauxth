@@ -1,6 +1,22 @@
 defmodule Phauxth.Login.Base do
   @moduledoc """
   Base module for handling login.
+
+  ## Custom login modules
+
+  One example of a custom login module is provided by the Phauxth.Confirm.Login
+  module, which is shown below:
+
+      defmodule Phauxth.Confirm.Login do
+        use Phauxth.Login.Base
+
+        def check_pass(%{confirmed_at: nil}, _, _, _), do: {:error, "account unconfirmed"}
+        def check_pass(user, password, crypto, opts), do: super(user, password, crypto, opts)
+      end
+
+  In the Phauxth.Confirm.Login module, the user struct is checked to see
+  if the user is confirmed. If the user has not been confirmed, an error
+  is returned. Otherwise, the default check_pass function is run.
   """
 
   @doc false
@@ -10,19 +26,6 @@ defmodule Phauxth.Login.Base do
 
       @doc """
       Verify a user's password.
-
-      ## Examples
-
-      The example below shows how you can use this function in the
-      create function of a Phoenix session controller:
-
-          def create(conn, %{"session" => params}) do
-            case Phauxth.Login.verify(params, MyApp.Accounts) do
-              {:ok, user} -> handle_successful_login
-              {:error, message} -> handle_error
-            end
-          end
-
       """
       def verify(%{"password" => password} = params, user_context, opts \\ []) do
         crypto = Keyword.get(opts, :crypto, Comeonin.Bcrypt)

@@ -10,10 +10,6 @@ defmodule Phauxth.Login do
   session, by running `put_session(conn, :user_id, id)`, or send
   an API token to the user.
 
-  If you are using two-factor authentication, you need to first check
-  the user schema for `otp_required: true` and, if necessary, redirect
-  the user to the one-time password input page.
-
   ## Options
 
   There is one option for the verify function:

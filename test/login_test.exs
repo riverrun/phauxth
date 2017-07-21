@@ -71,4 +71,15 @@ defmodule Phauxth.LoginTest do
     assert email == "eddie@mail.com"
   end
 
+  test "login with additional information to use different schemas" do
+    params = %{"email" => "brian@mail.com", "role" => "user", "password" => "h4rd2gU3$$"}
+    {:ok, %{email: email, role: role}} = Login.verify(params, TestAccounts)
+    assert email == "brian@mail.com"
+    assert role == "user"
+    params = %{"email" => "brian@mail.com", "role" => "admin", "password" => "h4rd2gU3$$"}
+    {:ok, %{email: email, role: role}} = Login.verify(params, TestAccounts)
+    assert email == "brian@mail.com"
+    assert role == "admin"
+  end
+
 end
