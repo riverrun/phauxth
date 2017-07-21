@@ -65,4 +65,10 @@ defmodule Phauxth.LoginTest do
     assert message =~ "Invalid credentials"
   end
 
+  test "login with encrypted_password set as key" do
+    params = %{"email" => "eddie@mail.com", "password" => "h4rd2gU3$$"}
+    {:ok, %{email: email}} = Login.verify(params, TestAccounts, crypto: Comeonin.Argon2)
+    assert email == "eddie@mail.com"
+  end
+
 end

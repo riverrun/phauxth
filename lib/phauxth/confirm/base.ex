@@ -19,22 +19,14 @@ defmodule Phauxth.Confirm.Base do
       Verify the confirmation key.
       """
       def verify(params, user_context, opts \\ [])
-      def verify(%{"key" => key} = params, user_context, opts) do
-        key_validity = Keyword.get(opts, :key_validity, 60)
-        check_confirm({params, key, key_validity, @ok_log}, user_context)
-      end
-      def verify(_, _, _), do: check_confirm(nil, :no_key)
-
-      @doc """
-      Function to confirm the user by checking the token.
-      """
-      def check_confirm({params, key, key_expiry, ok_log}, user_context)
+      def verify(%{"key" => key} = params, user_context, opts)
           when byte_size(key) == 32 do
+        key_validity = Keyword.get(opts, :key_validity, 60)
         user_context.get_by(params)
-        |> check_key(key, key_expiry * 60)
-        |> log(ok_log)
+        |> check_key(key, key_validity * 60)
+        |> log(@ok_log)
       end
-      def check_confirm(_, _) do
+      def verify(_, _, _) do
         Log.warn(%Log{message: "invalid query string"})
         {:error, "Invalid credentials"}
       end
@@ -65,7 +57,7 @@ defmodule Phauxth.Confirm.Base do
         {:error, "Invalid credentials"}
       end
 
-      defoverridable [verify: 3, check_confirm: 2, check_key: 3, log: 2]
+      defoverridable [verify: 3, check_key: 3, log: 2]
     end
   end
 

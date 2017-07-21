@@ -33,6 +33,9 @@ defmodule Phauxth.Login.Base do
 
       @doc """
       Check the password by comparing it with a stored hash.
+
+      The stored hash, in the user struct, should have `password_hash`
+      or `encrypted_password` as a key.
       """
       def check_pass(user, password, crypto, opts) do
         crypto.check_pass(user, password, opts)
