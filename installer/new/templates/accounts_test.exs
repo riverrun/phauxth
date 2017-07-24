@@ -59,7 +59,11 @@ defmodule <%= base %>.AccountsTest do
     assert %Ecto.Changeset{} = Accounts.change_user(user)
   end<%= if confirm do %>
 
-  test "add_reset_token returns" do
+  test "update password changes the stored hash" do
+    %{password_hash: stored_hash} = user = fixture(:user)
+    attrs = %{password: "password", key: @confirm_key}
+    {:ok, %{password_hash: hash, reset_token: nil}} = Accounts.update_password(user, attrs)
+    assert hash != stored_hash
   end<% end %>
 
 end

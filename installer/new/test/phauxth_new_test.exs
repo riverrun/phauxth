@@ -22,6 +22,7 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       end
 
       assert_file "lib/phauxth_new/web/controllers/session_controller.ex", fn file ->
+        assert file =~ ~s(Phauxth.Login.verify)
         assert file =~ "put_session(conn, :user_id, user.id)"
       end
 
@@ -49,6 +50,10 @@ defmodule Mix.Tasks.Phauxth.NewTest do
         assert file =~ ~s(resources "/password_resets", PasswordResetController, only: [:new, :create])
       end
 
+      assert_file "lib/phauxth_new/web/controllers/session_controller.ex", fn file ->
+        assert file =~ ~s(Phauxth.Confirm.Login.verify)
+      end
+
       assert_file "test/support/auth_case.ex", fn file ->
         assert file =~ "import Ecto.Changeset"
         assert file =~ ~s(key = "pu9-VNdgE8V9qZo19rlcg3KUNjpxuixg")
@@ -56,12 +61,12 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       end
 
       assert_file "lib/phauxth_new/accounts/user.ex", fn file ->
-        assert file =~ "field :confirmed_at, Ecto.DateTime"
+        assert file =~ "field :confirmed_at, :utc_datetime"
         assert file =~ "field :confirmation_token, :string"
       end
 
       assert_file "lib/phauxth_new/accounts/accounts.ex", fn file ->
-        assert file =~ "change(%{confirmation_token: key, confirmation_sent_at: Ecto.DateTime.utc})"
+        assert file =~ "change(%{confirmation_token: key, confirmation_sent_at: DateTime.utc_now})"
         assert file =~ "add_reset_token(%{\"email\" => email}, key) do"
       end
 

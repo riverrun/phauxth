@@ -29,7 +29,7 @@ defmodule <%= base %>.Accounts do
   end<%= if confirm do %>
 
   def confirm_user(%User{} = user) do
-    change(user, %{confirmed_at: Ecto.DateTime.utc,
+    change(user, %{confirmed_at: DateTime.utc_now,
       confirmation_token: nil, confirmation_sent_at: nil})
       |> Repo.update
   end<% end %>
@@ -43,7 +43,7 @@ defmodule <%= base %>.Accounts do
   def update_email(%User{} = user, attrs, key) do
     user
     |> update_changeset(attrs)
-    |> change(%{confirmation_token: key, confirmation_sent_at: Ecto.DateTime.utc})
+    |> change(%{confirmation_token: key, confirmation_sent_at: DateTime.utc_now})
     |> Repo.update()
   end<% end %>
 
@@ -65,7 +65,7 @@ defmodule <%= base %>.Accounts do
 
   def add_reset_token(%{"email" => email}, key) do
     with %User{} = user <- Repo.get_by(User, email: email) do
-      change(user, %{reset_token: key, reset_sent_at: Ecto.DateTime.utc})
+      change(user, %{reset_token: key, reset_sent_at: DateTime.utc_now})
       |> Repo.update()
     else
       nil -> {:error, :not_found}
@@ -85,7 +85,7 @@ defmodule <%= base %>.Accounts do
     |> cast(attrs, [:email, :password])
     |> validate_required([:email, :password])
     |> unique_constraint(:email)<%= if confirm do %>
-    |> change(%{confirmation_token: key, confirmation_sent_at: Ecto.DateTime.utc})<% end %>
+    |> change(%{confirmation_token: key, confirmation_sent_at: DateTime.utc_now})<% end %>
     |> put_pass_hash()
   end
 

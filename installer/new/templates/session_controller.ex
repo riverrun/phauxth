@@ -7,8 +7,9 @@ defmodule <%= base %>.Web.SessionController do
     render(conn, "new.html")
   end<% end %>
 
-  def create(conn, %{"session" => params}) do
-    case Phauxth.Login.verify(params, <%= base %>.Accounts) do
+  def create(conn, %{"session" => params}) do<%= if confirm do %>
+    case Phauxth.Confirm.Login.verify(params, <%= base %>.Accounts) do<% else %>
+    case Phauxth.Login.verify(params, <%= base %>.Accounts) do<% end %>
       {:ok, user} -><%= if api do %>
         token = Phoenix.Token.sign(<%= base %>.Web.Endpoint, "user auth", user.id)
         render(conn, <%= base %>.Web.SessionView, "info.json", %{info: token})

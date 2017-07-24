@@ -6,33 +6,36 @@ defmodule <%= base %>.Web.Authorize do
 
   def auth_action(%Plug.Conn{assigns: %{current_user: nil}} = conn, _) do<%= if api do %>
     error(conn, :unauthorized, 401)<% else %>
-    error conn, "You need to log in to view this page", session_path(conn, :new)<% end %>
+    error(conn, "You need to log in to view this page", session_path(conn, :new))<% end %>
   end
   def auth_action(%Plug.Conn{assigns: %{current_user: current_user},
-    params: params} = conn, module) do
+      params: params} = conn, module) do
     apply(module, action_name(conn), [conn, params, current_user])
   end
 
   def auth_action_id(%Plug.Conn{params: %{"user_id" => user_id} = params,
-    assigns: %{current_user: %{id: id} = current_user}} = conn, module) do
+      assigns: %{current_user: %{id: id} = current_user}} = conn, module) do
     if user_id == to_string(id) do
       apply(module, action_name(conn), [conn, params, current_user])
     else<%= if api do %>
       error(conn, :forbidden, 403)<% else %>
-      error conn, "You are not authorized to view this page", user_path(conn, :index)<% end %>
+      error(conn, "You are not authorized to view this page", user_path(conn, :index))<% end %>
     end
-  end
-  def auth_action_id(conn, _), do: error(conn, :unauthorized, 401)
+  end<%= if api do %>
+  def auth_action_id(conn, _), do: error(conn, :unauthorized, 401)<% else %>
+  def auth_action_id(conn, _) do
+    error(conn, "You need to log in to view this page", session_path(conn, :new))
+  end<% end %>
 
   def user_check(%Plug.Conn{assigns: %{current_user: nil}} = conn, _opts) do<%= if api do %>
     error(conn, :unauthorized, 401)<% else %>
-    error conn, "You need to log in to view this page", session_path(conn, :new)<% end %>
+    error(conn, "You need to log in to view this page", session_path(conn, :new))<% end %>
   end
   def user_check(conn, _opts), do: conn
 
   def id_check(%Plug.Conn{assigns: %{current_user: nil}} = conn, _opts) do<%= if api do %>
     error(conn, :unauthorized, 401)<% else %>
-    error conn, "You need to log in to view this page", session_path(conn, :new)<% end %>
+    error(conn, "You need to log in to view this page", session_path(conn, :new))<% end %>
   end
   def id_check(%Plug.Conn{params: %{"id" => id},
       assigns: %{current_user: current_user}} = conn, _opts) do
@@ -40,7 +43,7 @@ defmodule <%= base %>.Web.Authorize do
       conn
     else<%= if api do %>
       error(conn, :forbidden, 403)<% else %>
-      error conn, "You are not authorized to view this page", user_path(conn, :index)<% end %>
+      error(conn, "You are not authorized to view this page", user_path(conn, :index))<% end %>
     end
   end
 

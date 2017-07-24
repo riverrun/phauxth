@@ -16,7 +16,7 @@ defmodule <%= base %>.Web.AuthCase do
 
   def add_user_confirmed(email) do
     add_user(email)
-    |> change(%{confirmed_at: Ecto.DateTime.utc})
+    |> change(%{confirmed_at: DateTime.utc_now})
     |> Repo.update!
   end
 
