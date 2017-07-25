@@ -1,6 +1,6 @@
-defmodule <%= base %>.Web.UserView do
-  use <%= base %>.Web, :view
-  alias <%= base %>.Web.UserView
+defmodule <%= base %>Web.UserView do
+  use <%= base %>Web, :view
+  alias <%= base %>Web.UserView
 
   def render("index.json", %{users: users}) do
     %{data: render_many(users, UserView, "user.json")}

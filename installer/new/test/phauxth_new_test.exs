@@ -13,20 +13,20 @@ defmodule Mix.Tasks.Phauxth.NewTest do
     in_tmp "generates default html resource", fn ->
       Mix.Tasks.Phauxth.New.run []
 
-      assert_file "lib/phauxth_new/web/controllers/authorize.ex"
-      assert_file "lib/phauxth_new/web/templates/session/new.html.eex"
+      assert_file "lib/phauxth_new_web/controllers/authorize.ex"
+      assert_file "lib/phauxth_new_web/templates/session/new.html.eex"
 
-      assert_file "lib/phauxth_new/web/router.ex", fn file ->
+      assert_file "lib/phauxth_new_web/router.ex", fn file ->
         assert file =~ ~s(plug Phauxth.Authenticate)
         assert file =~ ~s(resources "/sessions", SessionController, only: [:new, :create, :delete])
       end
 
-      assert_file "lib/phauxth_new/web/controllers/session_controller.ex", fn file ->
+      assert_file "lib/phauxth_new_web/controllers/session_controller.ex", fn file ->
         assert file =~ ~s(Phauxth.Login.verify)
         assert file =~ "put_session(conn, :user_id, user.id)"
       end
 
-      assert_file "lib/phauxth_new/web/views/user_view.ex", fn file ->
+      assert_file "lib/phauxth_new_web/views/user_view.ex", fn file ->
         refute file =~ "%{info: %{detail: message}}"
       end
 
@@ -42,15 +42,15 @@ defmodule Mix.Tasks.Phauxth.NewTest do
     in_tmp "generates confirm functionality", fn ->
       Mix.Tasks.Phauxth.New.run ["--confirm"]
 
-      assert_file "lib/phauxth_new/web/controllers/confirm_controller.ex"
-      assert_file "test/web/controllers/confirm_controller_test.exs"
+      assert_file "lib/phauxth_new_web/controllers/confirm_controller.ex"
+      assert_file "test/phauxth_new_web/controllers/confirm_controller_test.exs"
 
-      assert_file "lib/phauxth_new/web/router.ex", fn file ->
+      assert_file "lib/phauxth_new_web/router.ex", fn file ->
         assert file =~ ~s(plug Phauxth.Authenticate)
         assert file =~ ~s(resources "/password_resets", PasswordResetController, only: [:new, :create])
       end
 
-      assert_file "lib/phauxth_new/web/controllers/session_controller.ex", fn file ->
+      assert_file "lib/phauxth_new_web/controllers/session_controller.ex", fn file ->
         assert file =~ ~s(Phauxth.Confirm.Login.verify)
       end
 
@@ -79,19 +79,19 @@ defmodule Mix.Tasks.Phauxth.NewTest do
     in_tmp "generates api files", fn ->
       Mix.Tasks.Phauxth.New.run ["--api"]
 
-      assert_file "lib/phauxth_new/web/views/auth_view.ex"
-      assert_file "lib/phauxth_new/web/controllers/authorize.ex"
+      assert_file "lib/phauxth_new_web/views/auth_view.ex"
+      assert_file "lib/phauxth_new_web/controllers/authorize.ex"
 
-      assert_file "lib/phauxth_new/web/router.ex", fn file ->
-        assert file =~ ~s(plug Phauxth.Authenticate, token: PhauxthNew.Web.Endpoint)
+      assert_file "lib/phauxth_new_web/router.ex", fn file ->
+        assert file =~ ~s(plug Phauxth.Authenticate, token: PhauxthNewWeb.Endpoint)
         assert file =~ ~s(post "/sessions/create", SessionController, :create)
       end
 
-      assert_file "lib/phauxth_new/web/controllers/session_controller.ex", fn file ->
-        assert file =~ ~s(PhauxthNew.Web.SessionView, "info.json", %{info: token})
+      assert_file "lib/phauxth_new_web/controllers/session_controller.ex", fn file ->
+        assert file =~ ~s(PhauxthNewWeb.SessionView, "info.json", %{info: token})
       end
 
-      assert_file "lib/phauxth_new/web/views/user_view.ex", fn file ->
+      assert_file "lib/phauxth_new_web/views/user_view.ex", fn file ->
         assert file =~ ~s(%{data: render_one(user, UserView, "user.json"\)})
       end
     end
@@ -101,18 +101,18 @@ defmodule Mix.Tasks.Phauxth.NewTest do
     in_tmp "generates api files with confirmation", fn ->
       Mix.Tasks.Phauxth.New.run ["--api", "--confirm"]
 
-      assert_file "lib/phauxth_new/web/controllers/confirm_controller.ex"
-      assert_file "lib/phauxth_new/web/views/confirm_view.ex"
+      assert_file "lib/phauxth_new_web/controllers/confirm_controller.ex"
+      assert_file "lib/phauxth_new_web/views/confirm_view.ex"
 
-      assert_file "lib/phauxth_new/web/router.ex", fn file ->
-        assert file =~ ~s(plug Phauxth.Authenticate, token: PhauxthNew.Web.Endpoint)
+      assert_file "lib/phauxth_new_web/router.ex", fn file ->
+        assert file =~ ~s(plug Phauxth.Authenticate, token: PhauxthNewWeb.Endpoint)
         assert file =~ ~s(post "/password_resets/create", PasswordResetController, :create)
       end
 
-      assert_file "lib/phauxth_new/web/views/auth_view.ex"
-      assert_file "lib/phauxth_new/web/controllers/password_reset_controller.ex"
+      assert_file "lib/phauxth_new_web/views/auth_view.ex"
+      assert_file "lib/phauxth_new_web/controllers/password_reset_controller.ex"
 
-      assert_file "lib/phauxth_new/web/views/password_reset_view.ex", fn file ->
+      assert_file "lib/phauxth_new_web/views/password_reset_view.ex", fn file ->
         assert file =~ "%{info: %{detail: message}}"
       end
 

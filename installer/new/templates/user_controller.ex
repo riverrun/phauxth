@@ -1,10 +1,10 @@
-defmodule <%= base %>.Web.UserController do
-  use <%= base %>.Web, :controller
+defmodule <%= base %>Web.UserController do
+  use <%= base %>Web, :controller
 
-  import <%= base %>.Web.Authorize
+  import <%= base %>Web.Authorize
   alias <%= base %>.{Accounts, Accounts.User<%= if confirm do %>, Message<% end %>}<%= if api do %>
 
-  action_fallback <%= base %>.Web.FallbackController<% end %>
+  action_fallback <%= base %>Web.FallbackController<% end %>
 
   plug :user_check when action in [:index, :show]<%= if api do %>
   plug :id_check when action in [:update, :delete]<% else %>

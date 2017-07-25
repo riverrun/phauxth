@@ -1,7 +1,7 @@
-defmodule <%= base %>.Web.PasswordResetControllerTest do
-  use <%= base %>.Web.ConnCase
+defmodule <%= base %>Web.PasswordResetControllerTest do
+  use <%= base %>Web.ConnCase
 
-  import <%= base %>.Web.AuthCase
+  import <%= base %>Web.AuthCase
 
   @valid_attrs %{email: "gladys@mail.com", password: "^hEsdg*F899",
     key: "pu9-VNdgE8V9qZo19rlcg3KUNjpxuixg"}
@@ -11,7 +11,7 @@ defmodule <%= base %>.Web.PasswordResetControllerTest do
     key: "pu9-VNDGe8v9QzO19RLCg3KUNjpxuixg"}
 
   setup %{conn: conn} do<%= if not api do %>
-    conn = conn |> bypass_through(<%= base %>.Web.Router, :browser) |> get("/")<% end %>
+    conn = conn |> bypass_through(<%= base %>Web.Router, :browser) |> get("/")<% end %>
     add_reset("gladys@mail.com")
     {:ok, %{conn: conn}}
   end

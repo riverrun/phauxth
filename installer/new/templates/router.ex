@@ -1,12 +1,12 @@
-defmodule <%= base %>.Web.Router do
-  use <%= base %>.Web, :router<%= if api do %>
+defmodule <%= base %>Web.Router do
+  use <%= base %>Web, :router<%= if api do %>
 
   pipeline :api do
     plug :accepts, ["json"]
-    plug Phauxth.Authenticate, token: <%= base %>.Web.Endpoint
+    plug Phauxth.Authenticate, token: <%= base %>Web.Endpoint
   end
 
-  scope "/api", <%= base %>.Web do
+  scope "/api", <%= base %>Web do
     pipe_through :api
 
     post "/sessions/create", SessionController, :create
@@ -29,7 +29,7 @@ defmodule <%= base %>.Web.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", <%= base %>.Web do
+  scope "/", <%= base %>Web do
     pipe_through :browser
 
     get "/", PageController, :index

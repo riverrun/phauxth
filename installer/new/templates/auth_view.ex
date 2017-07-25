@@ -1,5 +1,5 @@
-defmodule <%= base %>.Web.AuthView do
-  use <%= base %>.Web, :view
+defmodule <%= base %>Web.AuthView do
+  use <%= base %>Web, :view
 
   def render("401.json", _assigns) do
     %{errors: %{detail: "You need to login to view this resource"}}

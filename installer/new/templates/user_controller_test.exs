@@ -1,7 +1,7 @@
-defmodule <%= base %>.Web.UserControllerTest do
-  use <%= base %>.Web.ConnCase
+defmodule <%= base %>Web.UserControllerTest do
+  use <%= base %>Web.ConnCase
 
-  import <%= base %>.Web.AuthCase
+  import <%= base %>Web.AuthCase
   alias <%= base %>.Accounts
 
   @create_attrs %{email: "bill@mail.com", password: "hard2guess"}
@@ -9,7 +9,7 @@ defmodule <%= base %>.Web.UserControllerTest do
   @invalid_attrs %{email: nil}
 
   setup %{conn: conn} = config do<%= if not api do %>
-    conn = conn |> bypass_through(<%= base %>.Web.Router, :browser) |> get("/")<% end %>
+    conn = conn |> bypass_through(<%= base %>Web.Router, :browser) |> get("/")<% end %>
 
     if email = config[:login] do
       user = add_user(email)

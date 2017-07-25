@@ -1,10 +1,10 @@
-defmodule <%= base %>.Web.PasswordResetController do
-  use <%= base %>.Web, :controller<%= if api do %>
+defmodule <%= base %>Web.PasswordResetController do
+  use <%= base %>Web, :controller<%= if api do %>
 
   alias <%= base %>.{Accounts, Accounts.User, Message}
 
-  action_fallback <%= base %>.Web.FallbackController<% else %>
-  import <%= base %>.Web.Authorize
+  action_fallback <%= base %>Web.FallbackController<% else %>
+  import <%= base %>Web.Authorize
   alias <%= base %>.{Accounts, Message}
 
   def new(conn, _params) do
@@ -18,7 +18,7 @@ defmodule <%= base %>.Web.PasswordResetController do
       message = "Check your inbox for instructions on how to reset your password"
       conn
       |> put_status(:created)
-      |> render(<%= base %>.Web.PasswordResetView, "info.json", %{info: message})
+      |> render(<%= base %>Web.PasswordResetView, "info.json", %{info: message})
     end
   end<% else %>
     case Accounts.add_reset_token(user_params, key) do
@@ -41,12 +41,12 @@ defmodule <%= base %>.Web.PasswordResetController do
         Accounts.update_user(user, params)
         Message.reset_success(user.email)
         message = "Your password has been reset"<%= if api do %>
-        render(conn, <%= base %>.Web.PasswordResetView, "info.json", %{info: message})<% else %>
+        render(conn, <%= base %>Web.PasswordResetView, "info.json", %{info: message})<% else %>
         configure_session(conn, drop: true) |> success(message, session_path(conn, :new))<% end %>
       {:error, message} ->
         conn<%= if api do %>
         |> put_status(:unprocessable_entity)
-        |> render(<%= base %>.Web.PasswordResetView, "error.json", error: message)<% else %>
+        |> render(<%= base %>Web.PasswordResetView, "error.json", error: message)<% else %>
         |> put_flash(:error, message)
         |> render("edit.html", email: params["email"], key: params["key"])<% end %>
     end

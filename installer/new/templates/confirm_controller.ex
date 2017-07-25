@@ -1,7 +1,7 @@
-defmodule <%= base %>.Web.ConfirmController do
-  use <%= base %>.Web, :controller
+defmodule <%= base %>Web.ConfirmController do
+  use <%= base %>Web, :controller
 
-  import <%= base %>.Web.Authorize
+  import <%= base %>Web.Authorize
   alias <%= base %>.{Accounts, Message}
 
   def new(conn, params) do
@@ -10,7 +10,7 @@ defmodule <%= base %>.Web.ConfirmController do
         Accounts.confirm_user(user)
         message = "Your account has been confirmed"
         Message.confirm_success(user.email)<%= if api do %>
-        render(conn, <%= base %>.Web.ConfirmView, "info.json", %{info: message})
+        render(conn, <%= base %>Web.ConfirmView, "info.json", %{info: message})
       {:error, _message} ->
         error(conn, :unauthorized, 401)<% else %>
         success(conn, message, session_path(conn, :new))

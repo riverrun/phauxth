@@ -1,11 +1,10 @@
-defmodule <%= base %>.Web.ChangesetView do
-  use <%= base %>.Web, :view
+defmodule <%= base %>Web.ChangesetView do
+  use <%= base %>Web, :view
 
   @doc """
   Traverses and translates changeset errors.
 
-  See `Ecto.Changeset.traverse_errors/2` and
-  `Abcde.Web.ErrorHelpers.translate_error/1` for more details.
+  See `Ecto.Changeset.traverse_errors/2` for more details.
   """
   def translate_errors(changeset) do
     Ecto.Changeset.traverse_errors(changeset, &translate_error/1)

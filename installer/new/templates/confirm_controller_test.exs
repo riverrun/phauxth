@@ -1,7 +1,7 @@
-defmodule <%= base %>.Web.ConfirmControllerTest do
-  use <%= base %>.Web.ConnCase
+defmodule <%= base %>Web.ConfirmControllerTest do
+  use <%= base %>Web.ConnCase
 
-  import <%= base %>.Web.AuthCase
+  import <%= base %>Web.AuthCase
 
   setup %{conn: conn} do<%= if not api do %>
     conn = conn |> bypass_through(<%= base %>.Router, :browser) |> get("/")<% end %>
