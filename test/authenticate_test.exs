@@ -55,7 +55,7 @@ defmodule Phauxth.AuthenticateTest do
     newconn = conn(:get, "/")
               |> recycle_cookies(conn)
               |> SessionHelper.sign_conn
-              |> Authenticate.call({nil, @max_age})
+              |> Authenticate.call({nil, @max_age, TestAccounts})
     assert newconn.assigns == %{current_user: nil}
   end
 
@@ -84,7 +84,7 @@ defmodule Phauxth.AuthenticateTest do
   end
 
   test "authenticate api with no token sets the current_user to nil" do
-    conn = conn(:get, "/") |> Authenticate.call({TokenEndpoint, @max_age})
+    conn = conn(:get, "/") |> Authenticate.call({TokenEndpoint, @max_age, TestAccounts})
     assert conn.assigns == %{current_user: nil}
   end
 

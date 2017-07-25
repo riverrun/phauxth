@@ -9,6 +9,7 @@ defmodule Phauxth.Config do
   | :----------------- | :-----------  | ---------------: |
   | log_level          | atom          | :info            |
   | drop_user_keys     | list of atoms | []               |
+  | token_salt         | string        | N/A              |
 
   ## Examples
 
@@ -47,5 +48,12 @@ defmodule Phauxth.Config do
   def drop_user_keys do
     Application.get_env(:phauxth, :drop_user_keys, []) ++
     [:password_hash, :password, :otp_secret]
+  end
+
+  @doc """
+  The salt to be used when creating and verifying the token.
+  """
+  def token_salt do
+    Application.get_env(:phauxth, :token_salt)
   end
 end

@@ -29,6 +29,7 @@ defmodule Phauxth.Remember do
   use Phauxth.Authenticate.Base
   import Plug.Conn
   alias Phoenix.Token
+  alias Phauxth.Config
 
   @max_age 28 * 24 * 60 * 60
 
@@ -38,22 +39,25 @@ defmodule Phauxth.Remember do
     Keyword.get(opts, :user_context, default_user_context())}
   end
 
-  def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn,
-           {key_source, max_age, database}) do
+  def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn, opts) do
     if conn.assigns[:current_user] do
       conn
     else
-      check_token(token, {key_source || conn, max_age, database})
-      |> log_user |> set_user(conn)
+      get_user(conn, token, opts) |> log_user |> set_user(conn)
     end
   end
   def call(conn, _), do: conn
+
+  def get_user(conn, token, {key_source, max_age, user_context}) do
+    with {:ok, user_id} <- check_token(token, {key_source || conn, max_age}),
+      do: user_context.get(user_id)
+  end
 
   @doc """
   Add a Phoenix token as a remember me cookie.
   """
   def add_rem_cookie(conn, user_id, max_age \\ @max_age) do
-    cookie = Token.sign(conn, "user auth", user_id)
+    cookie = Token.sign(conn, Config.token_salt, user_id)
     put_resp_cookie(conn, "remember_me", cookie, [http_only: true, max_age: max_age])
   end
 

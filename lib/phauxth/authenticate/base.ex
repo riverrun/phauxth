@@ -43,6 +43,10 @@ defmodule Phauxth.Authenticate.Base do
 
       @behaviour Plug
 
+      import Plug.Conn
+      alias Phoenix.Token
+      alias Phauxth.Config
+
       @doc false
       def init(opts) do
         {Keyword.get(opts, :token),
@@ -51,11 +55,31 @@ defmodule Phauxth.Authenticate.Base do
       end
 
       @doc false
-      def call(conn, {nil, _, user_context}) do
-        check_session(conn, user_context) |> log_user |> set_user(conn)
+      def call(conn, opts) do
+        get_user(conn, opts) |> log_user |> set_user(conn)
       end
-      def call(%Plug.Conn{req_headers: headers} = conn, opts) do
-        check_headers(headers, opts) |> log_user |> set_user(conn)
+
+      @doc """
+      Get the user based on the session id or token id.
+
+      This function also calls the database to get user information.
+      """
+      def get_user(conn, {nil, _, user_context}) do
+        with user_id when not is_nil(user_id) <- get_session(conn, :user_id),
+          do: user_context.get(user_id)
+      end
+      def get_user(%Plug.Conn{req_headers: headers} = conn,
+          {key_source, max_age, user_context}) do
+        with {_, token} <- List.keyfind(headers, "authorization", 0),
+             {:ok, user_id} <- check_token(token, {key_source, max_age}),
+          do: user_context.get(user_id)
+      end
+
+      @doc """
+      Verify the token.
+      """
+      def check_token(token, {key_source, max_age}) do
+        Token.verify(key_source, Config.token_salt, token, max_age: max_age)
       end
 
       @doc """
@@ -73,44 +97,11 @@ defmodule Phauxth.Authenticate.Base do
         |> Module.concat(Accounts)
       end
 
-      defoverridable [init: 1, call: 2, set_user: 2]
+      defoverridable [init: 1, call: 2, get_user: 2, check_token: 2, set_user: 2]
     end
   end
 
-  import Plug.Conn
-  alias Phoenix.Token
   alias Phauxth.{Config, Log}
-
-  @doc """
-  Check the conn to see if the user is registered in the current
-  session.
-
-  This function also calls the database to get user information.
-  """
-  def check_session(conn, user_context) do
-    with id when not is_nil(id) <- get_session(conn, :user_id),
-        do: user_context.get(id)
-  end
-
-  @doc """
-  Check the headers for an authorization token.
-
-  This function also calls the database to get user information.
-  """
-  def check_headers(headers, opts) do
-    with {_, token} <- List.keyfind(headers, "authorization", 0),
-        do: check_token(token, opts)
-  end
-
-  @doc """
-  Check the authorization token.
-
-  This function also calls the database to get user information.
-  """
-  def check_token(token, {key_source, max_age, user_context}) do
-    with {:ok, user_id} <- Token.verify(key_source, "user auth", token, max_age: max_age),
-        do: user_context.get(user_id)
-  end
 
   @doc """
   Log the result of the authentication and return the user struct or nil.
