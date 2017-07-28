@@ -54,6 +54,7 @@ defmodule Phauxth.Config do
   The salt to be used when creating and verifying the token.
   """
   def token_salt do
-    Application.get_env(:phauxth, :token_salt, "user auth")
+    Application.get_env(:phauxth, :token_salt) ||
+      raise "you need to set the token_salt value in the config"
   end
 end

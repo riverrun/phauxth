@@ -11,7 +11,7 @@ defmodule <%= base %>Web.SessionController do
     case Phauxth.Confirm.Login.verify(params, <%= base %>.Accounts) do<% else %>
     case Phauxth.Login.verify(params, <%= base %>.Accounts) do<% end %>
       {:ok, user} -><%= if api do %>
-        token = Phoenix.Token.sign(<%= base %>Web.Endpoint, "user auth", user.id)
+        token = Phauxth.Token.sign(conn, user.id)
         render(conn, <%= base %>Web.SessionView, "info.json", %{info: token})
       {:error, _message} ->
         error(conn, :unauthorized, 401)<% else %>

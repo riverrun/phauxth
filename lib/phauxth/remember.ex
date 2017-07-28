@@ -1,17 +1,13 @@
 defmodule Phauxth.Remember do
   @moduledoc """
-  Remember me Plug using Phoenix Token.
+  Remember me Plug.
 
   ## Options
 
-  There are three options:
+  There are two options:
 
-    * token - the token key source to use when using Phoenix token
-      * in most cases, this will be the name of the endpoint you are using
-        * can also be `Plug.Conn`, `Phoenix.Socket` or a string representing the secret key base
-      * see the documentation for Phoenix.Token for more information
     * max_age - the length of the validity of the token
-      * the default is four weeks
+      * the default is two weeks
     * user_context - the user context module to be used
       * the default is MyApp.Accounts
 
@@ -28,14 +24,12 @@ defmodule Phauxth.Remember do
 
   use Phauxth.Authenticate.Base
   import Plug.Conn
-  alias Phoenix.Token
-  alias Phauxth.Config
+  alias Phauxth.Token
 
-  @max_age 28 * 24 * 60 * 60
+  @max_age 14 * 24 * 60 * 60
 
   def init(opts) do
-    {Keyword.get(opts, :token),
-    Keyword.get(opts, :max_age, @max_age),
+    {Keyword.get(opts, :max_age, @max_age),
     Keyword.get(opts, :user_context, default_user_context())}
   end
 
@@ -48,16 +42,16 @@ defmodule Phauxth.Remember do
   end
   def call(conn, _), do: conn
 
-  def get_user(conn, token, {key_source, max_age, user_context}) do
-    with {:ok, user_id} <- check_token(token, {key_source || conn, max_age}),
+  def get_user(conn, token, {max_age, user_context}) do
+    with {:ok, user_id} <- check_token(token, {conn, max_age}),
       do: user_context.get(user_id)
   end
 
   @doc """
-  Add a Phoenix token as a remember me cookie.
+  Add a token as a remember me cookie.
   """
   def add_rem_cookie(conn, user_id, max_age \\ @max_age) do
-    cookie = Token.sign(conn, Config.token_salt, user_id)
+    cookie = Token.sign(conn, user_id)
     put_resp_cookie(conn, "remember_me", cookie, [http_only: true, max_age: max_age])
   end
 

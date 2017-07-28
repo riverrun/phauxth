@@ -1,18 +1,16 @@
 defmodule Phauxth.Authenticate do
   @moduledoc """
-  Authenticate the current user, using Plug sessions or Phoenix tokens.
+  Authenticate the current user, using Plug sessions or api tokens.
 
   ## Options
 
   There are three options:
 
-    * token - the token key source to use when using Phoenix token
-      * the default is nil, meaning the user will be authenticated using sessions
-      * in most cases, this will be the name of the endpoint you are using
-        * can also be `Plug.Conn`, `Phoenix.Socket` or a string representing the secret key base
-      * see the documentation for Phoenix.Token for more information
+    * method - the method used to authenticate the user
+      * this is either `:session` (using sessions) or `:token` (using api tokens)
+      * the default is `:session`
     * max_age - the length of the validity of the token
-      * the default is one week
+      * the default is one day
     * user_context - the user context module to be used
       * the default is MyApp.Accounts
 
@@ -23,9 +21,9 @@ defmodule Phauxth.Authenticate do
 
       plug Phauxth.Authenticate
 
-  To use with an api, add the token key source:
+  To use with an api, add the token method option:
 
-      plug Phauxth.Authenticate, token: MyApp.Web.Endpoint
+      plug Phauxth.Authenticate, method: :token
 
   """
 

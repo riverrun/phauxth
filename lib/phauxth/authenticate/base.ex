@@ -44,13 +44,12 @@ defmodule Phauxth.Authenticate.Base do
       @behaviour Plug
 
       import Plug.Conn
-      alias Phoenix.Token
-      alias Phauxth.Config
+      alias Phauxth.Token
 
       @doc false
       def init(opts) do
-        {Keyword.get(opts, :token),
-        Keyword.get(opts, :max_age, 7 * 24 * 60 * 60),
+        {Keyword.get(opts, :method, :session),
+        Keyword.get(opts, :max_age, 24 * 60 * 60),
         Keyword.get(opts, :user_context, default_user_context())}
       end
 
@@ -64,22 +63,25 @@ defmodule Phauxth.Authenticate.Base do
 
       This function also calls the database to get user information.
       """
-      def get_user(conn, {nil, _, user_context}) do
+      def get_user(conn, {:session, _, user_context}) do
         with user_id when not is_nil(user_id) <- get_session(conn, :user_id),
           do: user_context.get(user_id)
       end
       def get_user(%Plug.Conn{req_headers: headers} = conn,
-          {key_source, max_age, user_context}) do
+          {:token, max_age, user_context}) do
         with {_, token} <- List.keyfind(headers, "authorization", 0),
-             {:ok, user_id} <- check_token(token, {key_source, max_age}),
+             {:ok, user_id} <- check_token(token, {conn, max_age}),
           do: user_context.get(user_id)
       end
 
       @doc """
       Verify the token.
+
+      This function can be overridden if you want to use a different
+      token implementation.
       """
-      def check_token(token, {key_source, max_age}) do
-        Token.verify(key_source, Config.token_salt, token, max_age: max_age)
+      def check_token(token, {conn, max_age}) do
+        Token.verify(conn, token, max_age: max_age)
       end
 
       @doc """

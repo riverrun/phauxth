@@ -3,14 +3,9 @@ defmodule Phauxth.AuthenticateTest do
   use Plug.Test
   import ExUnit.CaptureLog
 
-  alias Phoenix.Token
-  alias Phauxth.{Authenticate, SessionHelper, TestAccounts}
+  alias Phauxth.{Authenticate, SessionHelper, TestAccounts, Token}
 
   @max_age 24 * 60 * 60
-
-  defmodule TokenEndpoint do
-    def config(:secret_key_base), do: "abc123"
-  end
 
   defmodule AbsintheAuthenticate do
     use Phauxth.Authenticate.Base
@@ -25,17 +20,13 @@ defmodule Phauxth.AuthenticateTest do
     conn(:get, "/")
     |> SessionHelper.sign_conn
     |> put_session(:user_id, id)
-    |> Authenticate.call({nil, @max_age, TestAccounts})
+    |> Authenticate.call({:session, @max_age, TestAccounts})
   end
 
-  def call_api(token, max_age \\ @max_age) do
-    conn(:get, "/")
-    |> put_req_header("authorization", token)
-    |> Authenticate.call({TokenEndpoint, max_age, TestAccounts})
-  end
-
-  def sign_token(id) do
-    Token.sign(TokenEndpoint, "user auth", id)
+  def call_api(id, token \\ nil, max_age \\ @max_age) do
+    conn = conn(:get, "/") |> SessionHelper.add_key
+    put_req_header(conn, "authorization", token || Token.sign(conn, id))
+    |> Authenticate.call({:token, max_age, TestAccounts})
   end
 
   test "current user in session" do
@@ -55,36 +46,36 @@ defmodule Phauxth.AuthenticateTest do
     newconn = conn(:get, "/")
               |> recycle_cookies(conn)
               |> SessionHelper.sign_conn
-              |> Authenticate.call({nil, @max_age, TestAccounts})
+              |> Authenticate.call({:session, @max_age, TestAccounts})
     assert newconn.assigns == %{current_user: nil}
   end
 
   test "authenticate api sets the current_user" do
-    conn = call_api(sign_token(1))
+    conn = call_api(1)
     %{current_user: user} = conn.assigns
     assert user.email == "fred+1@mail.com"
     assert user.role == "user"
   end
 
   test "authenticate api with invalid token sets the current_user to nil" do
-    conn = call_api("garbage")
+    conn = call_api(1, "garbage")
     assert conn.assigns == %{current_user: nil}
   end
 
   test "log reports error message for invalid token" do
     assert capture_log(fn ->
-      call_api("garbage")
+      call_api(1, "garbage")
     end) =~ ~s(user=nil message="invalid token")
   end
 
   test "log reports error message for expired token" do
     assert capture_log(fn ->
-      call_api(sign_token(1), -1000)
+      call_api(1, nil, -1000)
     end) =~ ~s(user=nil message="expired token")
   end
 
   test "authenticate api with no token sets the current_user to nil" do
-    conn = conn(:get, "/") |> Authenticate.call({TokenEndpoint, @max_age, TestAccounts})
+    conn = conn(:get, "/") |> Authenticate.call({:token, @max_age, TestAccounts})
     assert conn.assigns == %{current_user: nil}
   end
 
@@ -95,9 +86,9 @@ defmodule Phauxth.AuthenticateTest do
   end
 
   test "customized set_user" do
-    conn = conn(:get, "/")
-           |> put_req_header("authorization", sign_token(1))
-           |> AbsintheAuthenticate.call({TokenEndpoint, @max_age, TestAccounts})
+    conn = conn(:get, "/") |> SessionHelper.add_key
+    conn = put_req_header(conn, "authorization", Token.sign(conn, 1))
+           |> AbsintheAuthenticate.call({:token, @max_age, TestAccounts})
     %{token: %{current_user: user}} = conn.private.absinthe
     assert user.email == "fred+1@mail.com"
     assert user.role == "user"

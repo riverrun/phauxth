@@ -13,10 +13,13 @@ defmodule Phauxth.SessionHelper do
     conn(:get, "/") |> recycle_cookies(conn) |> sign_conn
   end
 
+  def add_key(conn, secret \\ @secret) do
+    put_in(conn.secret_key_base, secret)
+  end
+
   def sign_conn(conn, secret \\ @secret) do
     put_in(conn.secret_key_base, secret)
     |> Plug.Session.call(@signing_opts)
     |> fetch_session
   end
-
 end

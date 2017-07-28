@@ -28,7 +28,7 @@ defmodule <%= base %>Web.AuthCase do
   end<% end %>
 
   def add_token_conn(conn, user) do
-    user_token = Phoenix.Token.sign(<%= base %>Web.Endpoint, "user auth", user.id)
+    user_token = Phauxth.Token.sign(conn, user.id)
     conn
     |> put_req_header("accept", "application/json")
     |> put_req_header("authorization", user_token)
