@@ -9,7 +9,7 @@ function enter_cave {
 }
 
 function edit_mix {
-    sed -i 's/{:postgrex, ">= 0.0.0"},/{:postgrex, ">= 0.0.0"},\n     {:phauxth, git: "https:\/\/github.com\/riverrun\/phauxth.git"},\n     {:bcrypt_elixir, "~> 0.11"},/g' mix.exs
+    sed -i 's/{:postgrex, ">= 0.0.0"},/{:postgrex, ">= 0.0.0"},\n     {:phauxth, git: "https:\/\/github.com\/riverrun\/phauxth.git"},\n     {:bcrypt_elixir, "~> 0.12"},/g' mix.exs
     mix deps.get
 }
 
@@ -40,3 +40,4 @@ echo y | mix phx.new alibaba --no-html --no-brunch
 phauxth_project --api
 echo y | mix phx.new alibaba --no-html --no-brunch
 phauxth_project --api --confirm
+grep "test.*failures" $LOG

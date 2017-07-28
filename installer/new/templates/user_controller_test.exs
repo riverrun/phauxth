@@ -9,7 +9,7 @@ defmodule <%= base %>Web.UserControllerTest do
   @invalid_attrs %{email: nil}
 
   setup %{conn: conn} = config do<%= if not api do %>
-    conn = conn |> bypass_through(<%= base %>Web.Router, :browser) |> get("/")<% end %>
+    conn = conn |> bypass_through(<%= base %>Web.Router, [:browser]) |> get("/")<% end %>
 
     if email = config[:login] do
       user = add_user(email)

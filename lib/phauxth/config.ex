@@ -51,10 +51,20 @@ defmodule Phauxth.Config do
   end
 
   @doc """
-  The salt to be used when creating and verifying the token.
+  The salt to be used when creating and verifying tokens.
   """
   def token_salt do
-    Application.get_env(:phauxth, :token_salt) ||
-      raise "you need to set the token_salt value in the config"
+    Application.get_env(:phauxth, :token_salt) || raise """
+    You need to set the `token_salt` value in the config/config.exs file.
+    To generate a suitable random salt, use the `gen_token_salt` function
+    in the Phauxth.Config module.
+    """
+  end
+
+  @doc """
+  Generate a random salt for use with the api token.
+  """
+  def gen_token_salt(length \\ 8) do
+    :crypto.strong_rand_bytes(length) |> Base.encode64 |> binary_part(0, length)
   end
 end

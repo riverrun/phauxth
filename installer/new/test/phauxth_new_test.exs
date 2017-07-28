@@ -16,6 +16,10 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       assert_file "lib/phauxth_new_web/controllers/authorize.ex"
       assert_file "lib/phauxth_new_web/templates/session/new.html.eex"
 
+      assert_file "config/config.exs", fn file ->
+        refute file =~ ~s(config :phauxth)
+      end
+
       assert_file "lib/phauxth_new_web/router.ex", fn file ->
         assert file =~ ~s(plug Phauxth.Authenticate)
         assert file =~ ~s(resources "/sessions", SessionController, only: [:new, :create, :delete])
@@ -44,6 +48,10 @@ defmodule Mix.Tasks.Phauxth.NewTest do
 
       assert_file "lib/phauxth_new_web/controllers/confirm_controller.ex"
       assert_file "test/phauxth_new_web/controllers/confirm_controller_test.exs"
+
+      assert_file "config/config.exs", fn file ->
+        refute file =~ ~s(config :phauxth)
+      end
 
       assert_file "lib/phauxth_new_web/router.ex", fn file ->
         assert file =~ ~s(plug Phauxth.Authenticate)
@@ -82,8 +90,12 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       assert_file "lib/phauxth_new_web/views/auth_view.ex"
       assert_file "lib/phauxth_new_web/controllers/authorize.ex"
 
+      assert_file "config/config.exs", fn file ->
+        assert file =~ ~s(config :phauxth,\n  token_salt: ")
+      end
+
       assert_file "lib/phauxth_new_web/router.ex", fn file ->
-        assert file =~ ~s(plug Phauxth.Authenticate, token: PhauxthNewWeb.Endpoint)
+        assert file =~ ~s(plug Phauxth.Authenticate, method: :token)
         assert file =~ ~s(post "/sessions/create", SessionController, :create)
       end
 
@@ -104,8 +116,12 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       assert_file "lib/phauxth_new_web/controllers/confirm_controller.ex"
       assert_file "lib/phauxth_new_web/views/confirm_view.ex"
 
+      assert_file "config/config.exs", fn file ->
+        assert file =~ ~s(config :phauxth,\n  token_salt: ")
+      end
+
       assert_file "lib/phauxth_new_web/router.ex", fn file ->
-        assert file =~ ~s(plug Phauxth.Authenticate, token: PhauxthNewWeb.Endpoint)
+        assert file =~ ~s(plug Phauxth.Authenticate, method: :token)
         assert file =~ ~s(post "/password_resets/create", PasswordResetController, :create)
       end
 

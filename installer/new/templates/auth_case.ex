@@ -28,6 +28,8 @@ defmodule <%= base %>Web.AuthCase do
   end<% end %>
 
   def add_token_conn(conn, user) do
+    secret = <%= base %>Web.Endpoint.config(:secret_key_base)
+    conn = put_in(conn.secret_key_base, secret)
     user_token = Phauxth.Token.sign(conn, user.id)
     conn
     |> put_req_header("accept", "application/json")

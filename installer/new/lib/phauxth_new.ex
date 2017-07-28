@@ -91,6 +91,7 @@ defmodule Mix.Tasks.Phauxth.New do
     end
 
     copy_files(files, base: base_module(), api: api, confirm: confirm)
+    if api, do: update_config()
 
     Mix.shell.info """
 
@@ -136,12 +137,26 @@ defmodule Mix.Tasks.Phauxth.New do
     end
   end
 
+  defp update_config do
+    entry = "config :phauxth,\n  token_salt: \"#{gen_token_salt(8)}\""
+            |> EEx.eval_string(base: base_module())
+    {:ok, conf} = File.read("config/config.exs")
+    new_conf = String.split(conf, "\n\n")
+      |> List.insert_at(-3, entry)
+      |> Enum.join("\n\n")
+    File.write("config/config.exs", new_conf)
+  end
+
   defp base_module do
     base_name() |> Macro.camelize
   end
 
   defp base_name do
     Mix.Project.config |> Keyword.fetch!(:app) |> to_string
+  end
+
+  def gen_token_salt(length) do
+    :crypto.strong_rand_bytes(length) |> Base.encode64 |> binary_part(0, length)
   end
 
   defp confirm_message(true) do
