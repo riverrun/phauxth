@@ -9,6 +9,9 @@ defmodule Phauxth.Token do
 
   @max_age 86_400
 
+  @doc """
+  Sign the token.
+  """
   def sign(conn, data, opts \\ []) do
     {signed_at_seconds, key_opts} = Keyword.pop(opts, :signed_at)
     signed_at_ms = if signed_at_seconds, do: trunc(signed_at_seconds * 1000), else: now_ms()
@@ -19,6 +22,9 @@ defmodule Phauxth.Token do
     |> MessageVerifier.sign(secret)
   end
 
+  @doc """
+  Verify the token.
+  """
   def verify(conn, token, opts \\ [])
   def verify(conn, token, opts) when is_binary(token) do
     secret = get_key_base(conn) |> get_secret(opts)

@@ -7,6 +7,8 @@ defmodule Phauxth.Confirm.Login do
   use Phauxth.Login.Base
 
   @doc """
+  Check the user is confirmed before checking the password.
+
   If `confirmed_at: nil` is in the user struct, this function will return
   {:error, message}. Otherwise, it will run the default `check_pass` function.
   """

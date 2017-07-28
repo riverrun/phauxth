@@ -8,7 +8,7 @@ defmodule Phauxth.Login do
 
   If login is successful, you need to either add the user to the
   session, by running `put_session(conn, :user_id, id)`, or send
-  an API token to the user.
+  an api token to the user.
 
   ## Options
 

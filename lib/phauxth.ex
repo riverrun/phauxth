@@ -24,11 +24,10 @@ defmodule Phauxth do
         plug Phauxth.Authenticate
       end
 
-  To authenticate an api, using Phoenix token, you need to add a token
-  key source, which is usually the app's endpoint, but can also be `Plug.Conn`,
-  `Phoenix.Socket` or a string representing the secret key base, to this function.
+  To authenticate using api tokens, you need to add the `method: :token`
+  option.
 
-      plug Phauxth.Authenticate, token: MyApp.Web.Endpoint
+      plug Phauxth.Authenticate, method: :token
 
   ### Remember
 
@@ -101,8 +100,9 @@ defmodule Phauxth do
     * `--api` - create files for an api
     * `--confirm` - add files for email confirmation
 
-  Phauxth uses the `get(id)` and `get_by(attrs)` functions in the user Accounts
-  module, so make sure that these functions are defined.
+  Phauxth uses the `get(id)` and `get_by(attrs)` functions in your app's
+  user context module (usually MyApp.Accounts), so make sure that these
+  functions are defined.
 
   ## Customizing Phauxth
 

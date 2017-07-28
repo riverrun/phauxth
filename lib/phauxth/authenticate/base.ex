@@ -28,10 +28,11 @@ defmodule Phauxth.Authenticate.Base do
       end
 
   And in the `router.ex` file, call this plug in the pipeline you
-  want to authenticate (setting the token key source to the app's endpoint).
+  want to authenticate (setting the method to :token).
 
-      plug :api do
-        plug AbsintheAuthenticate, token: MyApp.Web.Endpoint
+      pipeline :api do
+        plug :accepts, ["json"]
+        plug AbsintheAuthenticate, method: :token
       end
 
   """

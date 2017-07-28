@@ -1,6 +1,13 @@
 defmodule Phauxth.Remember do
   @moduledoc """
-  Remember me Plug.
+  Remember me module.
+
+  Calling Phauxth.Remember with plug checks for a `remember_me` cookie,
+  which contains a token. The token is then checked, and if it is valid,
+  the user is added to the session.
+
+  This module also contains functions to add / delete the `remember_me`
+  cookie.
 
   ## Options
 
