@@ -11,7 +11,7 @@ defmodule Phauxth.Confirm.Base do
     quote do
       import unquote(__MODULE__)
       import Plug.Crypto
-      alias Phauxth.{Config, Log}
+      alias Phauxth.Log
 
       @ok_log unquote(options)[:ok_log] || "account confirmed"
 
@@ -41,24 +41,26 @@ defmodule Phauxth.Confirm.Base do
       def check_key(nil, _, _), do: {:error, "invalid credentials"}
       def check_key(_, _, _), do: {:error, "user account already confirmed"}
 
-      @doc """
-      Print out the log message and return {:ok, user} or {:error, message}.
-      """
-      def log({:ok, user}, ok_log) do
-        Log.info(%Log{user: user.id, message: ok_log})
-        {:ok, Map.drop(user, Config.drop_user_keys)}
-      end
-      def log(false, _) do
-        log({:error, "invalid token"}, nil)
-        {:error, "Invalid credentials"}
-      end
-      def log({:error, message}, _) do
-        Log.warn(%Log{message: message})
-        {:error, "Invalid credentials"}
-      end
-
-      defoverridable [verify: 3, check_key: 3, log: 2]
+      defoverridable [verify: 3, check_key: 3]
     end
+  end
+
+  alias Phauxth.{Config, Log}
+
+  @doc """
+  Print out the log message and return {:ok, user} or {:error, message}.
+  """
+  def log({:ok, user}, ok_log) do
+    Log.info(%Log{user: user.id, message: ok_log})
+    {:ok, Map.drop(user, Config.drop_user_keys)}
+  end
+  def log(false, _) do
+    log({:error, "invalid token"}, nil)
+    {:error, "Invalid credentials"}
+  end
+  def log({:error, message}, _) do
+    Log.warn(%Log{message: message})
+    {:error, "Invalid credentials"}
   end
 
   @doc """

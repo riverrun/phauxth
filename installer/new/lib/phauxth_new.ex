@@ -110,7 +110,7 @@ defmodule Mix.Tasks.Phauxth.New do
 
     And to start the server:
 
-        mix phoenix.server
+        mix phx.server
 
     """
   end

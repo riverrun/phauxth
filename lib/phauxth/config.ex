@@ -56,15 +56,21 @@ defmodule Phauxth.Config do
   def token_salt do
     Application.get_env(:phauxth, :token_salt) || raise """
     You need to set the `token_salt` value in the config/config.exs file.
+
     To generate a suitable random salt, use the `gen_token_salt` function
     in the Phauxth.Config module.
     """
   end
 
   @doc """
-  Generate a random salt for use with the api token.
+  Generate a random salt for use with token authentication.
   """
-  def gen_token_salt(length \\ 8) do
+  def gen_token_salt(length \\ 8)
+  def gen_token_salt(length) when length > 7 do
     :crypto.strong_rand_bytes(length) |> Base.encode64 |> binary_part(0, length)
+  end
+  def gen_token_salt(_) do
+    raise ArgumentError, "The length is too short - " <>
+      "the token_salt should be at least 8 characters long"
   end
 end
