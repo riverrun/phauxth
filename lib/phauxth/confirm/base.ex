@@ -21,7 +21,7 @@ defmodule Phauxth.Confirm.Base do
       def verify(params, user_context, opts \\ [])
       def verify(%{"key" => key} = params, user_context, opts)
           when byte_size(key) == 32 do
-        key_validity = Keyword.get(opts, :key_validity, 60)
+        key_validity = Keyword.get(opts, :key_validity, 20)
         user_context.get_by(params)
         |> check_key(key, key_validity * 60)
         |> log(@ok_log)

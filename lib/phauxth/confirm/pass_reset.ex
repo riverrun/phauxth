@@ -1,13 +1,13 @@
 defmodule Phauxth.Confirm.PassReset do
   @moduledoc """
-  Confirm a user and reset the password.
+  Confirm a user in order to reset the password.
 
   ## Options
 
   There is one option:
 
     * key_validity - the length, in minutes, that the token is valid for
-      * the default is 60 minutes (1 hour)
+      * the default is 20 minutes
 
   ## Examples
 

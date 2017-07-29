@@ -13,7 +13,7 @@ defmodule Phauxth.Confirm.PassResetTest do
 
   test "reset password succeeds" do
     password = "my N1pples expl0de with the light!"
-    {:ok, user} = call_reset("froderick", password, [key_validity: 60])
+    {:ok, user} = call_reset("froderick", password, [key_validity: 20])
     assert user
   end
 
@@ -24,7 +24,7 @@ defmodule Phauxth.Confirm.PassResetTest do
   end
 
   test "reset password fails when reset_sent_at is nil" do
-    {:error, message} = call_reset("igor", "password", [key_validity: 60])
+    {:error, message} = call_reset("igor", "password", [key_validity: 20])
     assert message =~ "Invalid credentials"
   end
 

@@ -10,7 +10,7 @@ defmodule Phauxth.Confirm do
   There is one option:
 
     * key_validity - the length, in minutes, that the token is valid for
-      * the default is 60 minutes (1 hour)
+      * the default is 20 minutes
 
   ## Examples
 

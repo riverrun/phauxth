@@ -33,7 +33,7 @@ defmodule Phauxth.TokenTest do
   end
 
   test "supports signed_at in seconds", %{conn: conn} do
-    day_ago_seconds = System.system_time(:seconds) - @seconds_in_day
+    day_ago_seconds = System.system_time(:second) - @seconds_in_day
     token = Token.sign(conn, 1, signed_at: day_ago_seconds)
     assert Token.verify(conn, token, max_age: @seconds_in_day + 1) == {:ok, 1}
     assert Token.verify(conn, token, max_age: @seconds_in_day - 1) == {:error, :expired}

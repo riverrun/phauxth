@@ -40,4 +40,5 @@ echo y | mix phx.new alibaba --no-html --no-brunch
 phauxth_project --api
 echo y | mix phx.new alibaba --no-html --no-brunch
 phauxth_project --api --confirm
+echo "------------------------------------------------------------"
 grep "test.*failures" $LOG
