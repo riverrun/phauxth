@@ -50,7 +50,7 @@ defmodule Phauxth.Remember do
   def call(conn, _), do: conn
 
   def get_user(conn, token, {max_age, user_context}) do
-    with {:ok, user_id} <- check_token(token, {conn, max_age}),
+    with {:ok, user_id} <- Token.verify(conn, token, max_age: max_age),
       do: user_context.get(user_id)
   end
 

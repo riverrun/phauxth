@@ -71,18 +71,8 @@ defmodule Phauxth.Authenticate.Base do
       def get_user(%Plug.Conn{req_headers: headers} = conn,
           {:token, max_age, user_context}) do
         with {_, token} <- List.keyfind(headers, "authorization", 0),
-             {:ok, user_id} <- check_token(token, {conn, max_age}),
+             {:ok, user_id} <- Token.verify(conn, token, max_age: max_age),
           do: user_context.get(user_id)
-      end
-
-      @doc """
-      Verify the token.
-
-      This function can be overridden if you want to use a different
-      token implementation.
-      """
-      def check_token(token, {conn, max_age}) do
-        Token.verify(conn, token, max_age: max_age)
       end
 
       @doc """
@@ -100,7 +90,7 @@ defmodule Phauxth.Authenticate.Base do
         |> Module.concat(Accounts)
       end
 
-      defoverridable [init: 1, call: 2, get_user: 2, check_token: 2, set_user: 2]
+      defoverridable [init: 1, call: 2, get_user: 2, set_user: 2]
     end
   end
 
@@ -116,7 +106,7 @@ defmodule Phauxth.Authenticate.Base do
     Log.info(%Log{message: "#{msg} token"}) && nil
   end
   def log_user(user) do
-    Log.info(%Log{user: user.id, message: "User authenticated"})
+    Log.info(%Log{user: user.id, message: "user authenticated"})
     Map.drop(user, Config.drop_user_keys)
   end
 end

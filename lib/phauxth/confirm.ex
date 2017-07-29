@@ -9,7 +9,7 @@ defmodule Phauxth.Confirm do
 
   There is one option:
 
-    * key_validity - the length, in minutes, that the token is valid for
+    * max_age - the length, in minutes, that the token is valid for
       * the default is 20 minutes
 
   ## Examples
@@ -21,7 +21,7 @@ defmodule Phauxth.Confirm do
   Then add the following to the `confirm_controller.ex` new function:
 
       def new(conn, params) do
-        case Phauxth.Confirm.verify(params, MyApp.Accounts) do
+        case Phauxth.Confirm.verify(conn, params) do
           {:ok, user} ->
             Accounts.confirm_user(user)
             message = "Your account has been confirmed"
@@ -37,18 +37,12 @@ defmodule Phauxth.Confirm do
   """
 
   use Phauxth.Confirm.Base
+  alias Phauxth.Token
 
   @doc """
   Generate a confirmation token.
   """
-  def gen_token do
-    :crypto.strong_rand_bytes(24) |> Base.url_encode64
-  end
-
-  @doc """
-  Generate a link containing a user-identifier and the confirmation token.
-  """
-  def gen_link(user_id, key, identifier \\ :email) do
-    "#{identifier}=#{URI.encode_www_form(user_id)}&key=#{key}"
+  def gen_token(conn, opts \\ []) do
+    Token.sign(conn, opts)
   end
 end

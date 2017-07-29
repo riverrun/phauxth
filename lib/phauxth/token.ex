@@ -30,20 +30,11 @@ defmodule Phauxth.Token do
 
   @doc """
   Sign the token.
-
-  ## Options
-
-  In addition to the key generator options, there is one option:
-
-    * signed_at - the time the token is signed
-      * the default is the current time
   """
   def sign(conn, data, opts \\ []) do
-    {signed_at_seconds, key_opts} = Keyword.pop(opts, :signed_at)
-    signed_at_ms = if signed_at_seconds, do: trunc(signed_at_seconds * 1000), else: now_ms()
-    secret = get_key_base(conn) |> get_secret(key_opts)
+    secret = get_key_base(conn) |> get_secret(opts)
 
-    %{data: data, signed: signed_at_ms}
+    %{data: data, signed: now_ms()}
     |> :erlang.term_to_binary()
     |> MessageVerifier.sign(secret)
   end
@@ -78,22 +69,27 @@ defmodule Phauxth.Token do
   end
   def verify(_conn, nil, _opts), do: {:error, :missing}
 
-  defp get_key_base(conn) do
-    conn.secret_key_base || raise """
-    the secret_key_base has not been set
-    """
+  defp get_key_base(%{secret_key_base: nil}) do
+    raise ArgumentError, "The secret_key_base has not been set"
   end
+  defp get_key_base(%{secret_key_base: key}) when byte_size(key) < 32 do
+    raise ArgumentError, "The secret_key_base is too short. It should be at least 32 bytes long."
+  end
+  defp get_key_base(%{secret_key_base: key}), do: key
 
   defp get_secret(secret_key_base, opts) do
-    iterations = Keyword.get(opts, :key_iterations, 1000)
-    length = Keyword.get(opts, :key_length, 32)
-    digest = Keyword.get(opts, :key_digest, :sha256)
-    key_opts = [iterations: iterations,
-                length: length,
-                digest: digest,
+    key_opts = [iterations: opts[:key_iterations] || 1000,
+                length: validate_len(opts[:key_length]),
+                digest: opts[:key_digest] || :sha256,
                 cache: Plug.Keys]
     KeyGenerator.generate(secret_key_base, Config.token_salt, key_opts)
   end
+
+  defp validate_len(nil), do: 32
+  defp validate_len(len) when len < 32 do
+    raise ArgumentError, "The key_length is too short. It should be at least 32 bytes long."
+  end
+  defp validate_len(len), do: len
 
   defp now_ms, do: System.system_time(:millisecond)
 end

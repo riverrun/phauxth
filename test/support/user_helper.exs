@@ -1,17 +1,14 @@
 defmodule Phauxth.TestAccounts do
 
-  @key "lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
   @users [
     %{id: 1, email: "fred+1@mail.com", username: "fred", phone: "55555555555",
-      role: "user", password_hash: Bcrypt.hash_pwd_salt("h4rd2gU3$$"),
-      confirmed_at: nil, confirmation_token: @key, confirmation_sent_at: DateTime.utc_now},
+      role: "user", password_hash: Bcrypt.hash_pwd_salt("h4rd2gU3$$"), confirmed_at: nil},
     %{id: 2, email: "ray@mail.com", role: "user",
       password_hash: Bcrypt.hash_pwd_salt("h4rd2gU3$$"), confirmed_at: DateTime.utc_now},
     %{id: 3, email: "froderick@mail.com", role: "user", confirmed_at: DateTime.utc_now,
-      password_hash: Bcrypt.hash_pwd_salt("h4rd2gU3$$"),
-      reset_token: @key, reset_sent_at: DateTime.utc_now},
+      password_hash: Bcrypt.hash_pwd_salt("h4rd2gU3$$")},
     %{id: 4, email: "brian@mail.com", role: "user", password_hash: Bcrypt.hash_pwd_salt("h4rd2gU3$$")},
-    %{id: 5, email: "igor@mail.com", role: "user", reset_token: @key, reset_sent_at: nil},
+    %{id: 5, email: "igor@mail.com", role: "user"},
     %{id: 6, email: "frank@mail.com", password_hash: Argon2.hash_pwd_salt("h4rd2gU3$$")},
     %{id: 7, email: "eddie@mail.com", encrypted_password: Argon2.hash_pwd_salt("h4rd2gU3$$")}
   ]
