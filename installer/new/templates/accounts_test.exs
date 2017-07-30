@@ -6,12 +6,10 @@ defmodule <%= base %>.AccountsTest do
 
   @create_attrs %{email: "fred@mail.com", password: "mangoes&gooseberries"}
   @update_attrs %{email: "frederick@mail.com"}
-  @invalid_attrs %{email: nil}<%= if confirm do %>
-  @confirm_key "pu9-VNdgE8V9qZo19rlcg3KUNjpxuixg"<% end %>
+  @invalid_attrs %{email: nil}
 
-  def fixture(:user, attrs \\ @create_attrs) do<%= if confirm do %>
-    {:ok, user} = Accounts.create_user(attrs, @confirm_key)<% else %>
-    {:ok, user} = Accounts.create_user(attrs)<% end %>
+  def fixture(:user, attrs \\ @create_attrs) do
+    {:ok, user} = Accounts.create_user(attrs)
     user
   end
 
@@ -25,14 +23,13 @@ defmodule <%= base %>.AccountsTest do
     assert Accounts.get_user!(user.id) == user
   end
 
-  test "create_user/1 with valid data creates a user" do<%= if confirm do %>
-    assert {:ok, %User{} = user} = Accounts.create_user(@create_attrs, @confirm_key)<% else %>
-    assert {:ok, %User{} = user} = Accounts.create_user(@create_attrs)<% end %>
+  test "create_user/1 with valid data creates a user" do
+    assert {:ok, %User{} = user} = Accounts.create_user(@create_attrs)
     assert user.email == "fred@mail.com"
   end
 
   test "create_user/1 with invalid data returns error changeset" do
-    assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs<%= if confirm do %>, @confirm_key<% end %>)
+    assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
   end
 
   test "update_user/2 with valid data updates the user" do
@@ -61,8 +58,9 @@ defmodule <%= base %>.AccountsTest do
 
   test "update password changes the stored hash" do
     %{password_hash: stored_hash} = user = fixture(:user)
-    attrs = %{password: "password", key: @confirm_key}
-    {:ok, %{password_hash: hash, reset_token: nil}} = Accounts.update_password(user, attrs)
+    key = Phauxth.Token.sign(<%= base %>Web.Endpoint, %{"email" => "fred@mail.com"})
+    attrs = %{password: "password", key: key}
+    {:ok, %{password_hash: hash}} = Accounts.update_password(user, attrs)
     assert hash != stored_hash
   end<% end %>
 

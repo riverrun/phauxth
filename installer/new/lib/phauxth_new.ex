@@ -91,7 +91,7 @@ defmodule Mix.Tasks.Phauxth.New do
     end
 
     copy_files(files, base: base_module(), api: api, confirm: confirm)
-    if api, do: update_config()
+    if api || confirm, do: update_config()
 
     Mix.shell.info """
 
@@ -156,7 +156,7 @@ defmodule Mix.Tasks.Phauxth.New do
     Mix.Project.config |> Keyword.fetch!(:app) |> to_string
   end
 
-  def gen_token_salt(length) do
+  defp gen_token_salt(length) do
     :crypto.strong_rand_bytes(length) |> Base.encode64 |> binary_part(0, length)
   end
 

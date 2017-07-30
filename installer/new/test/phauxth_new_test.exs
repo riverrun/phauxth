@@ -50,7 +50,7 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       assert_file "test/phauxth_new_web/controllers/confirm_controller_test.exs"
 
       assert_file "config/config.exs", fn file ->
-        refute file =~ ~s(config :phauxth)
+        assert file =~ ~s(config :phauxth)
       end
 
       assert_file "lib/phauxth_new_web/router.ex", fn file ->
@@ -64,18 +64,16 @@ defmodule Mix.Tasks.Phauxth.NewTest do
 
       assert_file "test/support/auth_case.ex", fn file ->
         assert file =~ "import Ecto.Changeset"
-        assert file =~ ~s(key = "pu9-VNdgE8V9qZo19rlcg3KUNjpxuixg")
-        assert file =~ "{:ok, user} = Accounts.add_reset_token"
+        assert file =~ "change(%{confirmed_at: DateTime.utc_now})"
       end
 
       assert_file "lib/phauxth_new/accounts/user.ex", fn file ->
         assert file =~ "field :confirmed_at, :utc_datetime"
-        assert file =~ "field :confirmation_token, :string"
+        assert file =~ "cast(attrs, [:email, :password])"
       end
 
       assert_file "lib/phauxth_new/accounts/accounts.ex", fn file ->
-        assert file =~ "change(%{confirmation_token: key, confirmation_sent_at: DateTime.utc_now})"
-        assert file =~ "add_reset_token(%{\"email\" => email}, key) do"
+        assert file =~ "change(user, %{confirmed_at: DateTime.utc_now})"
       end
 
       assert_received {:mix_shell, :info, ["\nWe are almost ready!" <> _ = message]}

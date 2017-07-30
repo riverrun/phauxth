@@ -10,7 +10,6 @@ defmodule <%= base %>Web.UserControllerTest do
 
   setup %{conn: conn} = config do<%= if not api do %>
     conn = conn |> bypass_through(<%= base %>Web.Router, [:browser]) |> get("/")<% end %>
-
     if email = config[:login] do
       user = add_user(email)
       other = add_user("tony@mail.com")<%= if api do %>

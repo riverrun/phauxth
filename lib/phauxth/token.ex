@@ -69,13 +69,18 @@ defmodule Phauxth.Token do
   end
   def verify(_conn, nil, _opts), do: {:error, :missing}
 
-  defp get_key_base(%{secret_key_base: nil}) do
+  defp get_key_base(%{secret_key_base: key}), do: validate_secret(key)
+  defp get_key_base(endpoint) do
+    endpoint.config(:secret_key_base)
+  end
+
+  defp validate_secret(nil) do
     raise ArgumentError, "The secret_key_base has not been set"
   end
-  defp get_key_base(%{secret_key_base: key}) when byte_size(key) < 32 do
-    raise ArgumentError, "The secret_key_base is too short. It should be at least 32 bytes long."
+  defp validate_secret(key) when byte_size(key) < 20 do
+    raise ArgumentError, "The secret_key_base is too short. It should be at least 20 bytes long."
   end
-  defp get_key_base(%{secret_key_base: key}), do: key
+  defp validate_secret(key), do: key
 
   defp get_secret(secret_key_base, opts) do
     key_opts = [iterations: opts[:key_iterations] || 1000,
@@ -85,9 +90,9 @@ defmodule Phauxth.Token do
     KeyGenerator.generate(secret_key_base, Config.token_salt, key_opts)
   end
 
-  defp validate_len(nil), do: 32
-  defp validate_len(len) when len < 32 do
-    raise ArgumentError, "The key_length is too short. It should be at least 32 bytes long."
+  defp validate_len(nil), do: 20
+  defp validate_len(len) when len < 20 do
+    raise ArgumentError, "The key_length is too short. It should be at least 20 bytes long."
   end
   defp validate_len(len), do: len
 
