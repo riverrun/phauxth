@@ -45,18 +45,18 @@ defmodule Phauxth.Authenticate.Base do
       @behaviour Plug
 
       import Plug.Conn
-      alias Phauxth.Token
+      alias Phauxth.{Config, Log, Token, Utils}
 
       @doc false
       def init(opts) do
         {Keyword.get(opts, :method, :session),
         Keyword.get(opts, :max_age, 24 * 60 * 60),
-        Keyword.get(opts, :user_context, default_user_context())}
+        Keyword.get(opts, :user_context, Utils.default_user_context())}
       end
 
       @doc false
       def call(conn, opts) do
-        get_user(conn, opts) |> log_user |> set_user(conn)
+        get_user(conn, opts) |> log |> set_user(conn)
       end
 
       @doc """
@@ -76,37 +76,27 @@ defmodule Phauxth.Authenticate.Base do
       end
 
       @doc """
+      Log the result of the authentication and return the user struct or nil.
+      """
+      def log(%{} = user) do
+        Log.info(%Log{user: user.id, message: "user authenticated"})
+        Map.drop(user, Config.drop_user_keys)
+      end
+      def log({:error, message}) do
+        Log.info(%Log{message: message}) && nil
+      end
+      def log(nil) do
+        Log.info(%Log{}) && nil
+      end
+
+      @doc """
       Set the `current_user` variable.
       """
       def set_user(user, conn) do
         Plug.Conn.assign(conn, :current_user, user)
       end
 
-      defp default_user_context do
-        Mix.Project.config
-        |> Keyword.fetch!(:app)
-        |> to_string
-        |> Macro.camelize
-        |> Module.concat(Accounts)
-      end
-
-      defoverridable [init: 1, call: 2, get_user: 2, set_user: 2]
+      defoverridable [init: 1, call: 2, get_user: 2, log: 1, set_user: 2]
     end
-  end
-
-  alias Phauxth.{Config, Log}
-
-  @doc """
-  Log the result of the authentication and return the user struct or nil.
-  """
-  def log_user(nil) do
-    Log.info(%Log{}) && nil
-  end
-  def log_user({:error, msg}) do
-    Log.info(%Log{message: "#{msg} token"}) && nil
-  end
-  def log_user(user) do
-    Log.info(%Log{user: user.id, message: "user authenticated"})
-    Map.drop(user, Config.drop_user_keys)
   end
 end

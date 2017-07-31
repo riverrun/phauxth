@@ -47,8 +47,13 @@ defmodule Phauxth.Confirm.PassReset do
 
   use Phauxth.Confirm.Base
 
-  def get_user(conn, {token, max_age, user_context}) do
-    with {:ok, params} <- Token.verify(conn, token, max_age: max_age),
-      do: user_context.get_by(params)
+  @doc """
+  Print out the log message and return {:ok, user} or {:error, message}.
+  """
+  def log(%{} = user), do: Report.verify_ok(user, "user confirmed")
+  def log(%{reset_sent_at: nil} = user) do
+    Report.verify_error(user, "no reset token found")
   end
+  def log({:error, message}), do: Report.verify_error(message)
+  def log(nil), do: Report.verify_error(nil)
 end

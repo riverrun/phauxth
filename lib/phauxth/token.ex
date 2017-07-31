@@ -59,15 +59,15 @@ defmodule Phauxth.Token do
         %{data: data, signed: signed} = Plug.Crypto.safe_binary_to_term(message)
 
         if (signed + max_age_ms) < now_ms() do
-          {:error, :expired}
+          {:error, "expired token"}
         else
           {:ok, data}
         end
       :error ->
-        {:error, :invalid}
+        {:error, "invalid token"}
     end
   end
-  def verify(_conn, nil, _opts), do: {:error, :missing}
+  def verify(_conn, nil, _opts), do: {:error, "missing token"}
 
   defp get_key_base(%{secret_key_base: key}), do: validate_secret(key)
   defp get_key_base(endpoint) do

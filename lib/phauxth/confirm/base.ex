@@ -10,41 +10,32 @@ defmodule Phauxth.Confirm.Base do
   defmacro __using__(_) do
     quote do
       import unquote(__MODULE__)
-      alias Phauxth.Token
+      alias Phauxth.{Log, Report, Token}
 
       @doc """
-      Verify the confirmation key.
+      Verify the confirmation key and get the user data from the database.
       """
-      def verify(conn, %{"key" => key}, user_context, opts \\ []) do
-        max_age = Keyword.get(opts, :max_age, 20)
-        get_user(conn, {key, max_age * 60, user_context}) |> log("user confirmed")
+      def verify(conn, params, user_context, opts \\ [])
+      def verify(conn, %{"key" => key}, user_context, opts) do
+        max_age = Keyword.get(opts, :max_age, 20) * 60
+        get_user(conn, {key, max_age, user_context}) |> log
+      end
+      def verify(_, _, _, _), do: log({:error, "no key found"})
+
+      def get_user(conn, {key, max_age, user_context}) do
+        with {:ok, params} <- Token.verify(conn, key, max_age: max_age),
+          do: user_context.get_by(params)
       end
 
-      def get_user(conn, {token, max_age, user_context}) do
-        with {:ok, params} <- Token.verify(conn, token, max_age: max_age),
-             %{confirmed_at: time} = user <- user_context.get_by(params),
-          do: time && {:error, user.id, "user already confirmed"} || user
-      end
+      @doc """
+      Print out the log message and return {:ok, user} or {:error, message}.
+      """
+      def log(%{confirmed_at: nil} = user), do: Report.verify_ok(user, "user confirmed")
+      def log(%{} = user), do: Report.verify_error(user, "user already confirmed")
+      def log({:error, message}), do: Report.verify_error(message)
+      def log(nil), do: Report.verify_error(nil)
 
-      defoverridable [verify: 4, get_user: 2]
+      defoverridable [verify: 4, get_user: 2, log: 1]
     end
-  end
-
-  alias Phauxth.{Config, Log}
-
-  @doc """
-  Print out the log message and return {:ok, user} or {:error, message}.
-  """
-  def log({:error, msg}, _) do
-    Log.warn(%Log{message: "#{msg} token"})
-    {:error, "Invalid credentials"}
-  end
-  def log({:error, id, msg}, _) do
-    Log.warn(%Log{user: id, message: msg})
-    {:error, "The user has already been confirmed"}
-  end
-  def log(user, ok_log) do
-    Log.info(%Log{user: user.id, message: ok_log})
-    {:ok, Map.drop(user, Config.drop_user_keys)}
   end
 end

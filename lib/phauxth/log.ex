@@ -44,7 +44,6 @@ defmodule Phauxth.Log do
           Enum.map_join([{"user", user}, {"message", message}] ++ meta, " ", &format/1)
         end
       end
-      :ok
     end
   end
 

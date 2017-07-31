@@ -8,8 +8,6 @@ defmodule <%= base %>.Message do
   your choice.
   """
 
-  alias Phauxth.Confirm
-
   @doc """
   A message with a confirmation link in it.
   """

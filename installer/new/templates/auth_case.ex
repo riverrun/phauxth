@@ -24,4 +24,8 @@ defmodule <%= base %>Web.AuthCase do
     |> put_req_header("accept", "application/json")
     |> put_req_header("authorization", user_token)
   end
+
+  def gen_key(email) do
+    Phauxth.Token.sign(<%= base %>Web.Endpoint, %{"email" => email})
+  end
 end
