@@ -50,10 +50,10 @@ defmodule Phauxth.Confirm.PassReset do
   @doc """
   Print out the log message and return {:ok, user} or {:error, message}.
   """
-  def log(%{} = user), do: Report.verify_ok(user, "user confirmed")
-  def log(%{reset_sent_at: nil} = user) do
-    Report.verify_error(user, "no reset token found")
+  def report(%{reset_sent_at: nil} = user) do
+    verify_error(user, "no reset token found")
   end
-  def log({:error, message}), do: Report.verify_error(message)
-  def log(nil), do: Report.verify_error(nil)
+  def report(%{} = user), do: verify_ok(user, "user confirmed for password reset")
+  def report({:error, message}), do: verify_error(message)
+  def report(nil), do: verify_error(nil)
 end

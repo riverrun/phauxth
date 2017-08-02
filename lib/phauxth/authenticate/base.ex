@@ -56,7 +56,7 @@ defmodule Phauxth.Authenticate.Base do
 
       @doc false
       def call(conn, opts) do
-        get_user(conn, opts) |> log |> set_user(conn)
+        get_user(conn, opts) |> report |> set_user(conn)
       end
 
       @doc """
@@ -78,14 +78,14 @@ defmodule Phauxth.Authenticate.Base do
       @doc """
       Log the result of the authentication and return the user struct or nil.
       """
-      def log(%{} = user) do
+      def report(%{} = user) do
         Log.info(%Log{user: user.id, message: "user authenticated"})
         Map.drop(user, Config.drop_user_keys)
       end
-      def log({:error, message}) do
+      def report({:error, message}) do
         Log.info(%Log{message: message}) && nil
       end
-      def log(nil) do
+      def report(nil) do
         Log.info(%Log{}) && nil
       end
 
@@ -96,7 +96,7 @@ defmodule Phauxth.Authenticate.Base do
         Plug.Conn.assign(conn, :current_user, user)
       end
 
-      defoverridable [init: 1, call: 2, get_user: 2, log: 1, set_user: 2]
+      defoverridable [init: 1, call: 2, get_user: 2, report: 1, set_user: 2]
     end
   end
 end

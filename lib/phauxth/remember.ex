@@ -44,7 +44,7 @@ defmodule Phauxth.Remember do
     if conn.assigns[:current_user] do
       conn
     else
-      get_user(conn, token, opts) |> log |> set_user(conn)
+      get_user(conn, token, opts) |> report |> set_user(conn)
     end
   end
   def call(conn, _), do: conn

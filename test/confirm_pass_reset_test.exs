@@ -22,4 +22,11 @@ defmodule Phauxth.Confirm.PassResetTest do
     assert message =~ "Invalid credentials"
   end
 
+  test "reset fails when reset_sent_at is not found", %{conn: conn} do
+    valid_key = Token.sign(conn, %{"email" => "igor@mail.com"})
+    params = %{"key" => valid_key, "password" => "password"}
+    {:error, message} = PassReset.verify(conn, params, TestAccounts)
+    assert message =~ "user has not been sent a reset token"
+  end
+
 end

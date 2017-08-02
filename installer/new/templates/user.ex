@@ -7,7 +7,8 @@ defmodule <%= base %>.Accounts.User do
     field :email, :string
     field :password, :string, virtual: true
     field :password_hash, :string<%= if confirm do %>
-    field :confirmed_at, :utc_datetime<% end %>
+    field :confirmed_at, :utc_datetime
+    field :reset_sent_at, :utc_datetime<% end %>
 
     timestamps()
   end

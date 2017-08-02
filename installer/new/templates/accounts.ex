@@ -27,8 +27,14 @@ defmodule <%= base %>.Accounts do
   end<%= if confirm do %>
 
   def confirm_user(%User{} = user) do
-    change(user, %{confirmed_at: DateTime.utc_now})
-      |> Repo.update
+    change(user, %{confirmed_at: DateTime.utc_now}) |> Repo.update
+  end
+
+  def add_reset(%User{} = user) do # add attrs
+    change(user, %{reset_sent_at: DateTime.utc_now}) |> Repo.update
+    #key = Phauxth.Token.sign(conn, %{"email" => email})
+    #Message.reset_request(email, key)
+    #message = "Check your inbox for instructions on how to reset your password"
   end<% end %>
 
   def update_user(%User{} = user, attrs) do
