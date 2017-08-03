@@ -5,7 +5,8 @@ defmodule <%= base %>.Repo.Migrations.CreateUsers do
     create table(:users) do
       add :email, :string
       add :password_hash, :string<%= if confirm do %>
-      add :confirmed_at, :utc_datetime<% end %>
+      add :confirmed_at, :utc_datetime
+      add :reset_sent_at, :utc_datetime<% end %>
 
       timestamps()
     end

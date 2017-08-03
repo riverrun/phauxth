@@ -13,8 +13,8 @@ defmodule <%= base %>Web.PasswordResetController do
 
   def create(conn, %{"password_reset" => %{"email" => email}}) do
     with %User{} = user <- Accounts.get_by(%{"email" => email}) do
-      Accounts.add_reset(user)
       key = Phauxth.Token.sign(conn, %{"email" => email})
+      Accounts.add_reset(user)
       Message.reset_request(email, key)
       message = "Check your inbox for instructions on how to reset your password"<%= if api do %>
       conn

@@ -32,12 +32,12 @@ function phauxth_project {
 }
 
 cd $(dirname "$0")/../tmp
-echo y | mix phx.new alibaba
-phauxth_project
+#echo y | mix phx.new alibaba
+#phauxth_project
 echo y | mix phx.new alibaba
 phauxth_project --confirm
-echo y | mix phx.new alibaba --no-html --no-brunch
-phauxth_project --api
+#echo y | mix phx.new alibaba --no-html --no-brunch
+#phauxth_project --api
 echo y | mix phx.new alibaba --no-html --no-brunch
 phauxth_project --api --confirm
 echo "------------------------------------------------------------"

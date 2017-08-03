@@ -85,7 +85,7 @@ defmodule Phauxth.Token do
   defp get_secret(secret_key_base, opts) do
     key_opts = [iterations: opts[:key_iterations] || 1000,
                 length: validate_len(opts[:key_length]),
-                digest: opts[:key_digest] || :sha256,
+                digest: validate_digest(opts[:key_digest]),
                 cache: Plug.Keys]
     KeyGenerator.generate(secret_key_base, Config.token_salt, key_opts)
   end
@@ -95,6 +95,12 @@ defmodule Phauxth.Token do
     raise ArgumentError, "The key_length is too short. It should be at least 20 bytes long."
   end
   defp validate_len(len), do: len
+
+  defp validate_digest(nil), do: :sha256
+  defp validate_digest(digest) when digest in [:sha256, :sha512], do: digest
+  defp validate_digest(digest) do
+    raise ArgumentError, "Phauxth.Token does not support #{digest}"
+  end
 
   defp now_ms, do: System.system_time(:millisecond)
 end

@@ -17,4 +17,11 @@ defmodule <%= base %>Web.FallbackController do
     |> put_status(:not_found)
     |> render(<%= base %>Web.ErrorView, :"404")
   end
+
+  def call(conn, nil) do
+    IO.puts "Hello!"
+    conn
+    |> put_status(:unauthorized)
+    |> render(<%= base %>Web.ErrorView, :"401")
+  end
 end

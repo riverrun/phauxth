@@ -65,4 +65,13 @@ defmodule Phauxth.TokenTest do
     assert_raise ArgumentError, fn -> Token.sign(conn, 1, key_length: 19) end
   end
 
+  test "raises an error when a weak key digest is set", %{conn: conn} do
+    assert_raise ArgumentError, "Phauxth.Token does not support md5", fn ->
+      Token.sign(conn, 1, key_digest: :md5)
+    end
+    assert_raise ArgumentError, "Phauxth.Token does not support sha", fn ->
+      Token.sign(conn, 1, key_digest: :sha)
+    end
+  end
+
 end
