@@ -2,71 +2,44 @@ defmodule Phauxth.ConfirmTest do
   use ExUnit.Case
   use Plug.Test
 
-  alias Phauxth.{Confirm, TestAccounts}
+  alias Phauxth.{Confirm, TestAccounts, Token}
 
-  @valid_link "email=fred%2B1%40mail.com&key=lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
-  @confirmed_link "email=ray%40mail.com&key=lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
-  @invalid_link "email=wrong%40mail.com&key=lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
-  @incomplete_link "email=wrong%40mail.com"
+  setup do
+    conn = conn(:get, "/") |> Phauxth.SessionHelper.add_key
+    valid_email = Token.sign(conn, %{"email" => "fred+1@mail.com"})
+    {:ok, %{conn: conn, valid_email: valid_email}}
+  end
 
-  test "confirmation succeeds for valid token" do
-    %{params: params} = conn(:get, "/confirm?" <> @valid_link) |> fetch_query_params
-    {:ok, user} = Confirm.verify(params, TestAccounts)
+  test "confirmation succeeds for valid token", %{conn: conn, valid_email: valid_email} do
+    %{params: params} = conn(:get, "/confirm?key=" <> valid_email) |> fetch_query_params
+    {:ok, user} = Confirm.verify(conn, params, TestAccounts)
     assert user
   end
 
-  test "confirmation fails for invalid token" do
-    %{params: params} = conn(:get, "/confirm?" <> @invalid_link) |> fetch_query_params
-    {:error, message} = Confirm.verify(params, TestAccounts)
+  test "confirmation fails for invalid token", %{conn: conn} do
+    %{params: params} = conn(:get, "/confirm?key=invalidlink") |> fetch_query_params
+    {:error, message} = Confirm.verify(conn, params, TestAccounts)
     assert message =~ "Invalid credentials"
   end
 
-  test "confirmation fails for expired token" do
-    %{params: params} = conn(:get, "/confirm?" <> @valid_link) |> fetch_query_params
-    {:error, message} = Confirm.verify(params, TestAccounts, [key_validity: 0])
+  test "confirmation fails for expired token", %{conn: conn, valid_email: valid_email} do
+    %{params: params} = conn(:get, "/confirm?key=" <> valid_email) |> fetch_query_params
+    {:error, message} = Confirm.verify(conn, params, TestAccounts, [max_age: -1])
     assert message =~ "Invalid credentials"
   end
 
-  test "invalid link error" do
-    %{params: params} = conn(:get, "/confirm?" <> @incomplete_link) |> fetch_query_params
-    {:error, message} = Confirm.verify(params, TestAccounts)
-    assert message =~ "Invalid credentials"
+  test "confirmation fails for already confirmed account", %{conn: conn} do
+    confirmed_email = Token.sign(conn, %{"email" => "ray@mail.com"})
+    %{params: params} = conn(:get, "/confirm?key=" <> confirmed_email) |> fetch_query_params
+    {:error, message} = Confirm.verify(conn, params, TestAccounts)
+    assert message =~ "The user has already been confirmed"
   end
 
-  test "confirmation fails for already confirmed account" do
-    %{params: params} = conn(:get, "/confirm?" <> @confirmed_link) |> fetch_query_params
-    {:error, message} = Confirm.verify(params, TestAccounts)
-    assert message =~ "Invalid credentials"
-  end
-
-  test "confirmation succeeds with different identifier" do
-    phone_link = "phone=55555555555&key=lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
-    %{params: params} = conn(:get, "/confirm?" <> phone_link) |> fetch_query_params
-    {:ok, user} = Confirm.verify(params, TestAccounts)
+  test "confirmation succeeds with different identifier", %{conn: conn} do
+    valid_phone = Token.sign(conn, %{"phone" => "55555555555"})
+    %{params: params} = conn(:get, "/confirm?key=" <> valid_phone) |> fetch_query_params
+    {:ok, user} = Confirm.verify(conn, params, TestAccounts)
     assert user
   end
 
-  test "check time" do
-    assert Phauxth.Confirm.Base.check_time(DateTime.utc_now, 60)
-    refute Phauxth.Confirm.Base.check_time(DateTime.utc_now, -60)
-    refute Phauxth.Confirm.Base.check_time(nil, 60)
-  end
-
-  test "gen_token creates a token 32 bytes long" do
-    assert Phauxth.Confirm.gen_token() |> byte_size == 32
-  end
-
-  test "gen_link" do
-    key = "lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
-    link = Phauxth.Confirm.gen_link("fred@mail.com", key)
-    assert link =~ "email=fred%40mail.com&key="
-    assert :binary.match(link, [key]) == {26, 32}
-  end
-
-  test "gen_link with custom identifier" do
-    key = "lg8UXGNMpb5LUGEDm62PrwW8c20qZmIw"
-    link = Phauxth.Confirm.gen_link("55555555555", key, :phone)
-    assert link =~ "phone=55555555555&key="
-    assert :binary.match(link, [key]) == {22, 32}
-  end
 end

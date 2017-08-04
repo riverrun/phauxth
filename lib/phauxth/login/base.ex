@@ -23,15 +23,14 @@ defmodule Phauxth.Login.Base do
   defmacro __using__(_) do
     quote do
       import unquote(__MODULE__)
+      import Phauxth.Report
 
       @doc """
       Verify a user's password.
       """
       def verify(%{"password" => password} = params, user_context, opts \\ []) do
         crypto = Keyword.get(opts, :crypto, Comeonin.Bcrypt)
-        user_context.get_by(params)
-        |> check_pass(password, crypto, opts)
-        |> log("successful login")
+        user_context.get_by(params) |> check_pass(password, crypto, opts) |> report
       end
 
       @doc """
@@ -44,21 +43,13 @@ defmodule Phauxth.Login.Base do
         crypto.check_pass(user, password, opts)
       end
 
-      defoverridable [verify: 3, check_pass: 4]
+      @doc """
+      Prints out a log message and returns {:ok, user} or {:error, message}.
+      """
+      def report({:ok, user}), do: verify_ok(user, "successful login")
+      def report({:error, message}), do: verify_error(message)
+
+      defoverridable [verify: 3, check_pass: 4, report: 1]
     end
-  end
-
-  alias Phauxth.{Config, Log}
-
-  @doc """
-  Prints out a log message and returns {:ok, user} or {:error, message}.
-  """
-  def log({:ok, user}, ok_log) do
-    Log.info(%Log{user: user.id, message: ok_log})
-    {:ok, Map.drop(user, Config.drop_user_keys)}
-  end
-  def log({:error, error_log}, _) do
-    Log.warn(%Log{message: error_log})
-    {:error, "Invalid credentials"}
   end
 end

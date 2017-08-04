@@ -45,18 +45,18 @@ defmodule Phauxth.Authenticate.Base do
       @behaviour Plug
 
       import Plug.Conn
-      alias Phauxth.Token
+      alias Phauxth.{Config, Log, Token, Utils}
 
       @doc false
       def init(opts) do
         {Keyword.get(opts, :method, :session),
         Keyword.get(opts, :max_age, 24 * 60 * 60),
-        Keyword.get(opts, :user_context, default_user_context())}
+        Keyword.get(opts, :user_context, Utils.default_user_context())}
       end
 
       @doc false
       def call(conn, opts) do
-        get_user(conn, opts) |> log_user |> set_user(conn)
+        get_user(conn, opts) |> report |> set_user(conn)
       end
 
       @doc """
@@ -71,18 +71,22 @@ defmodule Phauxth.Authenticate.Base do
       def get_user(%Plug.Conn{req_headers: headers} = conn,
           {:token, max_age, user_context}) do
         with {_, token} <- List.keyfind(headers, "authorization", 0),
-             {:ok, user_id} <- check_token(token, {conn, max_age}),
+             {:ok, user_id} <- Token.verify(conn, token, max_age: max_age),
           do: user_context.get(user_id)
       end
 
       @doc """
-      Verify the token.
-
-      This function can be overridden if you want to use a different
-      token implementation.
+      Log the result of the authentication and return the user struct or nil.
       """
-      def check_token(token, {conn, max_age}) do
-        Token.verify(conn, token, max_age: max_age)
+      def report(%{} = user) do
+        Log.info(%Log{user: user.id, message: "user authenticated"})
+        Map.drop(user, Config.drop_user_keys)
+      end
+      def report({:error, message}) do
+        Log.info(%Log{message: message}) && nil
+      end
+      def report(nil) do
+        Log.info(%Log{}) && nil
       end
 
       @doc """
@@ -92,31 +96,7 @@ defmodule Phauxth.Authenticate.Base do
         Plug.Conn.assign(conn, :current_user, user)
       end
 
-      defp default_user_context do
-        Mix.Project.config
-        |> Keyword.fetch!(:app)
-        |> to_string
-        |> Macro.camelize
-        |> Module.concat(Accounts)
-      end
-
-      defoverridable [init: 1, call: 2, get_user: 2, check_token: 2, set_user: 2]
+      defoverridable [init: 1, call: 2, get_user: 2, report: 1, set_user: 2]
     end
-  end
-
-  alias Phauxth.{Config, Log}
-
-  @doc """
-  Log the result of the authentication and return the user struct or nil.
-  """
-  def log_user(nil) do
-    Log.info(%Log{}) && nil
-  end
-  def log_user({:error, msg}) do
-    Log.info(%Log{message: "#{msg} token"}) && nil
-  end
-  def log_user(user) do
-    Log.info(%Log{user: user.id, message: "User authenticated"})
-    Map.drop(user, Config.drop_user_keys)
   end
 end

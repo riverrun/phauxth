@@ -22,15 +22,15 @@ defmodule <%= base %>Web.UserController do
   end<% end %><%= if confirm do %>
 
   def create(conn, %{"user" => %{"email" => email} = user_params}) do
-    key = Phauxth.Confirm.gen_token()<% else %>
+    key = Phauxth.Token.sign(conn, %{"email" => email})<% else %>
   def create(conn, %{"user" => user_params}) do<% end %><%= if api do %>
-    with {:ok, %User{} = user} <- Accounts.create_user(user_params<%= if confirm do %>, key<% end %>) do<%= if confirm do %>
+    with {:ok, %User{} = user} <- Accounts.create_user(user_params) do<%= if confirm do %>
       Message.confirm_request(email, key)<% end %>
       conn
       |> put_status(:created)
       |> put_resp_header("location", user_path(conn, :show, user))
       |> render("show.json", user: user)<% else %>
-    case Accounts.create_user(user_params<%= if confirm do %>, key<% end %>) do
+    case Accounts.create_user(user_params) do
       {:ok, _user} -><%= if confirm do %>
         Message.confirm_request(email, key)<% end %>
         success(conn, "User created successfully", session_path(conn, :new))

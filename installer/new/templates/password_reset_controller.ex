@@ -5,29 +5,26 @@ defmodule <%= base %>Web.PasswordResetController do
 
   action_fallback <%= base %>Web.FallbackController<% else %>
   import <%= base %>Web.Authorize
-  alias <%= base %>.{Accounts, Message}
+  alias <%= base %>.{Accounts, Accounts.User, Message}
 
   def new(conn, _params) do
     render(conn, "new.html")
   end<% end %>
 
-  def create(conn, %{"password_reset" => %{"email" => email} = user_params}) do
-    key = Phauxth.Confirm.gen_token()<%= if api do %>
-    with {:ok, %User{}} <- Accounts.add_reset_token(user_params, key) do
+  def create(conn, %{"password_reset" => %{"email" => email}}) do
+    with %User{} = user <- Accounts.get_by(%{"email" => email}) do
+      key = Phauxth.Token.sign(conn, %{"email" => email})
+      Accounts.add_reset(user)
       Message.reset_request(email, key)
-      message = "Check your inbox for instructions on how to reset your password"
+      message = "Check your inbox for instructions on how to reset your password"<%= if api do %>
       conn
       |> put_status(:created)
       |> render(<%= base %>Web.PasswordResetView, "info.json", %{info: message})
     end
   end<% else %>
-    case Accounts.add_reset_token(user_params, key) do
-      {:ok, _user} ->
-        Message.reset_request(email, key)
-        message = "Check your inbox for instructions on how to reset your password"
-        success(conn, message, user_path(conn, :index))
-      {:error, _changeset} ->
-        render(conn, "new.html")
+      success(conn, message, user_path(conn, :index))
+    else
+      nil -> render(conn, "new.html")
     end
   end
 
@@ -36,7 +33,7 @@ defmodule <%= base %>Web.PasswordResetController do
   end<% end %>
 
   def update(conn, %{"password_reset" => params}) do
-    case Phauxth.Confirm.PassReset.verify(params, Accounts) do
+    case Phauxth.Confirm.PassReset.verify(conn, params, Accounts) do
       {:ok, user} ->
         Accounts.update_user(user, params)
         Message.reset_success(user.email)

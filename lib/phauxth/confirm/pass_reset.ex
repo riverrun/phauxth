@@ -6,7 +6,7 @@ defmodule Phauxth.Confirm.PassReset do
 
   There is one option:
 
-    * key_validity - the length, in minutes, that the token is valid for
+    * max_age - the length, in minutes, that the token is valid for
       * the default is 20 minutes
 
   ## Examples
@@ -26,7 +26,7 @@ defmodule Phauxth.Confirm.PassReset do
   (this example is for a html app):
 
       def update(conn, %{"password_reset" => params}) do
-        case Phauxth.Confirm.PassReset.verify(params, MyApp.Accounts, key_validity: 20) do
+        case Phauxth.Confirm.PassReset.verify(conn, params, max_age: 15) do
           {:ok, user} ->
             Accounts.update_user(user, params)
             Message.reset_success(user.email)
@@ -45,11 +45,15 @@ defmodule Phauxth.Confirm.PassReset do
   new password and the `reset_token` and `reset_sent_at` values to nil.
   """
 
-  use Phauxth.Confirm.Base, ok_log: "password reset"
+  use Phauxth.Confirm.Base
 
-  def check_key(nil, _, _), do: {:error, "invalid credentials"}
-  def check_key(user, key, valid_secs) do
-    check_time(user.reset_sent_at, valid_secs) and
-    secure_compare(user.reset_token, key) and {:ok, user}
+  @doc """
+  Print out the log message and return {:ok, user} or {:error, message}.
+  """
+  def report(%{reset_sent_at: nil} = user) do
+    verify_error(user, "no reset token found")
   end
+  def report(%{} = user), do: verify_ok(user, "user confirmed for password reset")
+  def report({:error, message}), do: verify_error(message)
+  def report(nil), do: verify_error(nil)
 end
