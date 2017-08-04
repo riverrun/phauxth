@@ -5,13 +5,6 @@ defmodule Phauxth.Confirm do
   This Plug can be used to provide user confirmation by email, phone,
   or any other method.
 
-  ## Options
-
-  There is one option:
-
-    * max_age - the length, in minutes, that the token is valid for
-      * the default is 20 minutes
-
   ## Examples
 
   Add the following line to the `web/router.ex` file:
@@ -21,7 +14,7 @@ defmodule Phauxth.Confirm do
   Then add the following to the `confirm_controller.ex` new function:
 
       def new(conn, params) do
-        case Phauxth.Confirm.verify(conn, params) do
+        case Phauxth.Confirm.verify(params, MyApp.Accounts, {conn, 20}) do
           {:ok, user} ->
             Accounts.confirm_user(user)
             message = "Your account has been confirmed"
@@ -37,12 +30,5 @@ defmodule Phauxth.Confirm do
   """
 
   use Phauxth.Confirm.Base
-  alias Phauxth.Token
 
-  @doc """
-  Generate a confirmation token.
-  """
-  def gen_token(conn, opts \\ []) do
-    Token.sign(conn, opts)
-  end
 end

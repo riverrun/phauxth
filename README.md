@@ -3,7 +3,29 @@
 [![Hex.pm Version](http://img.shields.io/hexpm/v/phauxth.svg)](https://hex.pm/packages/phauxth)
 [![Join the chat at https://gitter.im/phauxth_elixir/Lobby](https://badges.gitter.im/phauxth_elixir/Lobby.svg)](https://gitter.im/phauxth_elixir/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Authentication library for Phoenix web apps.
+Authentication library for Phoenix, and other Plug-based, web applications.
+
+Phauxth is designed with Phoenix 1.3 in mind, but it can also be used with
+older versions of Phoenix and any other Plug-based application.
+
+## Configuring Phauxth
+
+Phauxth uses the user context module (normally MyApp.Accounts) to communicate
+with the underlying database. This module needs to have the `get(id)` and
+`get_by(attrs)` functions defined (see the examples below).
+
+    ```elixir
+    def get(id), do: Repo.get(User, id)
+
+    def get_by(%{"email" => email}) do
+      Repo.get_by(User, email: email)
+    end
+    ```
+
+In addition, if you are using tokens, for an api or for user confirmation,
+you need to add `token_salt` to the Phauxth config. You can generate a
+suitably secure random salt by running the `Phauxth.Config.gen_token_salt`
+command.
 
 ## Getting started with Phauxth and Phoenix
 
@@ -40,6 +62,10 @@ If you want to create authentication files for an api, use the `--api` option:
 
     mix phauxth.new --api
 
+And for api with user confirmation:
+
+    mix phauxth.new --api --confirm
+
 ### Add phauxth to deps
 
 1. Make sure you are using Elixir 1.4 or above.
@@ -50,8 +76,8 @@ If you want to create authentication files for an api, use the `--api` option:
     ```elixir
     defp deps do
       [
-        {:phauxth, "~> 0.12-rc"},
-        {:bcrypt_elixir, "~> 0.11"},
+        {:phauxth, "~> 0.15"},
+        {:bcrypt_elixir, "~> 0.12"},
       ]
     end
     ```
@@ -60,9 +86,7 @@ If you want to create authentication files for an api, use the `--api` option:
 
 4. Add the `get(id)` and `get_by(attrs)` functions to your user Accounts module.
 
-5. If you are using argon2_elixir or pbkdf2_elixir as the password hashing
-module, you will need to create a custom login module using that algorithm.
-See the documentation for Phauxth.Login.Base.check_pass for details.
+5. If you are using tokens, add the token_salt value to the config.
 
 See the [wiki](https://github.com/riverrun/phauxth/wiki) for more
 information about Phauxth.

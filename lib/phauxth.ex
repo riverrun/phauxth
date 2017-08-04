@@ -1,11 +1,12 @@
 defmodule Phauxth do
   @moduledoc """
-  A collection of functions to be used to authenticate Phoenix web apps.
+  Authentication library for Phoenix, and other Plug-based, web applications.
 
   Phauxth is designed to be secure, extensible and well-documented.
 
   Phauxth offers two types of functions: Plugs, which are called with plug,
-  and verify/3 functions, which are called inside the function bodies.
+  and verify/3 functions, which are called inside the function
+  bodies.
 
   ## Plugs
 
@@ -42,7 +43,7 @@ defmodule Phauxth do
 
   ## Phauxth verify/3
 
-  Each verify/3 function takes a map (usually Phoenix params), a context
+  The verify/3 function takes a map (usually Phoenix params), a context
   module (usually MyApp.Accounts) and opts (an empty list by default)
   and returns {:ok, user} or {:error, message}.
 
@@ -67,10 +68,14 @@ defmodule Phauxth do
   Phauxth.Confirm.verify is used for user confirmation, using email or phone,
   and Phauxth.Confirm.PassReset.verify is used for password resetting.
 
+  The third argument for these verify functions is a tuple with the key
+  source (conn or the the name of the endpoint module) and the max age,
+  in minutes.
+
   The function below is an example of how you would call Phauxth.Confirm.verify.
 
       def new(conn, params) do
-        case Phauxth.Confirm.verify(params, MyApp.Accounts) do
+        case Phauxth.Confirm.verify(params, MyApp.Accounts, {conn, 20}) do
           {:ok, user} ->
             Accounts.confirm_user(user)
             message = "Your account has been confirmed"

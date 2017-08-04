@@ -1,7 +1,20 @@
+# Upgrading to version 0.15 of Phauxth
+
+## Changes
+
+The Confirm.verify and Confirm.PassReset.verify functions now take
+a tuple as the third argument. This tuple contains the key source,
+which is either the conn or the name of the endpoint module, and the
+max age, in minutes. The following example uses the conn struct
+as the key source and sets the max age to 10 minutes.
+
+    Phauxth.Confirm.verify(params, MyApp.Accounts, {conn, 10})
+
 # Upgrading to Phauxth from Openmaize
 
-This document shows the changes you need to make when upgrading from Openmaize
-to Phauxth. For more information, see each module's documentation.
+The rest of this document shows the changes you need to make when
+upgrading from Openmaize to Phauxth. For more information, see
+each module's documentation.
 
 ## Changes
 

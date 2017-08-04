@@ -15,16 +15,19 @@ defmodule Phauxth.Confirm.Base do
 
       @doc """
       Verify the confirmation key and get the user data from the database.
-      """
-      def verify(conn, params, user_context, opts \\ [])
-      def verify(conn, %{"key" => key}, user_context, opts) do
-        max_age = Keyword.get(opts, :max_age, 20) * 60
-        get_user(conn, {key, max_age, user_context}) |> report
-      end
-      def verify(_, _, _, _), do: report({:error, "no key found"})
 
-      def get_user(conn, {key, max_age, user_context}) do
-        with {:ok, params} <- Token.verify(conn, key, max_age: max_age),
+      The first argument is the parameters, which need to contain the confirmation
+      key. The second argument is the user context module, and the third argument
+      is a tuple containing the key source (conn or the name of the endpoint module)
+      and the max age, in minutes.
+      """
+      def verify(%{"key" => key}, user_context, {key_source, max_age}) do
+        get_user(key_source, {key, max_age * 60, user_context}) |> report
+      end
+      def verify(_, _, _), do: report({:error, "no key found"})
+
+      def get_user(key_source, {key, max_age, user_context}) do
+        with {:ok, params} <- Token.verify(key_source, key, max_age: max_age),
           do: user_context.get_by(params)
       end
 
@@ -36,7 +39,7 @@ defmodule Phauxth.Confirm.Base do
       def report({:error, message}), do: verify_error(message)
       def report(nil), do: verify_error(nil)
 
-      defoverridable [verify: 4, get_user: 2, report: 1]
+      defoverridable [verify: 3, get_user: 2, report: 1]
     end
   end
 end

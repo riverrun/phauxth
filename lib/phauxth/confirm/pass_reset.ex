@@ -2,13 +2,6 @@ defmodule Phauxth.Confirm.PassReset do
   @moduledoc """
   Confirm a user in order to reset the password.
 
-  ## Options
-
-  There is one option:
-
-    * max_age - the length, in minutes, that the token is valid for
-      * the default is 20 minutes
-
   ## Examples
 
   Add the following lines to the `web/router.ex` file (for a html app):
@@ -26,7 +19,7 @@ defmodule Phauxth.Confirm.PassReset do
   (this example is for a html app):
 
       def update(conn, %{"password_reset" => params}) do
-        case Phauxth.Confirm.PassReset.verify(conn, params, max_age: 15) do
+        case Phauxth.Confirm.PassReset.verify(params, MyApp.Accounts, {conn, 15}) do
           {:ok, user} ->
             Accounts.update_user(user, params)
             Message.reset_success(user.email)

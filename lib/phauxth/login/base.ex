@@ -11,7 +11,9 @@ defmodule Phauxth.Login.Base do
         use Phauxth.Login.Base
 
         def check_pass(%{confirmed_at: nil}, _, _, _), do: {:error, "account unconfirmed"}
-        def check_pass(user, password, crypto, opts), do: super(user, password, crypto, opts)
+        def check_pass(user, password, crypto, crypto_opts) do
+          super(user, password, crypto, crypto_opts)
+        end
       end
 
   In the Phauxth.Confirm.Login module, the user struct is checked to see
@@ -28,10 +30,14 @@ defmodule Phauxth.Login.Base do
       @doc """
       Verify a user's password.
       """
-      def verify(%{"password" => password} = params, user_context, opts \\ []) do
-        crypto = Keyword.get(opts, :crypto, Comeonin.Bcrypt)
-        user_context.get_by(params) |> check_pass(password, crypto, opts) |> report
+      def verify(params, user_context, opts \\ [])
+      def verify(%{"password" => password} = params, user_context, opts) do
+        {crypto, crypto_opts} = Keyword.pop(opts, :crypto, Comeonin.Bcrypt)
+        user_context.get_by(params)
+        |> check_pass(password, crypto, crypto_opts)
+        |> report
       end
+      def verify(_, _, _), do: report({:error, "no password found"})
 
       @doc """
       Check the password by comparing it with a stored hash.
@@ -39,8 +45,8 @@ defmodule Phauxth.Login.Base do
       The stored hash, in the user struct, should have `password_hash`
       or `encrypted_password` as a key.
       """
-      def check_pass(user, password, crypto, opts) do
-        crypto.check_pass(user, password, opts)
+      def check_pass(user, password, crypto, crypto_opts) do
+        crypto.check_pass(user, password, crypto_opts)
       end
 
       @doc """
