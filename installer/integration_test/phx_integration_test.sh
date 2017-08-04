@@ -9,7 +9,7 @@ function enter_cave {
 }
 
 function edit_mix {
-    sed -i 's/{:postgrex, ">= 0.0.0"},/{:postgrex, ">= 0.0.0"},\n     {:phauxth, git: "https:\/\/github.com\/riverrun\/phauxth.git", branch: "token_confirm"},\n     {:bcrypt_elixir, "~> 0.12"},/g' mix.exs
+    sed -i 's/{:postgrex, ">= 0.0.0"},/{:postgrex, ">= 0.0.0"},\n     {:phauxth, git: "https:\/\/github.com\/riverrun\/phauxth.git"},\n     {:bcrypt_elixir, "~> 0.12"},/g' mix.exs
     mix deps.get
 }
 
@@ -32,12 +32,12 @@ function phauxth_project {
 }
 
 cd $(dirname "$0")/../tmp
-#echo y | mix phx.new alibaba
-#phauxth_project
+echo y | mix phx.new alibaba
+phauxth_project
 echo y | mix phx.new alibaba
 phauxth_project --confirm
-#echo y | mix phx.new alibaba --no-html --no-brunch
-#phauxth_project --api
+echo y | mix phx.new alibaba --no-html --no-brunch
+phauxth_project --api
 echo y | mix phx.new alibaba --no-html --no-brunch
 phauxth_project --api --confirm
 echo "------------------------------------------------------------"
