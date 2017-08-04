@@ -11,17 +11,22 @@ defmodule Phauxth.Confirm do
 
       get "/new", ConfirmController, :new
 
-  Then add the following to the `confirm_controller.ex` new function:
+  Then add the following to the `confirm_controller.ex` new function
+  (this example is for a html app):
 
       def new(conn, params) do
-        case Phauxth.Confirm.verify(params, MyApp.Accounts, {conn, 20}) do
+        case Phauxth.Confirm.verify(params, Accounts, {conn, 20}) do
           {:ok, user} ->
             Accounts.confirm_user(user)
-            message = "Your account has been confirmed"
             Message.confirm_success(user.email)
-            handle_success(conn, message, session_path(conn, :new))
+            conn
+            |> put_flash(:info, "Your account has been confirmed")
+            |> redirect(to: session_path(conn, :new))
           {:error, message} ->
-            handle_error(conn, message, session_path(conn, :new))
+            conn
+            |> put_flash(:error, message)
+            |> redirect(to: session_path(conn, :new))
+            |> halt
         end
       end
 

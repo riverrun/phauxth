@@ -23,9 +23,9 @@ defmodule Phauxth.Confirm.PassReset do
           {:ok, user} ->
             Accounts.update_user(user, params)
             Message.reset_success(user.email)
-            message = "Your password has been reset"
             configure_session(conn, drop: true)
-            |> handle_success(message, session_path(conn, :new))
+            |> put_flash(:info, "Your password has been reset")
+            |> redirect(to: session_path(conn, :new))
           {:error, message} ->
             conn
             |> put_flash(:error, message)
@@ -35,7 +35,7 @@ defmodule Phauxth.Confirm.PassReset do
 
   In this example, the `Accounts.update_user` function updates the
   database, setting the `password_hash` value to the hash for the
-  new password and the `reset_token` and `reset_sent_at` values to nil.
+  new password and the `reset_sent_at` value to nil.
   """
 
   use Phauxth.Confirm.Base

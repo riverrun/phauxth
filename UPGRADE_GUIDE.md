@@ -10,6 +10,10 @@ as the key source and sets the max age to 10 minutes.
 
     Phauxth.Confirm.verify(params, MyApp.Accounts, {conn, 10})
 
+Phauxth now uses a customized version of Phoenix.Token.
+This removes the dependency on Phoenix, and so it should be
+more straightforward to use it with any Plug-based application.
+
 # Upgrading to Phauxth from Openmaize
 
 The rest of this document shows the changes you need to make when

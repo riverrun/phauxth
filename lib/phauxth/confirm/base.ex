@@ -16,10 +16,9 @@ defmodule Phauxth.Confirm.Base do
       @doc """
       Verify the confirmation key and get the user data from the database.
 
-      The first argument is the parameters, which need to contain the confirmation
-      key. The second argument is the user context module, and the third argument
-      is a tuple containing the key source (conn or the name of the endpoint module)
-      and the max age, in minutes.
+      In the third argument, the key_source is either conn or the name
+      of the endpoint module, and the max_age is the maximum age of the
+      key, in minutes.
       """
       def verify(%{"key" => key}, user_context, {key_source, max_age}) do
         get_user(key_source, {key, max_age * 60, user_context}) |> report
