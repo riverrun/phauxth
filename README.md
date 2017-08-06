@@ -14,13 +14,13 @@ Phauxth uses the user context module (normally MyApp.Accounts) to communicate
 with the underlying database. This module needs to have the `get(id)` and
 `get_by(attrs)` functions defined (see the examples below).
 
-    ```elixir
-    def get(id), do: Repo.get(User, id)
+```elixir
+def get(id), do: Repo.get(User, id)
 
-    def get_by(%{"email" => email}) do
-      Repo.get_by(User, email: email)
-    end
-    ```
+def get_by(%{"email" => email}) do
+  Repo.get_by(User, email: email)
+end
+```
 
 In addition, if you are using tokens, for an api or for user confirmation,
 you need to add `token_salt` to the Phauxth config. You can generate a
@@ -73,14 +73,14 @@ And for api with user confirmation:
 2. Add phauxth and the password hashing algorithm you want to use
 (argon2_elixir, bcrypt_elixir or pbkdf2_elixir) to your `mix.exs` dependencies.
 
-    ```elixir
-    defp deps do
-      [
-        {:phauxth, "~> 0.15"},
-        {:bcrypt_elixir, "~> 0.12"},
-      ]
-    end
-    ```
+```elixir
+defp deps do
+  [
+    {:phauxth, "~> 0.15"},
+    {:bcrypt_elixir, "~> 0.12"},
+  ]
+end
+```
 
 3. Run `mix deps.get`.
 

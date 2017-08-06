@@ -1,14 +1,22 @@
 # Upgrading to version 0.15 of Phauxth
 
-## Changes
+* In Phauxth.Confirm and Phauxth.Confirm.PassReset, change the verify function
+from:
 
-The Confirm.verify and Confirm.PassReset.verify functions now take
-a tuple as the third argument. This tuple contains the key source,
-which is either the conn or the name of the endpoint module, and the
-max age, in minutes. The following example uses the conn struct
-as the key source and sets the max age to 10 minutes.
+    verify(params, MyApp.Accounts)
 
-    Phauxth.Confirm.verify(params, MyApp.Accounts, {conn, 10})
+to:
+
+    verify(params, MyApp.Accounts, {conn, 20})
+
+    * conn can be replaced by the name of the endpoint in your app
+    * 20 refers to the maximum age of the token, in minutes
+* Remove the `confirmation_token`, `confirmation_sent_at` and `reset_token`
+database entries in the user.ex and user migration files
+    * these are no longer needed as tokens (based on Phoenix.Token) are now being used
+* Change `Ecto.DateTime` to `:utc_datetime` in the user.ex file
+
+## Additional changes
 
 Phauxth now uses a customized version of Phoenix.Token.
 This removes the dependency on Phoenix, and so it should be
