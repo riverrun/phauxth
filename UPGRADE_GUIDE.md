@@ -3,11 +3,15 @@
 * In Phauxth.Confirm and Phauxth.Confirm.PassReset, change the verify function
 from:
 
-    verify(params, MyApp.Accounts)
+```elixir
+verify(params, MyApp.Accounts)
+```
 
 to:
 
-    verify(params, MyApp.Accounts, {conn, 20})
+```elixir
+verify(params, MyApp.Accounts, {conn, 20})
+```
 
     * conn can be replaced by the name of the endpoint in your app
     * 20 refers to the maximum age of the token, in minutes
