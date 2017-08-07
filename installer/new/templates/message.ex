@@ -20,8 +20,8 @@ defmodule <%= base %>.Message do
   A message with a link to reset the password.
   """
   def reset_request(address, key) do
-    confirm_url = "http://www.example.com/password_resets/edit?key=#{key}"
-    {address, confirm_url}
+    reset_url = "http://www.example.com/password_resets/edit?key=#{key}"
+    {address, reset_url}
   end
 
   @doc """
