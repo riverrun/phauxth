@@ -32,7 +32,7 @@ defmodule <%= base %>.Message do
   end
 
   @doc """
-  A message acknowledging that the account has been successfully confirmed.
+  A message acknowledging that the account has been successfully resetted.
   """
   def reset_success(address) do
     address
