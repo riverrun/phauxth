@@ -42,3 +42,4 @@ echo y | mix phx.new alibaba --no-html --no-brunch
 phauxth_project --api --confirm
 echo "------------------------------------------------------------"
 grep "test.*failure" ../integration_test/phx_integration_test.log
+grep "error" ../integration_test/phx_integration_test.log
