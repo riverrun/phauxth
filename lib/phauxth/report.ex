@@ -6,6 +6,7 @@ defmodule Phauxth.Report do
   alias Phauxth.{Config, Log}
 
   @messages %{
+    "account unconfirmed" => "The account needs to be confirmed",
     "user already confirmed" => "The user has already been confirmed",
     "no reset token found" => "The user has not been sent a reset token"
   }
@@ -24,7 +25,7 @@ defmodule Phauxth.Report do
   def verify_error(nil), do: verify_error("no user found")
   def verify_error(message) do
     Log.warn(%Log{message: message})
-    {:error, "Invalid credentials"}
+    {:error, @messages[message] || "Invalid credentials"}
   end
 
   @doc """

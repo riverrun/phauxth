@@ -28,8 +28,8 @@ defmodule <%= base %>Web.PasswordResetController do
     end
   end
 
-  def edit(conn, %{"email" => email, "key" => key}) do
-    render(conn, "edit.html", email: email, key: key)
+  def edit(conn, %{"key" => key}) do
+    render(conn, "edit.html", key: key)
   end<% end %>
 
   def update(conn, %{"password_reset" => params}) do

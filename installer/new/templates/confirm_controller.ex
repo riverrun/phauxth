@@ -4,7 +4,7 @@ defmodule <%= base %>Web.ConfirmController do
   import <%= base %>Web.Authorize
   alias <%= base %>.{Accounts, Message}
 
-  def new(conn, params) do
+  def index(conn, params) do
     case Phauxth.Confirm.verify(params, Accounts, {conn, 20}) do
       {:ok, user} ->
         Accounts.confirm_user(user)

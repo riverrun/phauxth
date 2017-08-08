@@ -14,7 +14,7 @@ defmodule Phauxth.Confirm.LoginTest do
 
   test "login fails when account is not yet confirmed" do
     {:error, message} = login("fred+1@mail.com", "h4rd2gU3$$")
-    assert message =~ "Invalid credentials"
+    assert message =~ "account needs to be confirmed"
   end
 
   test "login fails for incorrect password" do

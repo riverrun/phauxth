@@ -12,7 +12,7 @@ defmodule <%= base %>.Message do
   A message with a confirmation link in it.
   """
   def confirm_request(address, key) do
-    confirm_url = "http://www.example.com/users/confirm?key=#{key}"
+    confirm_url = "http://www.example.com/confirm?key=#{key}"
     {address, confirm_url}
   end
 
