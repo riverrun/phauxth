@@ -32,6 +32,7 @@ defmodule Mix.Tasks.Phauxth.New do
   """
 
   @phx_base [{:eex, "auth_case.ex", "test/support/auth_case.ex"},
+    {:eex, "repo_seeds.exs", "priv/repo/seeds.exs"},
     {:eex, "user.ex", "/accounts/user.ex"},
     {:eex, "user_migration.exs", "priv/repo/migrations/timestamp_create_users.exs"},
     {:eex, "accounts.ex", "/accounts/accounts.ex"},
@@ -49,7 +50,9 @@ defmodule Mix.Tasks.Phauxth.New do
     {:eex, "auth_view.ex", "_web/views/auth_view.ex"},
     {:eex, "changeset_view.ex", "_web/views/changeset_view.ex"}]
 
-  @phx_html [{:text, "session_new.html.eex", "_web/templates/session/new.html.eex"},
+  @phx_html [{:text, "layout_app.html.eex", "_web/templates/layout/app.html.eex"},
+    {:text, "page_index.html.eex", "_web/templates/page/index.html.eex"},
+    {:text, "session_new.html.eex", "_web/templates/session/new.html.eex"},
     {:text, "edit.html.eex", "_web/templates/user/edit.html.eex"},
     {:text, "form.html.eex", "_web/templates/user/form.html.eex"},
     {:text, "index.html.eex", "_web/templates/user/index.html.eex"},

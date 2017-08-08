@@ -1,0 +1,30 @@
+<div class="jumbotron">
+  <h2><%= gettext "Welcome to %{name}! - and Phauxth", name: "Phoenix" %></h2>
+  <p class="lead">A secure and extensible authentication library for Plug-based applications</p>
+</div>
+
+<div class="row marketing">
+  <div class="col-lg-6">
+    <h4>Phauxth authentication</h4>
+    <ul>
+      <li>
+        <a href="https://hexdocs.pm/phauxth">Docs</a>
+      </li>
+      <li>
+        <a href="https://github.com/riverrun/phauxth">Source</a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="col-lg-6">
+    <h4>Phoenix web framework</h4>
+    <ul>
+      <li>
+        <a href="http://phoenixframework.org/docs/overview">Phoenix guides</a>
+      </li>
+      <li>
+        <a href="https://github.com/phoenixframework/phoenix">Phoenix source</a>
+      </li>
+    </ul>
+  </div>
+</div>
