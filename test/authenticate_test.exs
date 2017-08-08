@@ -7,25 +7,24 @@ defmodule Phauxth.AuthenticateTest do
 
   @max_age 24 * 60 * 60
 
-  defmodule AbsintheAuthenticate do
-    use Phauxth.Authenticate.Base
-    import Plug.Conn
-
-    def set_user(user, conn) do
-      put_private(conn, :absinthe, %{token: %{current_user: user}})
-    end
-  end
-
-  def call(id) do
+  def add_session(id) do
     conn(:get, "/")
     |> SessionHelper.sign_conn
     |> put_session(:user_id, id)
+  end
+
+  def call(id) do
+    add_session(id)
     |> Authenticate.call({:session, @max_age, TestAccounts})
   end
 
-  def call_api(id, token \\ nil, max_age \\ @max_age) do
+  def add_token(id, token \\ nil) do
     conn = conn(:get, "/") |> SessionHelper.add_key
     put_req_header(conn, "authorization", token || Token.sign(conn, id))
+  end
+
+  def call_api(id, token \\ nil, max_age \\ @max_age) do
+    add_token(id, token)
     |> Authenticate.call({:token, max_age, TestAccounts})
   end
 
@@ -85,13 +84,29 @@ defmodule Phauxth.AuthenticateTest do
     refute Map.has_key?(user, :password_hash)
   end
 
-  test "customized set_user" do
-    conn = conn(:get, "/") |> SessionHelper.add_key
-    conn = put_req_header(conn, "authorization", Token.sign(conn, 1))
-           |> AbsintheAuthenticate.call({:token, @max_age, TestAccounts})
+  test "customized set_user - absinthe example" do
+    conn = add_token(1) |> Phauxth.AbsintheAuthenticate.call({:token, @max_age, TestAccounts})
     %{token: %{current_user: user}} = conn.private.absinthe
     assert user.email == "fred+1@mail.com"
     assert user.role == "user"
+  end
+
+  test "customized check_session - checks shoe size before authenticating" do
+    conn = add_session(1)
+           |> put_session(:shoe_size, 6)
+           |> Phauxth.CustomSession.call({:session, @max_age, TestAccounts})
+    %{current_user: user} = conn.assigns
+    assert user.email == "fred+1@mail.com"
+    conn = add_session(1)
+           |> put_session(:shoe_size, 5)
+           |> Phauxth.CustomSession.call({:session, @max_age, TestAccounts})
+    assert conn.assigns == %{current_user: nil}
+  end
+
+  test "customized check_token" do
+    conn = add_token(1) |> Phauxth.CustomToken.call({:token, @max_age, TestAccounts})
+    %{current_user: user} = conn.assigns
+    assert user.email == "froderick@mail.com"
   end
 
 end

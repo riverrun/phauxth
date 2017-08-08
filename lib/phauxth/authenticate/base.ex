@@ -65,14 +65,26 @@ defmodule Phauxth.Authenticate.Base do
       This function also calls the database to get user information.
       """
       def get_user(conn, {:session, _, user_context}) do
-        with user_id when not is_nil(user_id) <- get_session(conn, :user_id),
+        with user_id when not is_nil(user_id) <- check_session(conn),
           do: user_context.get(user_id)
       end
       def get_user(%Plug.Conn{req_headers: headers} = conn,
           {:token, max_age, user_context}) do
         with {_, token} <- List.keyfind(headers, "authorization", 0),
-             {:ok, user_id} <- Token.verify(conn, token, max_age: max_age),
+             {:ok, user_id} <- check_token(conn, token, max_age),
           do: user_context.get(user_id)
+      end
+
+      @doc """
+      Check the session for the current user.
+      """
+      def check_session(conn), do: get_session(conn, :user_id)
+
+      @doc """
+      Check the token for the current user.
+      """
+      def check_token(conn, token, max_age) do
+        Token.verify(conn, token, max_age: max_age)
       end
 
       @doc """
@@ -96,7 +108,8 @@ defmodule Phauxth.Authenticate.Base do
         Plug.Conn.assign(conn, :current_user, user)
       end
 
-      defoverridable [init: 1, call: 2, get_user: 2, report: 1, set_user: 2]
+      defoverridable [init: 1, call: 2, get_user: 2, check_session: 1,
+                      check_token: 3, report: 1, set_user: 2]
     end
   end
 end
