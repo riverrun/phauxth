@@ -54,7 +54,6 @@ defmodule Mix.Tasks.Phauxth.New do
     {:text, "page_index.html.eex", "_web/templates/page/index.html.eex"},
     {:text, "session_new.html.eex", "_web/templates/session/new.html.eex"},
     {:text, "edit.html.eex", "_web/templates/user/edit.html.eex"},
-    {:text, "form.html.eex", "_web/templates/user/form.html.eex"},
     {:text, "index.html.eex", "_web/templates/user/index.html.eex"},
     {:text, "new.html.eex", "_web/templates/user/new.html.eex"},
     {:text, "show.html.eex", "_web/templates/user/show.html.eex"}]
@@ -100,7 +99,7 @@ defmodule Mix.Tasks.Phauxth.New do
 
     We are almost ready!
 
-    You need to first edit the `mix.exs` file, adding `{:phauxth, "~> 0.15"},`
+    You need to first edit the `mix.exs` file, adding `{:phauxth, "~> 0.16"},`
     and one of the following: `{:argon2_elixir, "~> 1.2"},`, `{:bcrypt_elixir, "~> 0.12"},`
     or `{:pbkdf2_elixir, "~> 0.12"},` (see the documentation for Comeonin for
     more information about these libraries) to the deps. Then, run `mix deps.get`.

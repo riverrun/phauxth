@@ -14,6 +14,7 @@ defmodule <%= base %>.Message do
   def confirm_request(address, key) do
     confirm_url = "http://www.example.com/confirm?key=#{key}"
     {address, confirm_url}
+    IO.puts "http://0.0.0.0:4000/confirm?key=#{key}"
   end
 
   @doc """
@@ -22,6 +23,7 @@ defmodule <%= base %>.Message do
   def reset_request(address, key) do
     reset_url = "http://www.example.com/password_resets/edit?key=#{key}"
     {address, reset_url}
+    IO.puts "http://0.0.0.0:4000/password_resets/edit?key=#{key}"
   end
 
   @doc """
