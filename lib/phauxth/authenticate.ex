@@ -10,7 +10,7 @@ defmodule Phauxth.Authenticate do
       * this is either `:session` (using sessions) or `:token` (using api tokens)
       * the default is `:session`
     * max_age - the length of the validity of the token
-      * the default is one day
+      * the default is four hours
     * user_context - the user context module to be used
       * the default is MyApp.Accounts
 

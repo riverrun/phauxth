@@ -5,7 +5,7 @@ defmodule Phauxth.RememberTest do
 
   alias Phauxth.{Authenticate, Remember, SessionHelper, TestAccounts}
 
-  @max_age 14 * 24 * 60 * 60
+  @max_age 7 * 24 * 60 * 60
 
   setup do
     conn = conn(:get, "/")
@@ -17,7 +17,7 @@ defmodule Phauxth.RememberTest do
 
   test "init function" do
     assert Remember.init([]) ==
-      {1209600, Phauxth.Accounts}
+      {604800, Phauxth.Accounts}
     assert Remember.init([max_age: 100]) ==
       {100, Phauxth.Accounts}
   end

@@ -12,13 +12,13 @@ defmodule Phauxth.ConfirmTest do
 
   test "confirmation succeeds for valid token", %{conn: conn, valid_email: valid_email} do
     %{params: params} = conn(:get, "/confirm?key=" <> valid_email) |> fetch_query_params
-    {:ok, user} = Confirm.verify(params, TestAccounts, {conn, 20})
+    {:ok, user} = Confirm.verify(params, TestAccounts, {conn, 1200})
     assert user
   end
 
   test "confirmation fails for invalid token", %{conn: conn} do
     %{params: params} = conn(:get, "/confirm?key=invalidlink") |> fetch_query_params
-    {:error, message} = Confirm.verify(params, TestAccounts, {conn, 20})
+    {:error, message} = Confirm.verify(params, TestAccounts, {conn, 1200})
     assert message =~ "Invalid credentials"
   end
 
@@ -31,14 +31,14 @@ defmodule Phauxth.ConfirmTest do
   test "confirmation fails for already confirmed account", %{conn: conn} do
     confirmed_email = Token.sign(conn, %{"email" => "ray@mail.com"})
     %{params: params} = conn(:get, "/confirm?key=" <> confirmed_email) |> fetch_query_params
-    {:error, message} = Confirm.verify(params, TestAccounts, {conn, 20})
+    {:error, message} = Confirm.verify(params, TestAccounts, {conn, 1200})
     assert message =~ "The user has already been confirmed"
   end
 
   test "confirmation succeeds with different identifier", %{conn: conn} do
     valid_phone = Token.sign(conn, %{"phone" => "55555555555"})
     %{params: params} = conn(:get, "/confirm?key=" <> valid_phone) |> fetch_query_params
-    {:ok, user} = Confirm.verify(params, TestAccounts, {conn, 20})
+    {:ok, user} = Confirm.verify(params, TestAccounts, {conn, 1200})
     assert user
   end
 

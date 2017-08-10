@@ -1,6 +1,6 @@
 defmodule Phauxth.Token do
   @moduledoc """
-  Api token based on the Phoenix token implementation.
+  Create api tokens, based on the Phoenix token implementation.
 
   The data stored in the token is signed to prevent tampering
   but not encrypted. This means it is safe to store identification
@@ -26,10 +26,11 @@ defmodule Phauxth.Token do
   alias Plug.Crypto.MessageVerifier
   alias Phauxth.Config
 
-  @max_age 86_400
-
   @doc """
   Sign the token.
+
+  `opts` are the key generator options. See the module documentation
+  for details.
   """
   def sign(conn, data, opts \\ []) do
     secret = get_key_base(conn) |> get_secret(opts)
@@ -42,17 +43,13 @@ defmodule Phauxth.Token do
   @doc """
   Verify the token.
 
-  ## Options
-
-  In addition to the key generator options, there is one option:
-
-    * max_age - the maximum age, in seconds, that the token is valid
-      * the default is 86_400, which is one day
+  `opts` are the key generator options. See the module documentation
+  for details.
   """
-  def verify(conn, token, opts \\ [])
-  def verify(conn, token, opts) when is_binary(token) do
+  def verify(conn, token, max_age, opts \\ [])
+  def verify(conn, token, max_age, opts) when is_binary(token) do
     secret = get_key_base(conn) |> get_secret(opts)
-    max_age_ms = trunc(Keyword.get(opts, :max_age, @max_age) * 1000)
+    max_age_ms = max_age * 1000
 
     case MessageVerifier.verify(token, secret) do
       {:ok, message} ->
@@ -67,7 +64,7 @@ defmodule Phauxth.Token do
         {:error, "invalid token"}
     end
   end
-  def verify(_conn, nil, _opts), do: {:error, "missing token"}
+  def verify(_, _, _, _), do: {:error, "invalid token"}
 
   defp get_key_base(%{secret_key_base: key}), do: validate_secret(key)
   defp get_key_base(endpoint) do

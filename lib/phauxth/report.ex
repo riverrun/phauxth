@@ -1,6 +1,10 @@
 defmodule Phauxth.Report do
   @moduledoc """
   Log and report information and errors.
+
+  All the functions in this module print out a log message
+  and then return {:ok, user} or {:error, message} to the
+  calling function.
   """
 
   alias Phauxth.{Config, Log}

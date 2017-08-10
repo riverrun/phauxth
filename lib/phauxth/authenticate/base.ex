@@ -50,7 +50,7 @@ defmodule Phauxth.Authenticate.Base do
       @doc false
       def init(opts) do
         {Keyword.get(opts, :method, :session),
-        Keyword.get(opts, :max_age, 24 * 60 * 60),
+        Keyword.get(opts, :max_age, 4 * 60 * 60),
         Keyword.get(opts, :user_context, Utils.default_user_context())}
       end
 
@@ -84,7 +84,7 @@ defmodule Phauxth.Authenticate.Base do
       Check the token for the current user.
       """
       def check_token(conn, token, max_age) do
-        Token.verify(conn, token, max_age: max_age)
+        Token.verify(conn, token, max_age)
       end
 
       @doc """

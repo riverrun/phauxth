@@ -5,7 +5,7 @@ defmodule Phauxth.AuthenticateTest do
 
   alias Phauxth.{Authenticate, SessionHelper, TestAccounts, Token}
 
-  @max_age 24 * 60 * 60
+  @max_age 4 * 60 * 60
 
   def add_session(id) do
     conn(:get, "/")

@@ -1,7 +1,7 @@
 defmodule Phauxth.Mixfile do
   use Mix.Project
 
-  @version "0.15.1"
+  @version "0.16.0"
 
   @description """
   Authentication library for Phoenix, and other Plug-based, web applications

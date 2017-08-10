@@ -3,6 +3,8 @@ defmodule Phauxth.TokenTest do
   use Plug.Test
   alias Phauxth.Token
 
+  @max_age 86_400
+
   defmodule TokenEndpoint do
     def config(:secret_key_base), do: String.duplicate("abcdef0123456789", 8)
   end
@@ -14,44 +16,40 @@ defmodule Phauxth.TokenTest do
 
   test "can use endpoint and / or conn to sign and verify", %{conn: conn} do
     token = Token.sign(conn, 1)
-    assert Token.verify(conn, token) == {:ok, 1}
-    assert Token.verify(TokenEndpoint, token) == {:ok, 1}
+    assert Token.verify(conn, token, @max_age) == {:ok, 1}
+    assert Token.verify(TokenEndpoint, token, @max_age) == {:ok, 1}
     token = Token.sign(TokenEndpoint, 10)
-    assert Token.verify(TokenEndpoint, token) == {:ok, 10}
-    assert Token.verify(conn, token) == {:ok, 10}
-  end
-
-  test "fails on missing token", %{conn: conn} do
-    assert Token.verify(conn, nil) == {:error, "missing token"}
+    assert Token.verify(TokenEndpoint, token, @max_age) == {:ok, 10}
+    assert Token.verify(conn, token, @max_age) == {:ok, 10}
   end
 
   test "fails on invalid token", %{conn: conn} do
     token = Token.sign(conn, 1)
-    assert Token.verify(conn, token) == {:ok, 1}
-    assert Token.verify(conn, "garbage") == {:error, "invalid token"}
+    assert Token.verify(conn, token, @max_age) == {:ok, 1}
+    assert Token.verify(conn, "garbage", @max_age) == {:error, "invalid token"}
   end
 
-  test "supports max age in seconds", %{conn: conn} do
+  test "max age is checked", %{conn: conn} do
     token = Token.sign(conn, 1)
-    assert Token.verify(conn, token, max_age: 1000) == {:ok, 1}
-    assert Token.verify(conn, token, max_age: -1000) == {:error, "expired token"}
+    assert Token.verify(conn, token, 1000) == {:ok, 1}
+    assert Token.verify(conn, token, -1000) == {:error, "expired token"}
 
     token = Token.sign(conn, 1)
-    assert Token.verify(conn, token, max_age: 0.1) == {:ok, 1}
+    assert Token.verify(conn, token, 0.1) == {:ok, 1}
     :timer.sleep(150)
-    assert Token.verify(conn, token, max_age: 0.1) == {:error, "expired token"}
+    assert Token.verify(conn, token, 0.1) == {:error, "expired token"}
   end
 
   test "passes options to key generator", %{conn: conn} do
     signed = Token.sign(conn, 1, key_iterations: 1)
-    assert Token.verify(conn, signed, key_iterations: 1) == {:ok, 1}
-    assert Token.verify(conn, signed, key_iterations: 2) == {:error, "invalid token"}
+    assert Token.verify(conn, signed, @max_age, key_iterations: 1) == {:ok, 1}
+    assert Token.verify(conn, signed, @max_age, key_iterations: 2) == {:error, "invalid token"}
     signed = Token.sign(conn, 1, key_digest: :sha256)
-    assert Token.verify(conn, signed, key_digest: :sha256) == {:ok, 1}
-    assert Token.verify(conn, signed, key_digest: :sha512) == {:error, "invalid token"}
+    assert Token.verify(conn, signed, @max_age, key_digest: :sha256) == {:ok, 1}
+    assert Token.verify(conn, signed, @max_age, key_digest: :sha512) == {:error, "invalid token"}
     signed = Token.sign(conn, 1, key_length: 32)
-    assert Token.verify(conn, signed, key_length: 32) == {:ok, 1}
-    assert Token.verify(conn, signed, key_length: 64) == {:error, "invalid token"}
+    assert Token.verify(conn, signed, @max_age, key_length: 32) == {:ok, 1}
+    assert Token.verify(conn, signed, @max_age, key_length: 64) == {:error, "invalid token"}
   end
 
   test "raises an error when the secret_key_base is too short", %{conn: conn} do

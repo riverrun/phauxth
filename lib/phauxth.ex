@@ -70,12 +70,12 @@ defmodule Phauxth do
 
   The third argument for these verify functions is a tuple with the key
   source (conn or the the name of the endpoint module) and the max age,
-  in minutes.
+  in seconds.
 
   The function below is an example of how you would call Phauxth.Confirm.verify.
 
       def new(conn, params) do
-        case Phauxth.Confirm.verify(params, MyApp.Accounts, {conn, 20}) do
+        case Phauxth.Confirm.verify(params, MyApp.Accounts, {conn, 1200}) do
           {:ok, user} ->
             Accounts.confirm_user(user)
             message = "Your account has been confirmed"
@@ -105,9 +105,15 @@ defmodule Phauxth do
     * `--api` - create files for an api
     * `--confirm` - add files for email confirmation
 
-  Phauxth uses the `get(id)` and `get_by(attrs)` functions in your app's
-  user context module (usually MyApp.Accounts), so make sure that these
-  functions are defined.
+  Phauxth uses the user context module (normally MyApp.Accounts) to communicate
+  with the underlying database. This module needs to have the `get(id)` and
+  `get_by(attrs)` functions defined (see the examples below).
+
+      def get(id), do: Repo.get(User, id)
+
+      def get_by(%{"email" => email}) do
+        Repo.get_by(User, email: email)
+      end
 
   ## Customizing Phauxth
 

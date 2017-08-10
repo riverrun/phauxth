@@ -13,8 +13,8 @@ defmodule Phauxth.Remember do
 
   There are two options:
 
-    * max_age - the length of the validity of the token
-      * the default is two weeks
+    * max_age - the length of the validity of the cookie / token
+      * the default is one week
     * user_context - the user context module to be used
       * the default is MyApp.Accounts
 
@@ -33,13 +33,15 @@ defmodule Phauxth.Remember do
   import Plug.Conn
   alias Phauxth.Token
 
-  @max_age 14 * 24 * 60 * 60
+  @max_age 7 * 24 * 60 * 60
 
+  @doc false
   def init(opts) do
     {Keyword.get(opts, :max_age, @max_age),
     Keyword.get(opts, :user_context, Utils.default_user_context())}
   end
 
+  @doc false
   def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn, opts) do
     if conn.assigns[:current_user] do
       conn
@@ -50,12 +52,12 @@ defmodule Phauxth.Remember do
   def call(conn, _), do: conn
 
   def get_user(conn, token, {max_age, user_context}) do
-    with {:ok, user_id} <- Token.verify(conn, token, max_age: max_age),
+    with {:ok, user_id} <- Token.verify(conn, token, max_age),
       do: user_context.get(user_id)
   end
 
   @doc """
-  Add a token as a remember me cookie.
+  Add a remember me cookie to the conn.
   """
   def add_rem_cookie(conn, user_id, max_age \\ @max_age) do
     cookie = Token.sign(conn, user_id)
@@ -63,7 +65,7 @@ defmodule Phauxth.Remember do
   end
 
   @doc """
-  Delete the remember_me cookie.
+  Delete the remember_me cookie from the conn.
   """
   def delete_rem_cookie(conn) do
     register_before_send(conn, &delete_resp_cookie(&1, "remember_me"))

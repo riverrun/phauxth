@@ -2,8 +2,8 @@ defmodule Phauxth.Confirm do
   @moduledoc """
   Module to provide user confirmation.
 
-  This Plug can be used to provide user confirmation by email, phone,
-  or any other method.
+  `Phauxth.Confirm.verify/3` can be used to provide user confirmation by
+  email, phone, or any other method.
 
   ## Examples
 
@@ -15,7 +15,7 @@ defmodule Phauxth.Confirm do
   (this example is for a html app):
 
       def new(conn, params) do
-        case Phauxth.Confirm.verify(params, Accounts, {conn, 20}) do
+        case Phauxth.Confirm.verify(params, Accounts, {conn, 1200}) do
           {:ok, user} ->
             Accounts.confirm_user(user)
             Message.confirm_success(user.email)

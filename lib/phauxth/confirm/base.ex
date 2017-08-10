@@ -18,15 +18,21 @@ defmodule Phauxth.Confirm.Base do
 
       In the third argument, the key_source is either conn or the name
       of the endpoint module, and the max_age is the maximum age of the
-      key, in minutes.
+      key, in seconds.
       """
       def verify(%{"key" => key}, user_context, {key_source, max_age}) do
-        get_user(key_source, {key, max_age * 60, user_context}) |> report
+        get_user(key_source, {key, max_age, user_context}) |> report
       end
       def verify(_, _, _), do: report({:error, "no key found"})
 
       def get_user(key_source, {key, max_age, user_context}) do
-        with {:ok, params} <- Token.verify(key_source, key, max_age: max_age),
+        if max_age < 600 do
+          IO.puts :stderr, """
+          [warning] from version 0.16 onwards, the max_age for Phauxth.Confirm.verify
+          is now given in seconds, not minutes
+          """
+        end
+        with {:ok, params} <- Token.verify(key_source, key, max_age),
           do: user_context.get_by(params)
       end
 

@@ -10,11 +10,11 @@ verify(params, MyApp.Accounts)
 to:
 
 ```elixir
-verify(params, MyApp.Accounts, {conn, 20})
+verify(params, MyApp.Accounts, {conn, 1200})
 ```
 
     * conn can be replaced by the name of the endpoint in your app
-    * 20 refers to the maximum age of the token, in minutes
+    * 1200 refers to the maximum age of the token, in seconds
 * Remove the `confirmation_token`, `confirmation_sent_at` and `reset_token`
 database entries in the user.ex and user migration files
     * these are no longer needed as tokens (based on Phoenix.Token) are now being used
