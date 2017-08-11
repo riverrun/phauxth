@@ -1,3 +1,8 @@
+# Upgrading to version 0.16 of Phauxth
+
+* In Phauxth.Confirm and Phauxth.Confirm.PassReset, the max_age is now
+in seconds, not minutes.
+
 # Upgrading to version 0.15 of Phauxth
 
 * In Phauxth.Confirm and Phauxth.Confirm.PassReset, change the verify function
