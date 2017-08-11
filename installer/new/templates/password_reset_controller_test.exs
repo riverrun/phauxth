@@ -14,14 +14,15 @@ defmodule <%= base %>Web.PasswordResetControllerTest do
     conn = post(conn, password_reset_path(conn, :create), password_reset: valid_attrs)<%= if api do %>
     assert json_response(conn, 201)["info"]["detail"]<% else %>
     assert conn.private.phoenix_flash["info"] =~ "your inbox for instructions"
-    assert redirected_to(conn) == user_path(conn, :index)<% end %>
+    assert redirected_to(conn) == page_path(conn, :index)<% end %>
   end
 
   test "create function fails for no user", %{conn: conn} do
     invalid_attrs = %{email: "prettylady@mail.com"}
     conn = post(conn, password_reset_path(conn, :create), password_reset: invalid_attrs)<%= if api do %>
-    assert json_response(conn, 401)["errors"]["detail"]<% else %>
-    assert assert html_response(conn, 200) =~ "Reset Password"<% end %>
+    assert json_response(conn, 201)["info"]["detail"]<% else %>
+    assert conn.private.phoenix_flash["info"] =~ "your inbox for instructions"
+    assert redirected_to(conn) == page_path(conn, :index)<% end %>
   end
 
   test "reset password succeeds for correct key", %{conn: conn} do

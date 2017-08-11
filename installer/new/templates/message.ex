@@ -14,16 +14,19 @@ defmodule <%= base %>.Message do
   def confirm_request(address, key) do
     confirm_url = "http://www.example.com/confirm?key=#{key}"
     {address, confirm_url}
-    IO.puts "http://0.0.0.0:4000/confirm?key=#{key}"
+    IO.puts "http://0.0.0.0:4000/confirm?key=#{key}" # for testing
   end
 
   @doc """
   A message with a link to reset the password.
   """
+  def reset_request(address, nil) do
+    address # add message saying no user associated with this email
+  end
   def reset_request(address, key) do
     reset_url = "http://www.example.com/password_resets/edit?key=#{key}"
     {address, reset_url}
-    IO.puts "http://0.0.0.0:4000/password_resets/edit?key=#{key}"
+    IO.puts "http://0.0.0.0:4000/password_resets/edit?key=#{key}" # for testing
   end
 
   @doc """
