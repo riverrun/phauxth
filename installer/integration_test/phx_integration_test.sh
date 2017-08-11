@@ -5,7 +5,7 @@ LOG="../../integration_test/phx_integration_test.log"
 
 function enter_cave {
     echo -e "\nDATE: $(date) OPTIONS: $@\n" >> $LOG
-    echo y | mix phauxth.new $@
+    printf 'y\ny\ny\ny\n' | mix phauxth.new $@
 }
 
 function edit_mix {

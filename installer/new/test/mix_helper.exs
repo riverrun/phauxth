@@ -39,7 +39,7 @@ defmodule MixHelper do
     File.mkdir_p! config_path
     config_file = Path.join(config_path, "config.exs")
     contents = "use Mix.Config\n\nconfig :myapp,\necto_repos: [MyApp.Repo]\n\n" <>
-      "config :myapp, MyApp.Web.Endpoint,\nurl: [host: \"localhost\"]\n\n" <>
+      "config :myapp, MyAppWeb.Endpoint,\nurl: [host: \"localhost\"]\n\n" <>
       "config :logger, :console\n\nimport_config Mix.env.exs"
     File.write! config_file, contents
   end

@@ -29,7 +29,7 @@ defmodule <%= base %>.Accounts do
   def create_password_reset(attrs) do
     with %User{} = user <- get_by(attrs) do
       change(user, %{reset_sent_at: DateTime.utc_now}) |> Repo.update
-      Phauxth.Token.sign(ZxcvbnWeb.Endpoint, attrs)
+      Phauxth.Token.sign(<%= base %>Web.Endpoint, attrs)
     end
   end<% end %>
 
