@@ -39,7 +39,8 @@ defmodule <%= base %>Web.UserController do
     end
   end
 
-  def show(%Plug.Conn{assigns: %{current_user: user}} = conn, _) do<%= if api do %>
+  def show(%Plug.Conn{assigns: %{current_user: user}} = conn, %{"id" => id}) do
+    user = id == to_string(user.id) and user || Accounts.get(id)<%= if api do %>
     render(conn, "show.json", user: user)<% else %>
     render(conn, "show.html", user: user)<% end %>
   end<%= if not api do %>
