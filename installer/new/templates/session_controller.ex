@@ -16,6 +16,7 @@ defmodule <%= base %>Web.SessionController do
       {:error, _message} ->
         error(conn, :unauthorized, 401)<% else %>
         put_session(conn, :user_id, user.id)
+        |> configure_session(renew: true)
         |> success("You have been logged in", user_path(conn, :index))
       {:error, message} ->
         error(conn, message, session_path(conn, :new))<% end %>
