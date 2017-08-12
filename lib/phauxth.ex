@@ -49,13 +49,10 @@ defmodule Phauxth do
   ### Login
 
   In the example below, verify is called within the create function
-  in the session controller. You need to call `use Phauxth.Login`
-  before running verify.
-
-      use Phauxth.Login
+  in the session controller.
 
       def create(conn, %{"session" => params}) do
-        case verify(params, MyApp.Accounts) do
+        case Phauxth.Login.verify(params, MyApp.Accounts) do
           {:ok, user} -> handle_successful_login
           {:error, message} -> handle_error
         end
@@ -71,13 +68,10 @@ defmodule Phauxth do
   using email or phone, and for password resetting.
 
   The function below is an example of how you would call verify to
-  confirm a user's account. You need to call `use Phauxth.Confirm`
-  before running verify.
-
-      use Phauxth.Confirm
+  confirm a user's account.
 
       def new(conn, params) do
-        case verify(params, MyApp.Accounts) do
+        case Phauxth.Confirm.verify(params, MyApp.Accounts) do
           {:ok, user} ->
             Accounts.confirm_user(user)
             message = "Your account has been confirmed"
@@ -119,8 +113,8 @@ defmodule Phauxth do
 
   ## Customizing Phauxth
 
-  See the documentation for Phauxth.Authenticate.Base, Phauxth.Login
-  and Phauxth.Confirm for more information on extending these modules.
+  See the documentation for Phauxth.Authenticate.Base, Phauxth.Login.Base
+  and Phauxth.Confirm.Base for more information on extending these modules.
 
   You can find more information at the
   [Phauxth wiki](https://github.com/riverrun/phauxth/wiki).

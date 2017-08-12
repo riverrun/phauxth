@@ -4,7 +4,7 @@ defmodule Phauxth.Confirm.Login do
   account has been confirmed yet.
   """
 
-  use Phauxth.Login
+  use Phauxth.Login.Base
 
   @doc """
   Check the user is confirmed before checking the password.
