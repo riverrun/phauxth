@@ -1,9 +1,14 @@
 defmodule Phauxth.Confirm do
   @moduledoc """
-  Module to provide user confirmation.
+  Module to provide user confirmation for new users and when resetting
+  passwords.
 
-  `Phauxth.Confirm.verify/3` can be used to provide user confirmation by
-  email, phone, or any other method.
+  ## Options
+
+  There is one option for `use Phauxth.Confirm`:
+
+    * endpoint - the name of the endpoint module
+      * the default is MyAppWeb.Endpoint
 
   ## Examples
 
@@ -15,7 +20,7 @@ defmodule Phauxth.Confirm do
   (this example is for a html app):
 
       def new(conn, params) do
-        case Phauxth.Confirm.verify(params, Accounts, {conn, 1200}) do
+        case verify(params, Accounts, {conn, 1200}) do
           {:ok, user} ->
             Accounts.confirm_user(user)
             Message.confirm_success(user.email)
@@ -34,6 +39,48 @@ defmodule Phauxth.Confirm do
   database, setting the `confirmed_at` value to the current time.
   """
 
-  use Phauxth.Confirm.Base
+  @doc false
+  defmacro __using__(opts) do
+    quote do
+      import Phauxth.Confirm.Report
+      alias Phauxth.Token
 
+      @key_source Keyword.get(unquote(opts), :endpoint, Phauxth.Utils.default_endpoint())
+
+      @doc """
+      Verify the confirmation key and get the user data from the database.
+
+      This can be used to confirm an email for new users and also for
+      password resetting.
+
+      ## Options
+
+      There are three options for the verify function:
+
+        * max_age - the maximum age of the token, in seconds
+          * the default is 1200 seconds (20 minutes)
+        * mode - if the function is for email confirmation or password resetting
+          * set this to :pass_reset to use this function for password resetting
+        * log_meta - additional custom metadata for Phauxth.Log
+          * this should be a keyword list
+
+      """
+      def verify(params, user_context, opts \\ [])
+      def verify(%{"key" => key}, user_context, opts) do
+        max_age = Keyword.get(opts, :max_age, 1200)
+        log_meta = Keyword.get(opts, :log_meta, [])
+
+        get_user(@key_source, {key, max_age, user_context})
+        |> report(opts[:mode], log_meta)
+      end
+      def verify(_, _, _), do: raise ArgumentError, "No key found in the params"
+
+      def get_user(key_source, {key, max_age, user_context}) do
+        with {:ok, params} <- Token.verify(key_source, key, max_age),
+          do: user_context.get_by(params)
+      end
+
+      defoverridable [verify: 3, get_user: 2]
+    end
+  end
 end

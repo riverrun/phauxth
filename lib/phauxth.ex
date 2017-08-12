@@ -5,8 +5,7 @@ defmodule Phauxth do
   Phauxth is designed to be secure, extensible and well-documented.
 
   Phauxth offers two types of functions: Plugs, which are called with plug,
-  and verify/3 functions, which are called inside the function
-  bodies.
+  and verify/3 functions, which are called inside the function bodies.
 
   ## Plugs
 
@@ -49,33 +48,36 @@ defmodule Phauxth do
 
   ### Login
 
-  In the example below, Phauxth.Login.verify is called within the create
-  function in the session controller.
+  In the example below, verify is called within the create function
+  in the session controller. You need to call `use Phauxth.Login`
+  before running verify.
+
+      use Phauxth.Login
 
       def create(conn, %{"session" => params}) do
-        case Phauxth.Login.verify(params, MyApp.Accounts) do
+        case verify(params, MyApp.Accounts) do
           {:ok, user} -> handle_successful_login
           {:error, message} -> handle_error
         end
       end
 
-  Note that Login.verify does not add the user to the session or send
-  the user a token. You need to do that in the handle_successful_login
-  function.
+  Note that the Phauxth.Login verify function does not add the user to
+  the session or send the user a token. You need to do that in the
+  handle_successful_login function.
 
   ### User confirmation and password resetting
 
-  Phauxth.Confirm.verify is used for user confirmation, using email or phone,
-  and Phauxth.Confirm.PassReset.verify is used for password resetting.
+  The verify function in Phauxth.Confirm is used for user confirmation,
+  using email or phone, and for password resetting.
 
-  The third argument for these verify functions is a tuple with the key
-  source (conn or the the name of the endpoint module) and the max age,
-  in seconds.
+  The function below is an example of how you would call verify to
+  confirm a user's account. You need to call `use Phauxth.Confirm`
+  before running verify.
 
-  The function below is an example of how you would call Phauxth.Confirm.verify.
+      use Phauxth.Confirm
 
       def new(conn, params) do
-        case Phauxth.Confirm.verify(params, MyApp.Accounts, {conn, 1200}) do
+        case verify(params, MyApp.Accounts) do
           {:ok, user} ->
             Accounts.confirm_user(user)
             message = "Your account has been confirmed"
@@ -117,8 +119,8 @@ defmodule Phauxth do
 
   ## Customizing Phauxth
 
-  See the documentation for Phauxth.Authenticate.Base, Phauxth.Login.Base
-  and Phauxth.Confirm.Base for more information on extending these modules.
+  See the documentation for Phauxth.Authenticate.Base, Phauxth.Login
+  and Phauxth.Confirm for more information on extending these modules.
 
   You can find more information at the
   [Phauxth wiki](https://github.com/riverrun/phauxth/wiki).
