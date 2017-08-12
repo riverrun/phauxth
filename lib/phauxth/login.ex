@@ -10,16 +10,6 @@ defmodule Phauxth.Login do
   session, by running `put_session(conn, :user_id, id)`, or send
   an api token to the user.
 
-  ## Options
-
-  There is one option for the verify function:
-
-    * crypto - the password hashing algorithm to use
-      * the default is Comeonin.Bcrypt
-
-  The check_pass function also has options. See the documentation for
-  the password hashing module you are using for details.
-
   ## Examples
 
   In the example below, Phauxth.Login.verify is called within the create

@@ -4,7 +4,7 @@ defmodule Phauxth.Authenticate do
 
   ## Options
 
-  There are three options:
+  There are four options:
 
     * method - the method used to authenticate the user
       * this is either `:session` (using sessions) or `:token` (using api tokens)
@@ -13,6 +13,8 @@ defmodule Phauxth.Authenticate do
       * the default is four hours
     * user_context - the user context module to be used
       * the default is MyApp.Accounts
+    * log_meta - additional custom metadata for Phauxth.Log
+      * this should be a keyword list
 
   ## Examples
 

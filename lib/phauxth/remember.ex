@@ -11,12 +11,14 @@ defmodule Phauxth.Remember do
 
   ## Options
 
-  There are two options:
+  There are three options:
 
     * max_age - the length of the validity of the cookie / token
       * the default is one week
     * user_context - the user context module to be used
       * the default is MyApp.Accounts
+    * log_meta - additional custom metadata for Phauxth.Log
+      * this should be a keyword list
 
   ## Examples
 
@@ -37,16 +39,17 @@ defmodule Phauxth.Remember do
 
   @doc false
   def init(opts) do
-    {Keyword.get(opts, :max_age, @max_age),
-    Keyword.get(opts, :user_context, Utils.default_user_context())}
+    {{Keyword.get(opts, :max_age, @max_age),
+      Keyword.get(opts, :user_context, Utils.default_user_context())},
+      Keyword.get(opts, :log_meta, [])}
   end
 
   @doc false
-  def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn, opts) do
+  def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn, {opts, log_meta}) do
     if conn.assigns[:current_user] do
       conn
     else
-      get_user(conn, token, opts) |> report |> set_user(conn)
+      get_user(conn, token, opts) |> report(log_meta) |> set_user(conn)
     end
   end
   def call(conn, _), do: conn

@@ -41,22 +41,22 @@ defmodule Phauxth.Authenticate.Base do
   defmacro __using__(_) do
     quote do
       import unquote(__MODULE__)
-
-      @behaviour Plug
-
       import Plug.Conn
       alias Phauxth.{Config, Log, Token, Utils}
 
+      @behaviour Plug
+
       @doc false
       def init(opts) do
-        {Keyword.get(opts, :method, :session),
-        Keyword.get(opts, :max_age, 4 * 60 * 60),
-        Keyword.get(opts, :user_context, Utils.default_user_context())}
+        {{Keyword.get(opts, :method, :session),
+          Keyword.get(opts, :max_age, 4 * 60 * 60),
+          Keyword.get(opts, :user_context, Utils.default_user_context())},
+          Keyword.get(opts, :log_meta, [])}
       end
 
       @doc false
-      def call(conn, opts) do
-        get_user(conn, opts) |> report |> set_user(conn)
+      def call(conn, {opts, log_meta}) do
+        get_user(conn, opts) |> report(log_meta) |> set_user(conn)
       end
 
       @doc """
@@ -90,15 +90,15 @@ defmodule Phauxth.Authenticate.Base do
       @doc """
       Log the result of the authentication and return the user struct or nil.
       """
-      def report(%{} = user) do
-        Log.info(%Log{user: user.id, message: "user authenticated"})
+      def report(%{} = user, meta) do
+        Log.info(%Log{user: user.id, message: "user authenticated", meta: meta})
         Map.drop(user, Config.drop_user_keys)
       end
-      def report({:error, message}) do
-        Log.info(%Log{message: message}) && nil
+      def report({:error, message}, meta) do
+        Log.info(%Log{message: message, meta: meta}) && nil
       end
-      def report(nil) do
-        Log.info(%Log{}) && nil
+      def report(nil, meta) do
+        Log.info(%Log{meta: meta}) && nil
       end
 
       @doc """
@@ -109,7 +109,7 @@ defmodule Phauxth.Authenticate.Base do
       end
 
       defoverridable [init: 1, call: 2, get_user: 2, check_session: 1,
-                      check_token: 3, report: 1, set_user: 2]
+                      check_token: 3, report: 2, set_user: 2]
     end
   end
 end

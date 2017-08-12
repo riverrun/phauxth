@@ -1,3 +1,8 @@
+# Upgrading to version 0.17 of Phauxth
+
+* Phauxth.Confirm.PassReset has been removed. Use Phauxth.Confirm for
+password resets.
+
 # Upgrading to version 0.16 of Phauxth
 
 * In Phauxth.Confirm and Phauxth.Confirm.PassReset, the max_age is now

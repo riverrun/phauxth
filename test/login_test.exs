@@ -1,6 +1,7 @@
 defmodule Phauxth.LoginTest do
   use ExUnit.Case
   use Plug.Test
+  import ExUnit.CaptureLog
 
   alias Phauxth.{CustomLogin, Login, TestAccounts}
 
@@ -80,6 +81,13 @@ defmodule Phauxth.LoginTest do
     {:ok, %{email: email, role: role}} = Login.verify(params, TestAccounts)
     assert email == "brian@mail.com"
     assert role == "admin"
+  end
+
+  test "login with custom metadata for logging" do
+    assert capture_log(fn ->
+      params = %{"email" => "fred+1@mail.com", "password" => "h4rd2gU3$$"}
+      {:ok, _} = Login.verify(params, TestAccounts, log_meta: [path: "/sessions/create"])
+    end) =~ ~s(user=1 message="successful login" path=/sessions/create)
   end
 
 end
