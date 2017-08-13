@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>You have beautiful thighs!</title>
+    <title>Welcome to Phauxth - an extensible authentication framework for Elixir web apps</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
 

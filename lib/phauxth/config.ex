@@ -9,6 +9,7 @@ defmodule Phauxth.Config do
   | :----------------- | :-----------  | ---------------: |
   | log_level          | atom          | :info            |
   | drop_user_keys     | list of atoms | []               |
+  | endpoint           | module        | N/A              |
   | token_salt         | string        | N/A              |
 
   ## Examples
@@ -18,6 +19,7 @@ defmodule Phauxth.Config do
   like the following example.
 
       config :phauxth,
+        endpoint: MyAppWeb.Endpoint,
         log_level: :warn,
         drop_user_keys: [:shoe_size]
 
@@ -48,6 +50,17 @@ defmodule Phauxth.Config do
   def drop_user_keys do
     Application.get_env(:phauxth, :drop_user_keys, []) ++
     [:password_hash, :password, :otp_secret]
+  end
+
+  @doc """
+  The endpoint of your app.
+
+  This is used by the Phauxth.Confirm module.
+  """
+  def endpoint do
+    Application.get_env(:phauxth, :endpoint) || raise """
+    You need to set the `endpoint` value in the config/config.exs file.
+    """
   end
 
   @doc """

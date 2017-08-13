@@ -3,7 +3,7 @@
 [![Hex.pm Version](http://img.shields.io/hexpm/v/phauxth.svg)](https://hex.pm/packages/phauxth)
 [![Join the chat at https://gitter.im/phauxth_elixir/Lobby](https://badges.gitter.im/phauxth_elixir/Lobby.svg)](https://gitter.im/phauxth_elixir/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Authentication library for Phoenix, and other Plug-based, web applications.
+Authentication framework for Phoenix, and other Plug-based, web applications.
 
 Phauxth is designed with Phoenix 1.3 in mind, but it can also be used with
 older versions of Phoenix and any other Plug-based application.
@@ -76,7 +76,7 @@ And for api with user confirmation:
 ```elixir
 defp deps do
   [
-    {:phauxth, "~> 0.15"},
+    {:phauxth, "~> 0.17"},
     {:bcrypt_elixir, "~> 0.12"},
   ]
 end
@@ -86,7 +86,7 @@ end
 
 4. Add the `get(id)` and `get_by(attrs)` functions to your user Accounts module.
 
-5. If you are using tokens, add the token_salt value to the config.
+5. If you are using tokens, add the token_salt and endpoint values to the config.
 
 See the [wiki](https://github.com/riverrun/phauxth/wiki) for more
 information about Phauxth.

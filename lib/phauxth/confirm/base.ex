@@ -36,7 +36,9 @@ defmodule Phauxth.Confirm.Base do
   defmacro __using__(_) do
     quote do
       import Phauxth.Confirm.Report
-      alias Phauxth.Token
+      alias Phauxth.{Config, Token}
+
+      @behaviour Phauxth
 
       @doc """
       Verify the confirmation key and get the user data from the database.
@@ -48,8 +50,6 @@ defmodule Phauxth.Confirm.Base do
 
       There are three options for the verify function:
 
-        * key_source - conn or the name of the endpoint module
-          * the default is MyAppWeb.Endpoint
         * max_age - the maximum age of the token, in seconds
           * the default is 1200 seconds (20 minutes)
         * mode - if the function is for email confirmation or password resetting
@@ -60,11 +60,10 @@ defmodule Phauxth.Confirm.Base do
       """
       def verify(params, user_context, opts \\ [])
       def verify(%{"key" => key}, user_context, opts) do
-        key_source = Keyword.get(opts, :key_source, Phauxth.Utils.default_endpoint())
         max_age = Keyword.get(opts, :max_age, 1200)
         log_meta = Keyword.get(opts, :log_meta, [])
 
-        get_user(key_source, {key, max_age, user_context})
+        get_user(Config.endpoint, {key, max_age, user_context})
         |> report(opts[:mode], log_meta)
       end
       def verify(_, _, _), do: raise ArgumentError, "No key found in the params"

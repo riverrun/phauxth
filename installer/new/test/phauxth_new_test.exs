@@ -90,6 +90,7 @@ defmodule Mix.Tasks.Phauxth.NewTest do
 
       assert_file "config/config.exs", fn file ->
         assert file =~ ~s(config :phauxth,\n  token_salt: ")
+        assert file =~ ~s(endpoint: PhauxthNewWeb.Endpoint)
       end
 
       assert_file "lib/phauxth_new_web/router.ex", fn file ->
@@ -116,6 +117,7 @@ defmodule Mix.Tasks.Phauxth.NewTest do
 
       assert_file "config/config.exs", fn file ->
         assert file =~ ~s(config :phauxth,\n  token_salt: ")
+        assert file =~ ~s(endpoint: PhauxthNewWeb.Endpoint)
       end
 
       assert_file "lib/phauxth_new_web/router.ex", fn file ->

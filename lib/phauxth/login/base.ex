@@ -26,6 +26,8 @@ defmodule Phauxth.Login.Base do
     quote do
       import unquote(__MODULE__)
 
+      @behaviour Phauxth
+
       @doc """
       Verify a user's password.
 

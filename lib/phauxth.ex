@@ -1,6 +1,6 @@
 defmodule Phauxth do
   @moduledoc """
-  Authentication library for Phoenix, and other Plug-based, web applications.
+  Authentication framework for Phoenix, and other Plug-based, web applications.
 
   Phauxth is designed to be secure, extensible and well-documented.
 
@@ -9,8 +9,8 @@ defmodule Phauxth do
 
   ## Plugs
 
-  Plugs take a conn (connection) struct, a context module (MyApp.Accounts
-  by default) and opts as arguments and return a conn struct.
+  Plugs take a conn (connection) struct and opts as arguments and return
+  a conn struct.
 
   ### Authenticate
 
@@ -85,8 +85,13 @@ defmodule Phauxth do
   Note that the verify function does not update the database or send
   an email to the user. Those need to be handled in your app.
 
-  Similarly, the Phauxth.Confirm.PassReset.verify function does not
-  reset the password. Its job is to verify the confirmation key.
+  To use Phauxth.Confirm for password resetting add the `mode: :pass_reset`
+  option to the verify function:
+
+      Phauxth.Confirm.verify(params, MyApp.Accounts, mode: :pass_reset)
+
+  This function just verifies the confirmation key. It does not reset
+  the password or send an email to the user.
 
   ## Phauxth with a new Phoenix project
 
@@ -120,5 +125,8 @@ defmodule Phauxth do
   [Phauxth wiki](https://github.com/riverrun/phauxth/wiki).
 
   """
+
+  @callback verify(params :: map, context :: atom, opts :: list | tuple) ::
+    {:ok, user :: map} | {:error, message :: String.t}
 
 end

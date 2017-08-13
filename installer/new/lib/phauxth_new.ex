@@ -141,21 +141,28 @@ defmodule Mix.Tasks.Phauxth.New do
   end
 
   defp update_config do
-    entry = "config :phauxth,\n  token_salt: \"#{gen_token_salt(8)}\""
-            |> EEx.eval_string(base: base_module())
+    entry = "config :phauxth,\n  token_salt: \"#{gen_token_salt(8)}\"" <>
+      ",\n  endpoint: <%= endpoint %>"
+      |> EEx.eval_string(endpoint: get_endpoint() |> IO.inspect)
     {:ok, conf} = File.read("config/config.exs")
     new_conf = String.split(conf, "\n\n")
-      |> List.insert_at(-3, entry)
-      |> Enum.join("\n\n")
+               |> List.insert_at(-3, entry)
+               |> Enum.join("\n\n")
     File.write("config/config.exs", new_conf)
+  end
+
+  defp base_name do
+    Mix.Project.config |> Keyword.fetch!(:app) |> to_string
   end
 
   defp base_module do
     base_name() |> Macro.camelize
   end
 
-  defp base_name do
-    Mix.Project.config |> Keyword.fetch!(:app) |> to_string
+  defp get_endpoint do
+    web = base_name() <> "_web"
+    Macro.camelize(web)
+    |> Module.concat(Endpoint)
   end
 
   defp gen_token_salt(length) do

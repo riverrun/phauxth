@@ -1,7 +1,13 @@
 # Upgrading to version 0.17 of Phauxth
 
-* Phauxth.Confirm.PassReset has been removed. Use Phauxth.Confirm for
-password resets.
+* Phauxth.Confirm.PassReset has been removed. Use Phauxth.Confirm with
+the `mode: :pass_reset` option for password resets.
+* Phauxth.Confirm takes a keyword list for the opts argument.
+* The `key source` for Phauxth.Confirm is now defined as `endpoint`
+in the config file, and so there is no need to write `key_source: conn`
+in the opts.
+* The Phauxth.Login and Phauxth.Confirm modules use the Phauxth behaviour,
+which defines the verify/3 callback.
 
 # Upgrading to version 0.16 of Phauxth
 
