@@ -105,7 +105,7 @@ defmodule Phauxth.Authenticate.Base do
       Set the `current_user` variable.
       """
       def set_user(user, conn) do
-        Plug.Conn.assign(conn, :current_user, user)
+        assign(conn, :current_user, user)
       end
 
       defoverridable [init: 1, call: 2, get_user: 2, check_session: 1,

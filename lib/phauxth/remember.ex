@@ -49,7 +49,10 @@ defmodule Phauxth.Remember do
     if conn.assigns[:current_user] do
       conn
     else
-      get_user(conn, token, opts) |> report(log_meta) |> set_user(conn)
+      get_user(conn, token, opts)
+      |> report(log_meta)
+      |> set_user(conn)
+      |> add_session
     end
   end
   def call(conn, _), do: conn
@@ -74,4 +77,8 @@ defmodule Phauxth.Remember do
     register_before_send(conn, &delete_resp_cookie(&1, "remember_me"))
   end
 
+  defp add_session(%Plug.Conn{assigns: %{current_user: %{id: user_id}}} = conn) do
+    put_session(conn, :user_id, user_id) |> configure_session(renew: true)
+  end
+  defp add_session(conn), do: conn
 end

@@ -29,6 +29,8 @@ defmodule Phauxth.RememberTest do
     %{current_user: user} = conn.assigns
     assert user.username == "fred"
     assert user.role == "user"
+    user_id = get_session(conn, :user_id)
+    assert user_id == 1
   end
 
   test "error log when the cookie is invalid", %{conn: conn} do
