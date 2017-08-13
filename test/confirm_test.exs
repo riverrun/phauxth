@@ -50,4 +50,10 @@ defmodule Phauxth.ConfirmTest do
     end) =~ ~s(user=1 message="user confirmed" path=/confirm)
   end
 
+  test "raises an error if no key is found in the params" do
+    assert_raise ArgumentError, "No key found in the params", fn ->
+      {:ok, _} = Confirm.verify(%{"no_key" => "no_key"}, TestAccounts)
+    end
+  end
+
 end

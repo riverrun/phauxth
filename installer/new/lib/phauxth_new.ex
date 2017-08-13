@@ -99,7 +99,7 @@ defmodule Mix.Tasks.Phauxth.New do
 
     We are almost ready!
 
-    You need to first edit the `mix.exs` file, adding `{:phauxth, "~> 0.16"},`
+    You need to first edit the `mix.exs` file, adding `{:phauxth, "~> 0.17"},`
     and one of the following: `{:argon2_elixir, "~> 1.2"},`, `{:bcrypt_elixir, "~> 0.12"},`
     or `{:pbkdf2_elixir, "~> 0.12"},` (see the documentation for Comeonin for
     more information about these libraries) to the deps. Then, run `mix deps.get`.
@@ -143,7 +143,7 @@ defmodule Mix.Tasks.Phauxth.New do
   defp update_config do
     entry = "config :phauxth,\n  token_salt: \"#{gen_token_salt(8)}\"" <>
       ",\n  endpoint: <%= endpoint %>"
-      |> EEx.eval_string(endpoint: get_endpoint() |> IO.inspect)
+      |> EEx.eval_string(endpoint: get_endpoint())
     {:ok, conf} = File.read("config/config.exs")
     new_conf = String.split(conf, "\n\n")
                |> List.insert_at(-3, entry)

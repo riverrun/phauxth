@@ -78,4 +78,10 @@ defmodule Phauxth.LoginTest do
     end) =~ ~s(user=1 message="successful login" path=/sessions/create)
   end
 
+  test "raises an error if no password is found in the params" do
+    assert_raise ArgumentError, "No password found in the params", fn ->
+      {:ok, _} = Login.verify(%{"no_key" => "no_key"}, TestAccounts)
+    end
+  end
+
 end

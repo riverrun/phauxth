@@ -29,5 +29,5 @@ defmodule Phauxth.Confirm.Report do
     Log.warn(%Log{message: message, meta: meta})
     {:error, "Invalid credentials"}
   end
-  def report(nil, _, meta), do: report({:error, "no user found"}, meta, nil)
+  def report(nil, _, meta), do: report({:error, "no user found"}, nil, meta)
 end
