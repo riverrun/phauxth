@@ -143,7 +143,7 @@ defmodule Mix.Tasks.Phauxth.New do
   defp update_config do
     entry = "config :phauxth,\n  token_salt: \"#{gen_token_salt(8)}\"" <>
       ",\n  endpoint: <%= endpoint %>"
-      |> EEx.eval_string(endpoint: get_endpoint())
+      |> EEx.eval_string(endpoint: inspect(get_endpoint()))
     {:ok, conf} = File.read("config/config.exs")
     new_conf = String.split(conf, "\n\n")
                |> List.insert_at(-3, entry)
