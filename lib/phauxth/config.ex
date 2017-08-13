@@ -83,7 +83,8 @@ defmodule Phauxth.Config do
     :crypto.strong_rand_bytes(length) |> Base.encode64 |> binary_part(0, length)
   end
   def gen_token_salt(_) do
-    raise ArgumentError, "The length is too short - " <>
-      "the token_salt should be at least 8 characters long"
+    raise ArgumentError, """
+    The length is too short. The token_salt should be at least 8 characters long.
+    """
   end
 end

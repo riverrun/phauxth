@@ -1,6 +1,9 @@
 defmodule Phauxth.Login.Base do
   @moduledoc """
-  Module to handle login.
+  Base module for handling login.
+
+  This is used by Phauxth.Login and can also be used to create
+  custom login modules.
 
   ## Custom login modules
 
@@ -10,15 +13,18 @@ defmodule Phauxth.Login.Base do
       defmodule Phauxth.Confirm.Login do
         use Phauxth.Login.Base
 
+        @behaviour Phauxth
+
         def check_pass(%{confirmed_at: nil}, _, _, _), do: {:error, "account unconfirmed"}
         def check_pass(user, password, crypto, opts) do
           super(user, password, crypto, opts)
         end
       end
 
-  In the Phauxth.Confirm.Login module, the user struct is checked to see
-  if the user is confirmed. If the user has not been confirmed, an error
-  is returned. Otherwise, the default check_pass function is run.
+  In this example, the check_pass function is overridden to check
+  the user struct to see if the user is confirmed. If the user has not
+  been confirmed, an error is returned. Otherwise, the default check_pass
+  function is run.
   """
 
   @doc false
@@ -52,18 +58,23 @@ defmodule Phauxth.Login.Base do
 
       ## Examples
 
-      In the example below, verify is called within the create
-      function in the session controller.
-
-          use Phauxth.Login
+      The following function is an example of using verify in a Phoenix
+      controller.
 
           def create(conn, %{"session" => params}) do
-            case verify(params, MyApp.Accounts) do
-              {:ok, user} -> handle_successful_login
-              {:error, message} -> handle_error
+            case Phauxth.Login.verify(params, MyApp.Accounts) do
+              {:ok, user} ->
+                put_session(conn, :user_id, user.id)
+                |> configure_session(renew: true)
+                |> success("You have been logged in", user_path(conn, :index))
+              {:error, message} ->
+                error(conn, message, session_path(conn, :new))
             end
           end
 
+      In this example, if the login is successful, the user is added to
+      the session, which is then renewed, and then is redirected
+      to the /users page.
       """
       def verify(params, user_context, opts \\ [])
       def verify(%{"password" => password} = params, user_context, opts) do

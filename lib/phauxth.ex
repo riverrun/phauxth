@@ -126,7 +126,7 @@ defmodule Phauxth do
 
   """
 
-  @callback verify(params :: map, context :: atom, opts :: list | tuple) ::
+  @callback verify(params :: map, context :: atom, opts :: keyword | tuple) ::
     {:ok, user :: map} | {:error, message :: String.t}
 
 end

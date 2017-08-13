@@ -1,35 +1,9 @@
 defmodule Phauxth.Confirm.Base do
   @moduledoc """
-  Module to provide user confirmation for new users and when resetting
-  passwords.
+  Base module for handling user confirmation.
 
-  ## Examples
-
-  Add the following line to the `web/router.ex` file:
-
-      get "/new", ConfirmController, :new
-
-  Then add the following to the `confirm_controller.ex` new function
-  (this example is for a html app):
-
-      def new(conn, params) do
-        case verify(params, Accounts) do
-          {:ok, user} ->
-            Accounts.confirm_user(user)
-            Message.confirm_success(user.email)
-            conn
-            |> put_flash(:info, "Your account has been confirmed")
-            |> redirect(to: session_path(conn, :new))
-          {:error, message} ->
-            conn
-            |> put_flash(:error, message)
-            |> redirect(to: session_path(conn, :new))
-            |> halt
-        end
-      end
-
-  In this example, the `Accounts.confirm_user` function updates the
-  database, setting the `confirmed_at` value to the current time.
+  This is used by Phauxth.Confirm and can also be used to create
+  custom user confirmation modules.
   """
 
   @doc false
@@ -52,11 +26,34 @@ defmodule Phauxth.Confirm.Base do
 
         * max_age - the maximum age of the token, in seconds
           * the default is 1200 seconds (20 minutes)
-        * mode - if the function is for email confirmation or password resetting
+        * mode - the mode - email confirmation or password resetting
           * set this to :pass_reset to use this function for password resetting
         * log_meta - additional custom metadata for Phauxth.Log
           * this should be a keyword list
 
+      ## Examples
+
+      The following function is an example of using verify in a Phoenix
+      controller.
+
+          def index(conn, params) do
+            case Phauxth.Confirm.verify(params, Accounts) do
+              {:ok, user} ->
+                Accounts.confirm_user(user)
+                Message.confirm_success(user.email)
+                conn
+                |> put_flash(:info, "Your account has been confirmed")
+                |> redirect(to: session_path(conn, :new))
+              {:error, message} ->
+                conn
+                |> put_flash(:error, message)
+                |> redirect(to: session_path(conn, :new))
+                |> halt
+            end
+          end
+
+      In this example, the `Accounts.confirm_user` function updates the
+      database, setting the `confirmed_at` value to the current time.
       """
       def verify(params, user_context, opts \\ [])
       def verify(%{"key" => key}, user_context, opts) do
