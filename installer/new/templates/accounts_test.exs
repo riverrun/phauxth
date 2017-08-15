@@ -62,6 +62,13 @@ defmodule <%= base %>.AccountsTest do
     attrs = %{password: "password", key: key}
     {:ok, %{password_hash: hash}} = Accounts.update_password(user, attrs)
     assert hash != stored_hash
+  end
+
+  test "update_password with weak password fails" do
+    user = fixture(:user)
+    key = Phauxth.Token.sign(<%= base %>Web.Endpoint, %{"email" => "fred@mail.com"})
+    attrs = %{password: "pass", key: key}
+    assert {:error, %Ecto.Changeset{}} = Accounts.update_password(user, attrs)
   end<% end %>
 
 end

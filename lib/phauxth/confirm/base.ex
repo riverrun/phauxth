@@ -70,7 +70,7 @@ defmodule Phauxth.Confirm.Base do
           do: user_context.get_by(params)
       end
 
-      defoverridable [verify: 3, get_user: 2]
+      defoverridable [verify: 2, verify: 3, get_user: 2]
     end
   end
 end

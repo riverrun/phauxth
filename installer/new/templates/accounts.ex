@@ -41,8 +41,7 @@ defmodule <%= base %>.Accounts do
 
   def update_password(%User{} = user, attrs) do
     user
-    |> User.changeset(attrs)
-    |> User.put_pass_hash
+    |> User.create_changeset(attrs)
     |> change(%{reset_sent_at: nil})
     |> Repo.update
   end<% end %>

@@ -97,7 +97,7 @@ defmodule Phauxth.Login.Base do
         crypto.check_pass(user, password, opts)
       end
 
-      defoverridable [verify: 3, check_pass: 4]
+      defoverridable [verify: 2, verify: 3, check_pass: 4]
     end
   end
 
