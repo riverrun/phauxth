@@ -32,17 +32,27 @@ defmodule <%= base %>Web.PasswordResetController do
   def update(conn, %{"password_reset" => params}) do
     case Phauxth.Confirm.verify(params, Accounts, mode: :pass_reset) do
       {:ok, user} ->
-        Accounts.update_password(user, params)
-        Message.reset_success(user.email)
-        message = "Your password has been reset"<%= if api do %>
-        render(conn, <%= base %>Web.PasswordResetView, "info.json", %{info: message})<% else %>
-        configure_session(conn, drop: true) |> success(message, session_path(conn, :new))<% end %>
-      {:error, message} ->
-        conn<%= if api do %>
-        |> put_status(:unprocessable_entity)
+        Accounts.update_password(user, params) |> update_password(conn, params)
+      {:error, message} -><%= if api do %>
+        put_status(conn, :unprocessable_entity)
         |> render(<%= base %>Web.PasswordResetView, "error.json", error: message)<% else %>
-        |> put_flash(:error, message)
-        |> render("edit.html", email: params["email"], key: params["key"])<% end %>
+        put_flash(conn, :error, message)
+        |> render("edit.html", key: params["key"])<% end %>
     end
+  end
+
+  defp update_password({:ok, user}, conn, _params) do
+    Message.reset_success(user.email)
+    message = "Your password has been reset"<%= if api do %>
+    render(conn, <%= base %>Web.PasswordResetView, "info.json", %{info: message})<% else %>
+    configure_session(conn, drop: true)
+    |> success(message, session_path(conn, :new))<% end %>
+  end
+  defp update_password({:error, %Ecto.Changeset{} = changeset}, conn, <%= if api do %>_<% end %>params) do
+    message = with p <- changeset.errors[:password], do: elem(p, 0)<%= if api do %>
+    put_status(conn, :unprocessable_entity)
+    |> render(<%= base %>Web.PasswordResetView, "error.json", error: message || "Invalid input")<% else %>
+    put_flash(conn, :error, message || "Invalid input")
+    |> render("edit.html", key: params["key"])<% end %>
   end
 end
