@@ -1,6 +1,6 @@
 defmodule Phauxth do
   @moduledoc """
-  Authentication framework for Phoenix, and other Plug-based, web applications.
+  Authentication library for Phoenix, and other Plug-based, web applications.
 
   Phauxth is designed to be secure, extensible and well-documented.
 
@@ -38,7 +38,7 @@ defmodule Phauxth do
         plug Phauxth.Remember
       end
 
-  This needs to be called after plug Phauxth.Authenticate.
+  This needs to be called after `plug Phauxth.Authenticate`.
 
   ## Phauxth verify/3
 

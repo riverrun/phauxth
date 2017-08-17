@@ -14,7 +14,7 @@ defmodule Phauxth.ConfirmTest do
   test "confirmation succeeds for valid token", %{valid_email: valid_email} do
     %{params: params} = conn(:get, "/confirm?key=" <> valid_email) |> fetch_query_params
     {:ok, user} = Confirm.verify(params, TestAccounts)
-    assert user
+    assert user.email == "fred+1@mail.com"
   end
 
   test "confirmation fails for invalid token" do
@@ -40,7 +40,7 @@ defmodule Phauxth.ConfirmTest do
     valid_phone = Token.sign(conn, %{"phone" => "55555555555"})
     %{params: params} = conn(:get, "/confirm?key=" <> valid_phone) |> fetch_query_params
     {:ok, user} = Confirm.verify(params, TestAccounts)
-    assert user
+    assert user.email == "fred+1@mail.com"
   end
 
   test "confirm with custom metadata for logging", %{valid_email: valid_email} do

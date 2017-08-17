@@ -6,8 +6,6 @@ defmodule Phauxth.Confirm.Login do
 
   use Phauxth.Login.Base
 
-  @behaviour Phauxth
-
   @doc """
   Check the user is confirmed before checking the password.
 

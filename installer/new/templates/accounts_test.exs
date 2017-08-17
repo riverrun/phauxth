@@ -59,7 +59,7 @@ defmodule <%= base %>.AccountsTest do
   test "update password changes the stored hash" do
     %{password_hash: stored_hash} = user = fixture(:user)
     key = Phauxth.Token.sign(<%= base %>Web.Endpoint, %{"email" => "fred@mail.com"})
-    attrs = %{password: "password", key: key}
+    attrs = %{password: "CN8W6kpb", key: key}
     {:ok, %{password_hash: hash}} = Accounts.update_password(user, attrs)
     assert hash != stored_hash
   end

@@ -1,6 +1,6 @@
 <div class="jumbotron">
   <h2><%= gettext "Welcome to %{name}! - and Phauxth", name: "Phoenix" %></h2>
-  <p class="lead">A secure and extensible authentication framework for Plug-based applications</p>
+  <p class="lead">A secure and extensible authentication library for Plug-based applications</p>
 </div>
 
 <div class="row marketing">

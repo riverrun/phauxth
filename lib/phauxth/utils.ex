@@ -7,12 +7,6 @@ defmodule Phauxth.Utils do
     |> Module.concat(Accounts)
   end
 
-  def default_endpoint do
-    web = project_string() <> "_web"
-    Macro.camelize(web)
-    |> Module.concat(Endpoint)
-  end
-
   defp project_string do
     Mix.Project.config
     |> Keyword.fetch!(:app)

@@ -4,7 +4,7 @@ defmodule Phauxth.Mixfile do
   @version "0.17.1"
 
   @description """
-  Authentication framework for Phoenix, and other Plug-based, web applications
+  Authentication library for Phoenix, and other Plug-based, web applications
   """
 
   def project do

@@ -2,7 +2,8 @@ ExUnit.start()
 
 Code.require_file "support/access_control.exs", __DIR__
 Code.require_file "support/authenticate_helper.exs", __DIR__
-Code.require_file "support/customize_helper.exs", __DIR__
+Code.require_file "support/custom_confirm.exs", __DIR__
+Code.require_file "support/custom_login.exs", __DIR__
 Code.require_file "support/session_helper.exs", __DIR__
 Code.require_file "support/user_helper.exs", __DIR__
 
