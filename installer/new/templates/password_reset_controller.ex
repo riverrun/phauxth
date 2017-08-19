@@ -1,12 +1,9 @@
 defmodule <%= base %>Web.PasswordResetController do
-  use <%= base %>Web, :controller<%= if api do %>
+  use <%= base %>Web, :controller<%= if not api do %>
 
+  import <%= base %>Web.Authorize<% end %>
   alias <%= base %>.{Accounts, Message}
-
-  action_fallback <%= base %>Web.FallbackController<% else %>
-  import <%= base %>Web.Authorize
-  alias <%= base %>.{Accounts, Message}
-
+<%= if not api do %>
   def new(conn, _params) do
     render(conn, "new.html")
   end<% end %>
