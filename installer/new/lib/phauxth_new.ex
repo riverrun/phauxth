@@ -36,14 +36,14 @@ defmodule Mix.Tasks.Phauxth.New do
     {:eex, "user.ex", "/accounts/user.ex"},
     {:eex, "user_migration.exs", "priv/repo/migrations/timestamp_create_users.exs"},
     {:eex, "accounts.ex", "/accounts/accounts.ex"},
-    {:eex, "accounts_test.exs", "test/accounts_test.exs"},
+    {:eex, "accounts_test.exs", "test/namespace/accounts/accounts_test.exs"},
     {:eex, "router.ex", "_web/router.ex"},
     {:eex, "authorize.ex", "_web/controllers/authorize.ex"},
     {:eex, "session_controller.ex", "_web/controllers/session_controller.ex"},
-    {:eex, "session_controller_test.exs", "test_web/controllers/session_controller_test.exs"},
+    {:eex, "session_controller_test.exs", "test/namespace_web/controllers/session_controller_test.exs"},
     {:eex, "session_view.ex", "_web/views/session_view.ex"},
     {:eex, "user_controller.ex", "_web/controllers/user_controller.ex"},
-    {:eex, "user_controller_test.exs", "test_web/controllers/user_controller_test.exs"},
+    {:eex, "user_controller_test.exs", "test/namespace_web/controllers/user_controller_test.exs"},
     {:eex, "user_view.ex", "_web/views/user_view.ex"}]
 
   @phx_api [{:eex, "fallback_controller.ex", "_web/controllers/fallback_controller.ex"},
@@ -60,10 +60,10 @@ defmodule Mix.Tasks.Phauxth.New do
 
   @phx_confirm [{:eex, "message.ex", "_web/message.ex"},
     {:eex, "confirm_controller.ex", "_web/controllers/confirm_controller.ex"},
-    {:eex, "confirm_controller_test.exs", "test_web/controllers/confirm_controller_test.exs"},
+    {:eex, "confirm_controller_test.exs", "test/namespace_web/controllers/confirm_controller_test.exs"},
     {:eex, "confirm_view.ex", "_web/views/confirm_view.ex"},
     {:eex, "password_reset_controller.ex", "_web/controllers/password_reset_controller.ex"},
-    {:eex, "password_reset_controller_test.exs", "test_web/controllers/password_reset_controller_test.exs"},
+    {:eex, "password_reset_controller_test.exs", "test/namespace_web/controllers/password_reset_controller_test.exs"},
     {:eex, "password_reset_view.ex", "_web/views/password_reset_view.ex"}]
 
   @phx_html_confirm [{:text, "password_reset_new.html.eex", "_web/templates/password_reset/new.html.eex"},
@@ -128,7 +128,7 @@ defmodule Mix.Tasks.Phauxth.New do
       name = base_name()
       target = case target do
         "priv" <> _ -> String.replace(target, "timestamp", timestamp())
-        "test_web" <> _ -> String.replace(target, "test_web", "test/#{name}_web")
+        "test/namespace" <> _ -> String.replace(target, "test/namespace", "test/#{name}")
         "test" <> _ -> target
         _ -> "lib/#{name}" <> target
       end

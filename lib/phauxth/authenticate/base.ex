@@ -35,6 +35,12 @@ defmodule Phauxth.Authenticate.Base do
         plug AbsintheAuthenticate, method: :token
       end
 
+  ### Custom session / token implementations
+
+  This module uses Plug sessions or Phauxth tokens (based on Phoenix.Token)
+  by default. To use custom sessions or tokens, you need to create your
+  own custom Authenticate module and override the `check_session` or
+  `check_token` function.
   """
 
   @doc false
