@@ -4,7 +4,7 @@ defmodule Phauxth.CustomLogin do
   def verify(%{"pass" => password} = params, user_context, opts) do
     user_context.get_by(params)
     |> check_pass(password, Comeonin.Bcrypt, opts)
-    |> report([])
+    |> report("Hi, how's it going?", [])
   end
 
   def check_pass(%{password_hash: "$argon2" <> _} = user, password, _crypto, opts) do

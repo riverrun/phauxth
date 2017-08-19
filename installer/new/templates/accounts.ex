@@ -4,6 +4,7 @@ defmodule <%= base %>.Accounts do
   """
 
   import Ecto.{Query, Changeset}, warn: false
+  alias Phauxth.Log
   alias <%= base %>.{Accounts.User, Repo}
 
   def list_users do
@@ -17,9 +18,11 @@ defmodule <%= base %>.Accounts do
   end
 
   def create_user(attrs) do
-    %User{}
-    |> User.create_changeset(attrs)
-    |> Repo.insert
+    user = %User{}
+           |> User.create_changeset(attrs)
+           |> Repo.insert
+    Log.info(%Log{user: user.id, message: "user created"})
+    user
   end<%= if confirm do %>
 
   def confirm_user(%User{} = user) do
@@ -29,6 +32,7 @@ defmodule <%= base %>.Accounts do
   def create_password_reset(attrs) do
     with %User{} = user <- get_by(attrs) do
       change(user, %{reset_sent_at: DateTime.utc_now}) |> Repo.update
+      Log.info(%Log{user: user.id, message: "password reset requested"})
       Phauxth.Token.sign(<%= base %>Web.Endpoint, attrs)
     end
   end<% end %>

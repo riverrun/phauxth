@@ -83,7 +83,7 @@ defmodule Phauxth.Login.Base do
 
         user_context.get_by(params)
         |> check_pass(password, crypto, opts)
-        |> report(log_meta)
+        |> report("successful login", log_meta)
       end
       def verify(_, _, _), do: raise ArgumentError, "No password found in the params"
 
@@ -110,11 +110,11 @@ defmodule Phauxth.Login.Base do
   @doc """
   Prints out a log message and returns {:ok, user} or {:error, message}.
   """
-  def report({:ok, user}, meta) do
-    Log.info(%Log{user: user.id, message: "successful login", meta: meta})
+  def report({:ok, user}, ok_message, meta) do
+    Log.info(%Log{user: user.id, message: ok_message, meta: meta})
     {:ok, Map.drop(user, Config.drop_user_keys)}
   end
-  def report({:error, message}, meta) do
+  def report({:error, message}, _, meta) do
     Log.warn(%Log{message: message, meta: meta})
     {:error, @messages[message] || "Invalid credentials"}
   end
