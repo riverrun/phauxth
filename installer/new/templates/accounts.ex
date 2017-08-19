@@ -18,11 +18,9 @@ defmodule <%= base %>.Accounts do
   end
 
   def create_user(attrs) do
-    user = %User{}
-           |> User.create_changeset(attrs)
-           |> Repo.insert
-    Log.info(%Log{user: user.id, message: "user created"})
-    user
+    %User{}
+    |> User.create_changeset(attrs)
+    |> Repo.insert
   end<%= if confirm do %>
 
   def confirm_user(%User{} = user) do
