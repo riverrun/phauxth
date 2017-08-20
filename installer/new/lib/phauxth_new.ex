@@ -99,7 +99,7 @@ defmodule Mix.Tasks.Phauxth.New do
 
     We are almost ready!
 
-    You need to first edit the `mix.exs` file, adding `{:phauxth, "~> 0.17"},`
+    You need to first edit the `mix.exs` file, adding `{:phauxth, "~> 1.0"},`
     and one of the following: `{:argon2_elixir, "~> 1.2"},`, `{:bcrypt_elixir, "~> 0.12"},`
     or `{:pbkdf2_elixir, "~> 0.12"},` (see the documentation for Comeonin for
     more information about these libraries) to the deps. Then, run `mix deps.get`.

@@ -76,7 +76,7 @@ And for api with user confirmation:
 ```elixir
 defp deps do
   [
-    {:phauxth, "~> 0.17"},
+    {:phauxth, "~> 1.0"},
     {:bcrypt_elixir, "~> 0.12"},
   ]
 end
