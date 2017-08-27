@@ -46,9 +46,9 @@ defmodule Phauxth.Token do
   `opts` are the key generator options. See the module documentation
   for details.
   """
-  def verify(conn, token, max_age, opts \\ [])
-  def verify(conn, token, max_age, opts) when is_binary(token) do
-    secret = get_key_base(conn) |> get_secret(opts)
+  def verify(context, token, max_age, opts \\ [])
+  def verify(context, token, max_age, opts) when is_binary(token) do
+    secret = get_key_base(context) |> get_secret(opts)
     max_age_ms = max_age * 1000
 
     case MessageVerifier.verify(token, secret) do
@@ -66,9 +66,26 @@ defmodule Phauxth.Token do
   end
   def verify(_, _, _, _), do: {:error, "invalid token"}
 
-  defp get_key_base(%{secret_key_base: key}), do: validate_secret(key)
+  defp get_key_base(context) when :erlang.is_map(context) do
+    cond do 
+      check_struct(context, "Elixir.Phoenix.Socket") ->
+        get_endpoint_key_base(context.endpoint)
+      Map.has_key?(context, :secret_key_base) ->
+        Map.get(context, :secret_key_base) |> validate_secret
+      true ->
+        get_endpoint_key_base(context)
+    end
+  end
   defp get_key_base(endpoint) do
-    endpoint.config(:secret_key_base)
+    get_endpoint_key_base(endpoint)
+  end
+
+  defp check_struct(struct, type) do
+    Map.has_key?(struct, :__struct__) && Atom.to_string(Map.get(struct, :__struct__)) == type
+  end
+
+  defp get_endpoint_key_base(endpoint) do
+    endpoint.config(:secret_key_base) |> validate_secret
   end
 
   defp validate_secret(nil) do
