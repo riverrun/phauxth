@@ -7,7 +7,31 @@ defmodule Phauxth.Token do
   information (such as user IDs) but should not be used to store
   confidential information (such as credit card numbers).
 
-  ## Key generator options
+  ## Arguments to sign/3 and verify/4
+
+  The first argument to both `sign/3` and `verify/4` is the `key_source`,
+  from which the function can extract the secret key base. This can be one of:
+
+    * the module name of a Phoenix endpoint
+    * a `Plug.Conn` struct
+    * a `Phoenix.Socket` struct
+    * a string, representing the secret key base itself
+      * this string should be at least 20 randomly generated characters should be used
+
+  The second argument to sign/3 is the data to be signed, which can be
+  an integer or string identifying the user, or a map with the user
+  parameters.
+
+  The second argument to verify/4 is the token to be verified.
+
+  The third argument to verify/4 is the `max_age` (maximum age), in seconds,
+  of the token. The recommended maximum age depends on how the token is used.
+  For example, the Phauxth.Confirm module sets the maximum age to 1200, which
+  is 20 minutes, but the Phauxth.Authenticate module sets the maximum age to
+  14_400, which is 4 hours.
+
+  The third argument to sign/3, or the fourth argument to verify/4, is
+  the `opts`, the key generator options.
 
   The key generator has three options:
 
@@ -29,8 +53,7 @@ defmodule Phauxth.Token do
   @doc """
   Sign the token.
 
-  `opts` are the key generator options. See the module documentation
-  for details.
+  See the module documentation for information about the options available.
   """
   def sign(key_source, data, opts \\ []) do
     secret = get_key_base(key_source) |> validate_secret |> get_secret(opts)
@@ -43,8 +66,7 @@ defmodule Phauxth.Token do
   @doc """
   Verify the token.
 
-  `opts` are the key generator options. See the module documentation
-  for details.
+  See the module documentation for information about the options available.
   """
   def verify(key_source, token, max_age, opts \\ [])
   def verify(key_source, token, max_age, opts) when is_binary(token) do
