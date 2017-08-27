@@ -32,8 +32,8 @@ defmodule Phauxth.Token do
   `opts` are the key generator options. See the module documentation
   for details.
   """
-  def sign(conn, data, opts \\ []) do
-    secret = get_key_base(conn) |> get_secret(opts)
+  def sign(key_source, data, opts \\ []) do
+    secret = get_key_base(key_source) |> validate_secret |> get_secret(opts)
 
     %{data: data, signed: now_ms()}
     |> :erlang.term_to_binary()
@@ -46,9 +46,9 @@ defmodule Phauxth.Token do
   `opts` are the key generator options. See the module documentation
   for details.
   """
-  def verify(conn, token, max_age, opts \\ [])
-  def verify(conn, token, max_age, opts) when is_binary(token) do
-    secret = get_key_base(conn) |> get_secret(opts)
+  def verify(key_source, token, max_age, opts \\ [])
+  def verify(key_source, token, max_age, opts) when is_binary(token) do
+    secret = get_key_base(key_source) |> validate_secret |> get_secret(opts)
     max_age_ms = max_age * 1000
 
     case MessageVerifier.verify(token, secret) do
@@ -66,9 +66,17 @@ defmodule Phauxth.Token do
   end
   def verify(_, _, _, _), do: {:error, "invalid token"}
 
-  defp get_key_base(%{secret_key_base: key}), do: validate_secret(key)
-  defp get_key_base(endpoint) do
-    endpoint.config(:secret_key_base)
+  defp get_key_base(%Plug.Conn{secret_key_base: key}), do: key
+  defp get_key_base(%{endpoint: endpoint}), do: get_endpoint_key_base(endpoint)
+  defp get_key_base(endpoint) when is_atom(endpoint) do
+    get_endpoint_key_base(endpoint)
+  end
+  defp get_key_base(key) when is_binary(key), do: key
+
+  defp get_endpoint_key_base(endpoint) do
+    endpoint.config(:secret_key_base) || raise """
+    no :secret_key_base configuration found in #{inspect endpoint}.
+    """
   end
 
   defp validate_secret(nil) do

@@ -9,6 +9,10 @@ defmodule Phauxth.TokenTest do
     def config(:secret_key_base), do: String.duplicate("abcdef0123456789", 8)
   end
 
+  defmodule BadKeyEndpoint do
+    def config(:secret_key_base), do: "abcdef0123456789"
+  end
+
   setup do
     conn = conn(:get, "/") |> Phauxth.SessionHelper.add_key
     {:ok, %{conn: conn}}
@@ -52,18 +56,21 @@ defmodule Phauxth.TokenTest do
     assert Token.verify(conn, signed, @max_age, key_length: 64) == {:error, "invalid token"}
   end
 
-  test "raises an error when the secret_key_base is too short", %{conn: conn} do
+  test "raises when the secret_key_base is too short", %{conn: conn} do
     conn = Phauxth.SessionHelper.add_key(conn, "abcdef0123456789")
-    assert_raise ArgumentError, fn -> Token.sign(conn, 1) end
     assert_raise ArgumentError, fn -> Token.sign(conn, 1) end
   end
 
-  test "raises an error when the key_length is too short", %{conn: conn} do
+  test "raises when the secret_key_base is too short when signing with endpoint" do
+    assert_raise ArgumentError, fn -> Token.sign(BadKeyEndpoint, 1) end
+  end
+
+  test "raises when the key_length is too short", %{conn: conn} do
     assert_raise ArgumentError, fn -> Token.sign(conn, 1, key_length: 16) end
     assert_raise ArgumentError, fn -> Token.sign(conn, 1, key_length: 19) end
   end
 
-  test "raises an error when a weak key digest is set", %{conn: conn} do
+  test "raises when a weak key digest is set", %{conn: conn} do
     assert_raise ArgumentError, "Phauxth.Token does not support md5", fn ->
       Token.sign(conn, 1, key_digest: :md5)
     end
