@@ -46,9 +46,9 @@ defmodule Phauxth.Token do
   `opts` are the key generator options. See the module documentation
   for details.
   """
-  def verify(conn, token, max_age, opts \\ [])
-  def verify(conn, token, max_age, opts) when is_binary(token) do
-    secret = get_key_base(conn) |> get_secret(opts)
+  def verify(context, token, max_age, opts \\ [])
+  def verify(context, token, max_age, opts) when is_binary(token) do
+    secret = get_key_base(context) |> get_secret(opts)
     max_age_ms = max_age * 1000
 
     case MessageVerifier.verify(token, secret) do
@@ -66,9 +66,17 @@ defmodule Phauxth.Token do
   end
   def verify(_, _, _, _), do: {:error, "invalid token"}
 
-  defp get_key_base(%{secret_key_base: key}), do: validate_secret(key)
-  defp get_key_base(endpoint) do
-    endpoint.config(:secret_key_base)
+  defp get_key_base(conn) when :"Plug.Conn" == conn,
+    do: conn.private.phoenix_endpoint |> get_endpoint_key_base()
+  defp get_key_base(socket) when :"Phoenix.Socket" == socket,
+    do: get_endpoint_key_base(socket.endpoint)
+  defp get_key_base(endpoint) when is_atom(endpoint),
+    do: get_endpoint_key_base(endpoint)
+  defp get_key_base(string) when is_binary(string) and byte_size(string) >= 20,
+    do: string
+
+  defp get_endpoint_key_base(endpoint) do
+    endpoint.config(:secret_key_base) |> validate_secret
   end
 
   defp validate_secret(nil) do
