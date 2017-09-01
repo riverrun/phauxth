@@ -1,5 +1,5 @@
 %{"argon2_elixir": {:hex, :argon2_elixir, "1.2.2", "0e483f02eef21957e4ba2eb5da0685cfd34d64be8c37c533b480031c3ccec8a0", [:make, :mix], [{:elixir_make, "~> 0.4", [hex: :elixir_make, optional: false]}]},
-  "bcrypt_elixir": {:hex, :bcrypt_elixir, "0.12.0", "2246baebd5125e1e4753da7eacde0c47f62401411c372645cf81b42550f42d02", [:make, :mix], [{:elixir_make, "~> 0.4", [hex: :elixir_make, optional: false]}]},
+  "bcrypt_elixir": {:hex, :bcrypt_elixir, "0.12.1", "41ff5a4739fcff365fe840637462dc9e22beac07a9dcf3cb5e79b127f5b3a099", [:make, :mix], [{:elixir_make, "~> 0.4", [hex: :elixir_make, optional: false]}]},
   "comeonin": {:hex, :comeonin, "4.0.0", "a830a86c9e1646f6dab82b1c602681ec365135b75ea04638bdd5b3ed5221e39b", [:mix], [{:argon2_elixir, "~> 1.2", [hex: :argon2_elixir, optional: true]}, {:bcrypt_elixir, "~> 0.12", [hex: :bcrypt_elixir, optional: true]}, {:pbkdf2_elixir, "~> 0.12", [hex: :pbkdf2_elixir, optional: true]}]},
   "earmark": {:hex, :earmark, "1.2.2", "f718159d6b65068e8daeef709ccddae5f7fdc770707d82e7d126f584cd925b74", [:mix], []},
   "elixir_make": {:hex, :elixir_make, "0.4.0", "992f38fabe705bb45821a728f20914c554b276838433349d4f2341f7a687cddf", [:mix], []},
