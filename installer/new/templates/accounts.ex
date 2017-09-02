@@ -3,8 +3,8 @@ defmodule <%= base %>.Accounts do
   The boundary for the Accounts system.
   """
 
-  import Ecto.{Query, Changeset}, warn: false
-  alias Phauxth.Log
+  import Ecto.{Query, Changeset}, warn: false<%= if confirm do %>
+  alias Phauxth.Log<% end %>
   alias <%= base %>.{Accounts.User, Repo}
 
   def list_users do

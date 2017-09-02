@@ -100,11 +100,14 @@ defmodule Mix.Tasks.Phauxth.New do
     We are almost ready!
 
     You need to first edit the `mix.exs` file, adding `{:phauxth, "~> 1.0"},`
-    and one of the following: `{:argon2_elixir, "~> 1.2"},`, `{:bcrypt_elixir, "~> 0.12"},`
-    or `{:pbkdf2_elixir, "~> 0.12"},` (see the documentation for Comeonin for
-    more information about these libraries) to the deps. Then, run `mix deps.get`.
+    to it. You also need to add one of the following password hashing libraries:
+    `argon2_elixir`, `bcrypt_elixir` or `pbkdf2_elixir` (see the documentation
+    for Comeonin for more information about these libraries) to the deps.
+    Then, run `mix deps.get`.#{confirm_message(confirm)}
 
-    #{confirm_message(confirm)}
+    For more information about authorization, see the authorize.ex file
+    in the controllers directory. You can see how the `user_check` and
+    `id_check` functions are used in the user_controller.ex file.
 
     To run the tests:
 
