@@ -77,16 +77,29 @@ And for api with user confirmation:
 defp deps do
   [
     {:phauxth, "~> 1.0"},
-    {:bcrypt_elixir, "~> 0.12"},
+    {:argon2_elixir, "~> 1.2"},
   ]
 end
 ```
+
+If you are using bcrypt_elixir, go to 3.
+If you are using argon2_elixir or pbkdf2_elixir to hash passwords, you also need to
+edit the user.ex file, in the accounts directory, and the session_controller.ex file.
+
+In the user.ex file, change the Comeonin.Bcrypt.add_hash function to Comeonin.Argon2.add_hash
+or Comeonin.Pbkdf2.add_hash.
+
+In the session_controller.ex file, add the crypto option to the Login.verify call, as
+in the following example:
+
+    Phauxth.Login.verify(params, MyApp.Accounts, crypto: Comeonin.Argon2)
 
 3. Run `mix deps.get`.
 
 4. Add the `get(id)` and `get_by(attrs)` functions to your user Accounts module.
 
-5. If you are using tokens, add the `token_salt` and `endpoint` values to the config.
+5. If you are using tokens, or user confirmation, add the `token_salt` and
+`endpoint` values to the config.
 
 See the [wiki](https://github.com/riverrun/phauxth/wiki) for more
 information about Phauxth.
