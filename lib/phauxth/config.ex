@@ -74,7 +74,7 @@ defmodule Phauxth.Config do
   This is used by the Phauxth.Confirm module.
   """
   def endpoint do
-    Application.get_env(:phauxth, :endpoint)
+    # Application.get_env(:phauxth, :endpoint)
     # || Application.get_env(namespaced_phauxth(), :endpoint)
     # || raise """
     # You need to set the `endpoint` value in the config/config.exs file.
