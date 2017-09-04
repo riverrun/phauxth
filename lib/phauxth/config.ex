@@ -112,7 +112,6 @@ defmodule Phauxth.Config do
   end
 
   defp namespaced_phauxth do
-    #current_app =  Mix.Project.get.project[:app]
     current_app =  Mix.Project.config[:app]
     String.to_atom("phauxth_#{current_app}")
   end
