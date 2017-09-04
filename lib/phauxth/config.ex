@@ -52,22 +52,100 @@ defmodule Phauxth.Config do
     [:password_hash, :password, :otp_secret]
   end
 
+
+  @doc """
+  Generate the peculiar namespaced atom used in the the phauxth configuration 
+  of the current umbrella child app.
+
+  The correct namespace is generated looking at the current child app name,
+  attacching it to the 'phauxth_' prefix, and converting the result string to atom.
+
+  example of the returned value:
+      :phauxth_your_app_name
+
+  """
+  defp namespaced_phauxth() do
+    current_app =  Mix.Project.get.project[:app]
+    String.to_atom("phauxth_#{current_app}")
+  end
+
+
   @doc """
   The endpoint of your app.
 
   This is used by the Phauxth.Confirm module.
+
+
+
+  It looks for the `:phauxth` entry in the config/config.exs` file of your app. 
+  If the `:phauxth` entry is not available, it looks for a namespaced entry 
+  in the form of `:phauxth_your_app_name`, else it raise an error.
+
+  A namespaced app name is required in the `apps/my_app_name/config/config.exs` file 
+  when Phauxth is used in an Umbrella project, where multiple apps 
+  are using the library. 
+
+  This because in Umbrella projects the children apps configurations 
+  are merged together and the conflicting keys overridden, 
+  so we need to namespace every Phauxth configuration to avoid the override 
+  and to be able to retrieving the correct peculiar values for each child application.
+
+  example of a standard entry in `config/config.exs`:
+
+    config :phauxth,
+      token_salt: "YkLmt7+f",
+      endpoint: YourAppName.Endpoint
+
+
+  example of a namespaced entry:
+
+    config :phauxth_your_app_name,
+      token_salt: "YkLmt7+f",
+      endpoint: YourAppName.Endpoint
   """
   def endpoint do
-    Application.get_env(:phauxth, :endpoint) || raise """
+    Application.get_env(:phauxth, :endpoint)
+    || Application.get_env(namespaced_phauxth(), :endpoint) 
+    || raise """
     You need to set the `endpoint` value in the config/config.exs file.
     """
   end
 
   @doc """
   The salt to be used when creating and verifying tokens.
+
+
+
+  It looks for the `:phauxth` entry in the config/config.exs` file of your app. 
+  If the `:phauxth` entry is not available, it looks for a namespaced entry 
+  in the form of `:phauxth_your_app_name`, else it raise an error.
+
+  A namespaced app name is required in the `apps/my_app_name/config/config.exs` file 
+  when Phauxth is used in an Umbrella project, where multiple apps 
+  are using the library. 
+
+  This because in Umbrella projects the children apps configurations 
+  are merged together and the conflicting keys overridden, 
+  so we need to namespace every Phauxth configuration to avoid the override 
+  and to be able to retrieving the correct peculiar values for each child application.
+
+  example of a standard entry in `config/config.exs`:
+
+    config :phauxth,
+      token_salt: "YkLmt7+f",
+      endpoint: YourAppName.Endpoint
+
+
+  example of a namespaced entry:
+
+    config :phauxth_your_app_name,
+      token_salt: "YkLmt7+f",
+      endpoint: YourAppName.Endpoint
   """
   def token_salt do
-    Application.get_env(:phauxth, :token_salt) || raise """
+    Application.get_env(:phauxth, :token_salt) 
+    || Application.get_env(namespaced_phauxth(), :token_salt)
+    || raise """
     You need to set the `token_salt` value in the config/config.exs file.
 
     To generate a suitable random salt, use the `gen_token_salt` function
