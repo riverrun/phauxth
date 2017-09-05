@@ -20,6 +20,9 @@ defmodule Phauxth.Remember do
     * log_meta - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
+  In addition, there are also options for generating the token.
+  See the documentation for the Phauxth.Token module for details.
+
   ## Examples
 
   Add the following line to the pipeline you want to authenticate in

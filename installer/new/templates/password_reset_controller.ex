@@ -9,7 +9,7 @@ defmodule <%= base %>Web.PasswordResetController do
   end<% end %>
 
   def create(conn, %{"password_reset" => %{"email" => email}}) do
-    key = Accounts.create_password_reset(%{"email" => email})
+    key = Accounts.create_password_reset(<%= base %>Web.Endpoint, %{"email" => email})
     Message.reset_request(email, key)
     message = "Check your inbox for instructions on how to reset your password"<%= if api do %>
     conn
