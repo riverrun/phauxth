@@ -40,7 +40,7 @@ defmodule Phauxth.Remember do
   @doc false
   def init(opts) do
     {{Keyword.get(opts, :max_age, @max_age),
-      Keyword.get(opts, :user_context, Utils.default_user_context())},
+      Keyword.get(opts, :user_context, Utils.default_user_context()), opts},
       Keyword.get(opts, :log_meta, [])}
   end
 
@@ -57,8 +57,8 @@ defmodule Phauxth.Remember do
   end
   def call(conn, _), do: conn
 
-  def get_user(conn, token, {max_age, user_context}) do
-    with {:ok, user_id} <- Token.verify(conn, token, max_age),
+  def get_user(conn, token, {max_age, user_context, opts}) do
+    with {:ok, user_id} <- Token.verify(conn, token, max_age, opts),
       do: user_context.get(user_id)
   end
 

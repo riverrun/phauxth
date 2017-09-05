@@ -31,7 +31,7 @@ defmodule Phauxth.Token do
   14_400, which is 4 hours.
 
   The third argument to sign/3, or the fourth argument to verify/4, is
-  the `opts`, the key generator options.
+  the `opts`, the key generator options. # ADD DOCS ABOUT TOKEN_SALT
 
   The key generator has three options:
 
@@ -110,14 +110,15 @@ defmodule Phauxth.Token do
   defp validate_secret(key), do: key
 
   defp get_secret(secret_key_base, opts) do
+    token_salt = Keyword.get(opts, :token_salt, Config.token_salt)
     key_opts = [iterations: opts[:key_iterations] || 1000,
                 length: validate_len(opts[:key_length]),
                 digest: validate_digest(opts[:key_digest]),
                 cache: Plug.Keys]
-    KeyGenerator.generate(secret_key_base, Config.token_salt, key_opts)
+    KeyGenerator.generate(secret_key_base, token_salt, key_opts)
   end
 
-  defp validate_len(nil), do: 20
+  defp validate_len(nil), do: 32
   defp validate_len(len) when len < 20 do
     raise ArgumentError, "The key_length is too short. It should be at least 20 bytes long."
   end

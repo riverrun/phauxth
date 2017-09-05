@@ -56,4 +56,13 @@ defmodule Phauxth.ConfirmTest do
     end
   end
 
+  test "key options passed on to the Token module", %{conn: conn} do
+    valid_phone = Token.sign(conn, %{"phone" => "55555555555"}, key_iterations: 10)
+    %{params: params} = conn(:get, "/confirm?key=" <> valid_phone) |> fetch_query_params
+    {:ok, user} = Confirm.verify(params, TestAccounts, key_iterations: 10)
+    assert user.email == "fred+1@mail.com"
+    {:error, message} = Confirm.verify(params, TestAccounts)
+    assert message =~ "Invalid credentials"
+  end
+
 end

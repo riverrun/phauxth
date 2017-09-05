@@ -23,7 +23,7 @@ defmodule Phauxth.CustomToken do
   use Phauxth.Authenticate.Base
   import Plug.Conn
 
-  def check_token(_conn, _token, _max_age) do
+  def check_token(_conn, _token, _max_age, _opts) do
     {:ok, 3}
   end
 

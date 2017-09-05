@@ -56,7 +56,7 @@ defmodule Phauxth.Authenticate.Base do
       def init(opts) do
         {{Keyword.get(opts, :method, :session),
           Keyword.get(opts, :max_age, 4 * 60 * 60),
-          Keyword.get(opts, :user_context, Utils.default_user_context())},
+          Keyword.get(opts, :user_context, Utils.default_user_context()), opts},
           Keyword.get(opts, :log_meta, [])}
       end
 
@@ -70,14 +70,14 @@ defmodule Phauxth.Authenticate.Base do
 
       This function also calls the database to get user information.
       """
-      def get_user(conn, {:session, _, user_context}) do
+      def get_user(conn, {:session, _, user_context, _}) do
         with user_id when not is_nil(user_id) <- check_session(conn),
           do: user_context.get(user_id)
       end
       def get_user(%Plug.Conn{req_headers: headers} = conn,
-          {:token, max_age, user_context}) do
+          {:token, max_age, user_context, opts}) do
         with {_, token} <- List.keyfind(headers, "authorization", 0),
-             {:ok, user_id} <- check_token(conn, token, max_age),
+             {:ok, user_id} <- check_token(conn, token, max_age, opts),
           do: user_context.get(user_id)
       end
 
@@ -89,8 +89,8 @@ defmodule Phauxth.Authenticate.Base do
       @doc """
       Check the token for the current user.
       """
-      def check_token(conn, token, max_age) do
-        Token.verify(conn, token, max_age)
+      def check_token(conn, token, max_age, opts) do
+        Token.verify(conn, token, max_age, opts)
       end
 
       @doc """
@@ -115,7 +115,7 @@ defmodule Phauxth.Authenticate.Base do
       end
 
       defoverridable [init: 1, call: 2, get_user: 2, check_session: 1,
-                      check_token: 3, report: 2, set_user: 2]
+                      check_token: 4, report: 2, set_user: 2]
     end
   end
 end
