@@ -76,7 +76,7 @@ And for api with user confirmation:
 ```elixir
 defp deps do
   [
-    {:phauxth, "~> 1.0"},
+    {:phauxth, "~> 1.1"},
     {:argon2_elixir, "~> 1.2"},
   ]
 end

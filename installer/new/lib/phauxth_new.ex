@@ -99,7 +99,7 @@ defmodule Mix.Tasks.Phauxth.New do
 
     We are almost ready!
 
-    You need to first edit the `mix.exs` file, adding `{:phauxth, "~> 1.0"},`
+    You need to first edit the `mix.exs` file, adding `{:phauxth, "~> 1.1"},`
     to it. You also need to add one of the following password hashing libraries:
     `argon2_elixir`, `bcrypt_elixir` or `pbkdf2_elixir` (see the documentation
     for Comeonin for more information about these libraries) to the deps.
