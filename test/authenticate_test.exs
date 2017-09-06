@@ -6,8 +6,8 @@ defmodule Phauxth.AuthenticateTest do
   alias Phauxth.{Authenticate, SessionHelper, TestAccounts, Token}
 
   @max_age 4 * 60 * 60
-  @session_opts {:session, @max_age, TestAccounts}
-  @token_opts {:token, @max_age, TestAccounts}
+  @session_opts {:session, @max_age, TestAccounts, []}
+  @token_opts {:token, @max_age, TestAccounts, []}
 
   def add_session(id) do
     conn(:get, "/")
@@ -20,13 +20,13 @@ defmodule Phauxth.AuthenticateTest do
     |> Authenticate.call({@session_opts, []})
   end
 
-  def add_token(id, token \\ nil) do
+  def add_token(id, token \\ nil, key_opts \\ []) do
     conn = conn(:get, "/") |> SessionHelper.add_key
-    put_req_header(conn, "authorization", token || Token.sign(conn, id))
+    put_req_header(conn, "authorization", token || Token.sign(conn, id, key_opts))
   end
 
   def call_api(id, token \\ nil, max_age \\ @max_age) do
-    opts = {:token, max_age, TestAccounts}
+    opts = {:token, max_age, TestAccounts, []}
     add_token(id, token)
     |> Authenticate.call({opts, []})
   end
@@ -110,6 +110,17 @@ defmodule Phauxth.AuthenticateTest do
     conn = add_token(1) |> Phauxth.CustomToken.call({@token_opts, []})
     %{current_user: user} = conn.assigns
     assert user.email == "froderick@mail.com"
+  end
+
+  test "key options passed on to the Token module" do
+    conn = add_token(3, nil, [key_length: 20])
+    opts_1 = {:token, @max_age, TestAccounts, [key_length: 20]}
+    opts_2 = {:token, @max_age, TestAccounts, []}
+    conn = Authenticate.call(conn, {opts_1, []})
+    %{current_user: user} = conn.assigns
+    assert user.email == "froderick@mail.com"
+    conn = Authenticate.call(conn, {opts_2, []})
+    assert conn.assigns == %{current_user: nil}
   end
 
 end

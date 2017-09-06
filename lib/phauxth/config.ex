@@ -14,14 +14,7 @@ defmodule Phauxth.Config do
 
   ## Umbrella apps
 
-  A namespaced app name is required in the `apps/my_app_name/config/config.exs` file
-  when Phauxth is used in an Umbrella project, where multiple apps
-  are using the library.
-
-  This because in Umbrella projects the children apps configurations
-  are merged together and the conflicting keys overridden,
-  so we need to namespace every Phauxth configuration to avoid the override
-  and to be able to retrieving the correct peculiar values for each child application.
+  INFO ABOUT OVERRIDING CONFIG AND THE REASONS FOR THIS
 
   ## Examples
 
@@ -34,11 +27,6 @@ defmodule Phauxth.Config do
         log_level: :warn,
         drop_user_keys: [:shoe_size]
 
-  Here is an example of a namespaced entry (part of an umbrella app):
-
-      config :phauxth_my_app_name,
-        token_salt: "YkLmt7+f",
-        endpoint: MyAppName.Endpoint
   """
 
   @doc """
@@ -74,9 +62,7 @@ defmodule Phauxth.Config do
   This is used by the Phauxth.Confirm module.
   """
   def endpoint do
-    Application.get_env(:phauxth, :endpoint)
-    || Application.get_env(namespaced_phauxth(), :endpoint)
-    || raise """
+    Application.get_env(:phauxth, :endpoint) || raise """
     You need to set the `endpoint` value in the config/config.exs file.
     """
   end
@@ -88,9 +74,7 @@ defmodule Phauxth.Config do
   token authentication, and by the Phauxth.Confirm module.
   """
   def token_salt do
-    Application.get_env(:phauxth, :token_salt)
-    || Application.get_env(namespaced_phauxth(), :token_salt)
-    || raise """
+    Application.get_env(:phauxth, :token_salt) || raise """
     You need to set the `token_salt` value in the config/config.exs file.
 
     To generate a suitable random salt, use the `gen_token_salt` function
@@ -109,10 +93,5 @@ defmodule Phauxth.Config do
     raise ArgumentError, """
     The length is too short. The token_salt should be at least 8 characters long.
     """
-  end
-
-  defp namespaced_phauxth do
-    current_app =  Mix.Project.config[:app]
-    String.to_atom("phauxth_#{current_app}")
   end
 end
