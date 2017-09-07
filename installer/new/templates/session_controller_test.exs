@@ -11,14 +11,13 @@ defmodule <%= base %>Web.SessionControllerTest do
     conn = conn |> bypass_through(<%= base %>Web.Router, [:browser]) |> get("/")<% end %><%= if confirm do %>
     add_user("lancelot@mail.com")
     user = add_user_confirmed("robin@mail.com")<% else %>
-    user = add_user("robin@mail.com")<% end %><%= if api do %>
-    conn = conn |> add_token_conn(user)<% end %>
+    user = add_user("robin@mail.com")<% end %>
     {:ok, %{conn: conn, user: user}}
   end
 
   test "login succeeds", %{conn: conn} do
     conn = post conn, session_path(conn, :create), session: @create_attrs<%= if api do %>
-    assert json_response(conn, 200)["info"]["detail"]<% else %>
+    assert json_response(conn, 200)["access_token"]<% else %>
     assert redirected_to(conn) == user_path(conn, :index)<% end %>
   end<%= if confirm do %>
 

@@ -9,10 +9,10 @@ defmodule <%= base %>Web.Router do
   scope "/api", <%= base %>Web do
     pipe_through :api
 
-    post "/sessions/create", SessionController, :create
+    post "/sessions", SessionController, :create
     resources "/users", UserController, except: [:new, :edit]<%= if confirm do %>
     get "/confirm", ConfirmController, :index
-    post "/password_resets/create", PasswordResetController, :create
+    post "/password_resets", PasswordResetController, :create
     put "/password_resets/update", PasswordResetController, :update<% end %>
   end<% else %>
 
