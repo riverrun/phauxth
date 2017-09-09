@@ -4,7 +4,7 @@ defmodule <%= base %>.AccountsTest do
   alias <%= base %>.Accounts
   alias <%= base %>.Accounts.User
 
-  @create_attrs %{email: "fred@mail.com", password: "mangoes&gooseberries"}
+  @create_attrs %{email: "fred@mail.com", password: "reallyHard2gue$$"}
   @update_attrs %{email: "frederick@mail.com"}
   @invalid_attrs %{email: nil}
 

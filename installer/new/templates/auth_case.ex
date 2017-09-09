@@ -7,7 +7,7 @@ defmodule <%= base %>Web.AuthCase do
   alias <%= base %>.Accounts<% end %>
 
   def add_user(email) do
-    user = %{email: email, password: "mangoes&g0oseberries"}
+    user = %{email: email, password: "reallyHard2gue$$"}
     {:ok, user} = Accounts.create_user(user)
     user
   end<%= if confirm do %>
