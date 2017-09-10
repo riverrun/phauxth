@@ -43,8 +43,7 @@ defmodule Phauxth.Mixfile do
     [
       maintainers: ["David Whitlock"],
       licenses: ["BSD"],
-      links: %{"GitHub" => "https://github.com/riverrun/phauxth",
-        "Docs" => "http://hexdocs.pm/phauxth"}
+      links: %{"GitHub" => "https://github.com/riverrun/phauxth"}
     ]
   end
 end
