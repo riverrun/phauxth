@@ -65,4 +65,14 @@ defmodule <%= base %>Web.Authorize do
     |> redirect(to: path)
     |> halt
   end<% end %>
+
+	def role_check(%Plug.Conn{assigns: %{current_user: nil}} = conn, _roles) do
+    error(conn, "You need to log in to view this page", session_path(conn, :new))
+	end
+	def role_check(%Plug.Conn{assigns: %{current_user: current_user}} = conn, roles) do
+		if (length intersect(roles, current_user.roles))>0, do: conn,
+    else: error(conn, "You are not authorized to view this page", session_path(conn, :new))
+	end
+
+
 end
