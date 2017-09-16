@@ -29,6 +29,10 @@ defmodule <%= base %>Web.Router do
     plug <%= base %>Web.Plugs.CheckUser
   end
 
+  pipeline :check_role_admin do
+    plug <%= base %>Web.Plugs.CheckRole, ["admin"]
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end

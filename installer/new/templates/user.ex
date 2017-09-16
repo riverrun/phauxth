@@ -9,13 +9,15 @@ defmodule <%= base %>.Accounts.User do
     field :password_hash, :string<%= if confirm do %>
     field :confirmed_at, :utc_datetime
     field :reset_sent_at, :utc_datetime<% end %>
+    field :roles, {:array, :string}
 
-    timestamps()
+
+    timestamps)
   end
 
   def changeset(%User{} = user, attrs) do
     user
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:email, :password, :roles])
     |> validate_required([:email])
     |> unique_constraint(:email)
   end
