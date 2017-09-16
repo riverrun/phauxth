@@ -11,8 +11,7 @@ defmodule <%= base %>.Accounts.User do
     field :reset_sent_at, :utc_datetime<% end %>
     field :roles, {:array, :string}
 
-
-    timestamps)
+    timestamps()
   end
 
   def changeset(%User{} = user, attrs) do
