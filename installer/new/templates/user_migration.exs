@@ -7,6 +7,7 @@ defmodule <%= base %>.Repo.Migrations.CreateUsers do
       add :password_hash, :string<%= if confirm do %>
       add :confirmed_at, :utc_datetime
       add :reset_sent_at, :utc_datetime<% end %>
+      add :roles, {:array, :string}
 
       timestamps()
     end

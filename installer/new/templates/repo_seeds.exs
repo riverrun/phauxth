@@ -6,8 +6,8 @@
 #
 
 users = [
-  %{email: "ted@mail.com", password: "password"},
-  %{email: "eddiebaby@mail.com", password: "password"}
+  %{email: "ted@mail.com", password: "password", roles: ["user"]},
+  %{email: "eddiebaby@mail.com", password: "password", roles: ["admin", "user"]}
 ]
 
 for user <- users do<%= if confirm do %>

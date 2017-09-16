@@ -25,6 +25,14 @@ defmodule <%= base %>Web.Router do
     plug Phauxth.Authenticate
   end
 
+  pipeline :check_user do
+    plug <%= base %>Web.Plugs.CheckUser
+  end
+
+  pipeline :check_role_admin do
+    plug <%= base %>Web.Plugs.CheckRole, ["admin"]
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -40,5 +48,13 @@ defmodule <%= base %>Web.Router do
     get "/password_resets/edit", PasswordResetController, :edit
     put "/password_resets/update", PasswordResetController, :update<% end %>
   end<% end %>
+
+  # # using pipeline-based authentication example
+  # scope "/users-only/", <%= base %>Web do
+  #   pipe_through :browser
+  #   pipe_through :check_user
+  #
+  #   get "/", PageController, :index
+  # end
 
 end

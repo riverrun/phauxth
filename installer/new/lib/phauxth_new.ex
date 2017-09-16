@@ -44,7 +44,9 @@ defmodule Mix.Tasks.Phauxth.New do
     {:eex, "session_view.ex", "_web/views/session_view.ex"},
     {:eex, "user_controller.ex", "_web/controllers/user_controller.ex"},
     {:eex, "user_controller_test.exs", "test/namespace_web/controllers/user_controller_test.exs"},
-    {:eex, "user_view.ex", "_web/views/user_view.ex"}]
+    {:eex, "user_view.ex", "_web/views/user_view.ex"},
+    {:eex, "check_user.ex", "_web/plugs/check_user.ex"},
+    {:eex, "check_role.ex", "_web/plugs/check_role.ex"}]
 
   @phx_api [{:eex, "fallback_controller.ex", "_web/controllers/fallback_controller.ex"},
     {:eex, "auth_view.ex", "_web/views/auth_view.ex"},
