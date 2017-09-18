@@ -34,7 +34,7 @@ defmodule Phauxth.AuthenticateTest do
   test "current user in session" do
     conn = call(1)
     %{current_user: user} = conn.assigns
-    assert user.email == "fred+1@mail.com"
+    assert user.email == "fred+1@example.com"
     assert user.role == "user"
   end
 
@@ -55,7 +55,7 @@ defmodule Phauxth.AuthenticateTest do
   test "authenticate api sets the current_user" do
     conn = call_api(1)
     %{current_user: user} = conn.assigns
-    assert user.email == "fred+1@mail.com"
+    assert user.email == "fred+1@example.com"
     assert user.role == "user"
   end
 
@@ -90,7 +90,7 @@ defmodule Phauxth.AuthenticateTest do
   test "customized set_user - absinthe example" do
     conn = add_token(1) |> Phauxth.AbsintheAuthenticate.call({@token_opts, []})
     %{token: %{current_user: user}} = conn.private.absinthe
-    assert user.email == "fred+1@mail.com"
+    assert user.email == "fred+1@example.com"
     assert user.role == "user"
   end
 
@@ -99,7 +99,7 @@ defmodule Phauxth.AuthenticateTest do
            |> put_session(:shoe_size, 6)
            |> Phauxth.CustomSession.call({@session_opts, []})
     %{current_user: user} = conn.assigns
-    assert user.email == "fred+1@mail.com"
+    assert user.email == "fred+1@example.com"
     conn = add_session(1)
            |> put_session(:shoe_size, 5)
            |> Phauxth.CustomSession.call({@session_opts, []})
@@ -109,7 +109,7 @@ defmodule Phauxth.AuthenticateTest do
   test "customized check_token" do
     conn = add_token(1) |> Phauxth.CustomToken.call({@token_opts, []})
     %{current_user: user} = conn.assigns
-    assert user.email == "froderick@mail.com"
+    assert user.email == "froderick@example.com"
   end
 
   test "key options passed on to the Token module" do
@@ -118,7 +118,7 @@ defmodule Phauxth.AuthenticateTest do
     opts_2 = {:token, @max_age, TestAccounts, []}
     conn = Authenticate.call(conn, {opts_1, []})
     %{current_user: user} = conn.assigns
-    assert user.email == "froderick@mail.com"
+    assert user.email == "froderick@example.com"
     conn = Authenticate.call(conn, {opts_2, []})
     assert conn.assigns == %{current_user: nil}
   end

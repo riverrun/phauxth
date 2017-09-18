@@ -8,12 +8,12 @@ defmodule Phauxth.Confirm.LoginTest do
   end
 
   test "login succeeds if account has been confirmed" do
-    {:ok, %{email: email}} = login("ray@mail.com", "h4rd2gU3$$")
-    assert email == "ray@mail.com"
+    {:ok, %{email: email}} = login("ray@example.com", "h4rd2gU3$$")
+    assert email == "ray@example.com"
   end
 
   test "login fails when account is not yet confirmed" do
-    {:error, message} = login("fred+1@mail.com", "h4rd2gU3$$")
+    {:error, message} = login("fred+1@example.com", "h4rd2gU3$$")
     assert message =~ "account needs to be confirmed"
   end
 

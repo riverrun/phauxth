@@ -8,9 +8,9 @@ defmodule Phauxth.LogTest do
 
   test "logs to console" do
     assert capture_log(fn ->
-      Log.warn(%Log{user: "arrr@mail.com",
+      Log.warn(%Log{user: "arrr@example.com",
         message: "bossman's arrived"})
-    end) =~ ~s(user=arrr@mail.com message="bossman's arrived")
+    end) =~ ~s(user=arrr@example.com message="bossman's arrived")
   end
 
   test "logs default values" do
@@ -21,16 +21,16 @@ defmodule Phauxth.LogTest do
 
   test "logs metadata" do
     assert capture_log(fn ->
-      Log.warn(%Log{user: "arrr@mail.com",
+      Log.warn(%Log{user: "arrr@example.com",
         meta: [{"error", "mmm"}]})
-    end) =~ ~s(user=arrr@mail.com message="" error=mmm)
+    end) =~ ~s(user=arrr@example.com message="" error=mmm)
   end
 
   test "logs to console for nil current_user" do
     assert capture_log(fn ->
-      Log.warn(%Log{user: "arrr@mail.com",
+      Log.warn(%Log{user: "arrr@example.com",
         message: "failed login"})
-    end) =~ ~s(user=arrr@mail.com message="failed login")
+    end) =~ ~s(user=arrr@example.com message="failed login")
   end
 
   test "quotes values containing '='" do
@@ -42,7 +42,7 @@ defmodule Phauxth.LogTest do
   test "does not print log if config log_level is false" do
     Application.put_env(:phauxth, :log_level, false)
     assert capture_log(fn ->
-      Log.warn(%Log{user: "arrr@mail.com",
+      Log.warn(%Log{user: "arrr@example.com",
         message: "failed login"})
     end) =~ ""
     after
@@ -52,7 +52,7 @@ defmodule Phauxth.LogTest do
   test "does not print log if level is lower than config log_level" do
     Application.put_env(:phauxth, :log_level, :warn)
     assert capture_log(fn ->
-      Log.info(%Log{user: "arrr@mail.com",
+      Log.info(%Log{user: "arrr@example.com",
         message: "failed login"})
     end) =~ ""
     after

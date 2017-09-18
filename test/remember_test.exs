@@ -58,7 +58,7 @@ defmodule Phauxth.RememberTest do
            |> Remember.call({@opts, []})
     %{current_user: user} = conn.assigns
     assert user.id == 4
-    assert user.email == "brian@mail.com"
+    assert user.email == "brian@example.com"
   end
 
   test "add cookie", %{conn: conn} do

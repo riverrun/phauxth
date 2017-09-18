@@ -5,15 +5,15 @@ defmodule Phauxth.CustomLoginTest do
   alias Phauxth.{CustomLogin, TestAccounts}
 
   test "customize verify to use pass instead of password in params" do
-    params = %{"email" => "fred+1@mail.com", "pass" => "h4rd2gU3$$"}
+    params = %{"email" => "fred+1@example.com", "pass" => "h4rd2gU3$$"}
     {:ok, %{email: email}} = CustomLogin.verify(params, TestAccounts)
-    assert email == "fred+1@mail.com"
+    assert email == "fred+1@example.com"
   end
 
   test "customize check_pass to change algorithm based on hash prefix" do
-    params = %{"email" => "frank@mail.com", "pass" => "h4rd2gU3$$"}
+    params = %{"email" => "frank@example.com", "pass" => "h4rd2gU3$$"}
     {:ok, %{email: email}} = CustomLogin.verify(params, TestAccounts)
-    assert email == "frank@mail.com"
+    assert email == "frank@example.com"
   end
 
 end

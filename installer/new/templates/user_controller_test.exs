@@ -4,15 +4,15 @@ defmodule <%= base %>Web.UserControllerTest do
   import <%= base %>Web.AuthCase
   alias <%= base %>.Accounts
 
-  @create_attrs %{email: "bill@mail.com", password: "hard2guess"}
-  @update_attrs %{email: "william@mail.com"}
+  @create_attrs %{email: "bill@example.com", password: "hard2guess"}
+  @update_attrs %{email: "william@example.com"}
   @invalid_attrs %{email: nil}
 
   setup %{conn: conn} = config do<%= if not api do %>
     conn = conn |> bypass_through(<%= base %>Web.Router, [:browser]) |> get("/")<% end %>
     if email = config[:login] do
       user = add_user(email)
-      other = add_user("tony@mail.com")<%= if api do %>
+      other = add_user("tony@example.com")<%= if api do %>
       conn = conn |> add_token_conn(user)<% else %>
       conn = conn |> put_session(:user_id, user.id) |> send_resp(:ok, "/")<% end %>
       {:ok, %{conn: conn, user: user, other: other}}
@@ -21,7 +21,7 @@ defmodule <%= base %>Web.UserControllerTest do
     end
   end
 
-  @tag login: "reg@mail.com"
+  @tag login: "reg@example.com"
   test "lists all entries on index", %{conn: conn} do
     conn = get conn, user_path(conn, :index)<%= if api do %>
     assert json_response(conn, 200)<% else %>
@@ -49,7 +49,7 @@ defmodule <%= base %>Web.UserControllerTest do
   test "creates user when data is valid", %{conn: conn} do
     conn = post conn, user_path(conn, :create), user: @create_attrs<%= if api do %>
     assert json_response(conn, 201)["data"]["id"]
-    assert Accounts.get_by(%{"email" => "bill@mail.com"})<% else %>
+    assert Accounts.get_by(%{"email" => "bill@example.com"})<% else %>
     assert redirected_to(conn) == session_path(conn, :new)<% end %>
   end
 
@@ -59,31 +59,31 @@ defmodule <%= base %>Web.UserControllerTest do
     assert html_response(conn, 200) =~ "New User"<% end %>
   end<%= if not api do %>
 
-  @tag login: "reg@mail.com"
+  @tag login: "reg@example.com"
   test "renders form for editing chosen user", %{conn: conn, user: user} do
     conn = get conn, user_path(conn, :edit, user)
     assert html_response(conn, 200) =~ "Edit User"
   end<% end %>
 
-  @tag login: "reg@mail.com"
+  @tag login: "reg@example.com"
   test "updates chosen user when data is valid", %{conn: conn, user: user} do
     conn = put conn, user_path(conn, :update, user), user: @update_attrs<%= if api do %>
     assert json_response(conn, 200)["data"]["id"] == user.id<% else %>
     assert redirected_to(conn) == user_path(conn, :show, user)<% end %>
     updated_user = Accounts.get(user.id)
-    assert updated_user.email == "william@mail.com"<%= if not api do %>
+    assert updated_user.email == "william@example.com"<%= if not api do %>
     conn = get conn, user_path(conn, :show, user)
-    assert html_response(conn, 200) =~ "william@mail.com"<% end %>
+    assert html_response(conn, 200) =~ "william@example.com"<% end %>
   end
 
-  @tag login: "reg@mail.com"
+  @tag login: "reg@example.com"
   test "does not update chosen user and renders errors when data is invalid", %{conn: conn, user: user} do
     conn = put conn, user_path(conn, :update, user), user: @invalid_attrs<%= if api do %>
     assert json_response(conn, 422)["errors"] != %{}<% else %>
     assert html_response(conn, 200) =~ "Edit User"<% end %>
   end
 
-  @tag login: "reg@mail.com"
+  @tag login: "reg@example.com"
   test "deletes chosen user", %{conn: conn, user: user} do
     conn = delete conn, user_path(conn, :delete, user)<%= if api do %>
     assert response(conn, 204)<% else %>
@@ -91,7 +91,7 @@ defmodule <%= base %>Web.UserControllerTest do
     refute Accounts.get(user.id)
   end
 
-  @tag login: "reg@mail.com"
+  @tag login: "reg@example.com"
   test "cannot delete other user", %{conn: conn, other: other} do
     conn = delete conn, user_path(conn, :delete, other)<%= if api do %>
     assert json_response(conn, 403)["errors"]["detail"] =~ "not authorized"<% else %>

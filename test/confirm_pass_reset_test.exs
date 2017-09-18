@@ -6,7 +6,7 @@ defmodule Phauxth.Confirm.PassResetTest do
 
   setup do
     conn = conn(:get, "/") |> Phauxth.SessionHelper.add_key
-    valid_email = Token.sign(conn, %{"email" => "froderick@mail.com"})
+    valid_email = Token.sign(conn, %{"email" => "froderick@example.com"})
     {:ok, %{conn: conn, valid_email: valid_email}}
   end
 
@@ -23,7 +23,7 @@ defmodule Phauxth.Confirm.PassResetTest do
   end
 
   test "reset fails when reset_sent_at is not found", %{conn: conn} do
-    valid_key = Token.sign(conn, %{"email" => "igor@mail.com"})
+    valid_key = Token.sign(conn, %{"email" => "igor@example.com"})
     params = %{"key" => valid_key, "password" => "password"}
     {:error, message} = Confirm.verify(params, TestAccounts, mode: :pass_reset)
     assert message =~ "user has not been sent a reset token"

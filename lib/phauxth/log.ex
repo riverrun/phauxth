@@ -6,7 +6,7 @@ defmodule Phauxth.Log do
 
   Phauxth uses logfmt to provide a standard logging format.
 
-    15:31:08.575 [warn] user=ray@mail.com message="invalid password"
+    15:31:08.575 [warn] user=ray@example.com message="invalid password"
 
     * user - the user identifier (one of email, username, nil)
     * message - error / info message

@@ -7,14 +7,14 @@ defmodule Phauxth.ConfirmTest do
 
   setup do
     conn = conn(:get, "/") |> Phauxth.SessionHelper.add_key
-    valid_email = Token.sign(conn, %{"email" => "fred+1@mail.com"})
+    valid_email = Token.sign(conn, %{"email" => "fred+1@example.com"})
     {:ok, %{conn: conn, valid_email: valid_email}}
   end
 
   test "confirmation succeeds for valid token", %{valid_email: valid_email} do
     %{params: params} = conn(:get, "/confirm?key=" <> valid_email) |> fetch_query_params
     {:ok, user} = Confirm.verify(params, TestAccounts)
-    assert user.email == "fred+1@mail.com"
+    assert user.email == "fred+1@example.com"
   end
 
   test "confirmation fails for invalid token" do
@@ -30,7 +30,7 @@ defmodule Phauxth.ConfirmTest do
   end
 
   test "confirmation fails for already confirmed account", %{conn: conn} do
-    confirmed_email = Token.sign(conn, %{"email" => "ray@mail.com"})
+    confirmed_email = Token.sign(conn, %{"email" => "ray@example.com"})
     %{params: params} = conn(:get, "/confirm?key=" <> confirmed_email) |> fetch_query_params
     {:error, message} = Confirm.verify(params, TestAccounts)
     assert message =~ "The user has already been confirmed"
@@ -40,7 +40,7 @@ defmodule Phauxth.ConfirmTest do
     valid_phone = Token.sign(conn, %{"phone" => "55555555555"})
     %{params: params} = conn(:get, "/confirm?key=" <> valid_phone) |> fetch_query_params
     {:ok, user} = Confirm.verify(params, TestAccounts)
-    assert user.email == "fred+1@mail.com"
+    assert user.email == "fred+1@example.com"
   end
 
   test "confirm with custom metadata for logging", %{valid_email: valid_email} do
@@ -60,7 +60,7 @@ defmodule Phauxth.ConfirmTest do
     valid_phone = Token.sign(conn, %{"phone" => "55555555555"}, key_iterations: 10)
     %{params: params} = conn(:get, "/confirm?key=" <> valid_phone) |> fetch_query_params
     {:ok, user} = Confirm.verify(params, TestAccounts, key_iterations: 10)
-    assert user.email == "fred+1@mail.com"
+    assert user.email == "fred+1@example.com"
     {:error, message} = Confirm.verify(params, TestAccounts)
     assert message =~ "Invalid credentials"
   end

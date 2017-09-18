@@ -3,15 +3,15 @@ defmodule <%= base %>Web.SessionControllerTest do
 
   import <%= base %>Web.AuthCase
 
-  @create_attrs %{email: "robin@mail.com", password: "reallyHard2gue$$"}
-  @invalid_attrs %{email: "robin@mail.com", password: "cannotGue$$it"}<%= if confirm do %>
-  @unconfirmed_attrs %{email: "lancelot@mail.com", password: "reallyHard2gue$$"}<% end %>
+  @create_attrs %{email: "robin@example.com", password: "reallyHard2gue$$"}
+  @invalid_attrs %{email: "robin@example.com", password: "cannotGue$$it"}<%= if confirm do %>
+  @unconfirmed_attrs %{email: "lancelot@example.com", password: "reallyHard2gue$$"}<% end %>
 
   setup %{conn: conn} do<%= if not api do %>
     conn = conn |> bypass_through(<%= base %>Web.Router, [:browser]) |> get("/")<% end %><%= if confirm do %>
-    add_user("lancelot@mail.com")
-    user = add_user_confirmed("robin@mail.com")<% else %>
-    user = add_user("robin@mail.com")<% end %>
+    add_user("lancelot@example.com")
+    user = add_user_confirmed("robin@example.com")<% else %>
+    user = add_user("robin@example.com")<% end %>
     {:ok, %{conn: conn, user: user}}
   end
 

@@ -4,8 +4,8 @@ defmodule <%= base %>.AccountsTest do
   alias <%= base %>.Accounts
   alias <%= base %>.Accounts.User
 
-  @create_attrs %{email: "fred@mail.com", password: "reallyHard2gue$$"}
-  @update_attrs %{email: "frederick@mail.com"}
+  @create_attrs %{email: "fred@example.com", password: "reallyHard2gue$$"}
+  @update_attrs %{email: "frederick@example.com"}
   @invalid_attrs %{email: nil}
 
   def fixture(:user, attrs \\ @create_attrs) do
@@ -25,7 +25,7 @@ defmodule <%= base %>.AccountsTest do
 
   test "create_user/1 with valid data creates a user" do
     assert {:ok, %User{} = user} = Accounts.create_user(@create_attrs)
-    assert user.email == "fred@mail.com"
+    assert user.email == "fred@example.com"
   end
 
   test "create_user/1 with invalid data returns error changeset" do
@@ -36,7 +36,7 @@ defmodule <%= base %>.AccountsTest do
     user = fixture(:user)
     assert {:ok, user} = Accounts.update_user(user, @update_attrs)
     assert %User{} = user
-    assert user.email == "frederick@mail.com"
+    assert user.email == "frederick@example.com"
   end
 
   test "update_user/2 with invalid data returns error changeset" do
@@ -58,7 +58,7 @@ defmodule <%= base %>.AccountsTest do
 
   test "update password changes the stored hash" do
     %{password_hash: stored_hash} = user = fixture(:user)
-    key = Phauxth.Token.sign(<%= base %>Web.Endpoint, %{"email" => "fred@mail.com"})
+    key = Phauxth.Token.sign(<%= base %>Web.Endpoint, %{"email" => "fred@example.com"})
     attrs = %{password: "CN8W6kpb", key: key}
     {:ok, %{password_hash: hash}} = Accounts.update_password(user, attrs)
     assert hash != stored_hash
@@ -66,7 +66,7 @@ defmodule <%= base %>.AccountsTest do
 
   test "update_password with weak password fails" do
     user = fixture(:user)
-    key = Phauxth.Token.sign(<%= base %>Web.Endpoint, %{"email" => "fred@mail.com"})
+    key = Phauxth.Token.sign(<%= base %>Web.Endpoint, %{"email" => "fred@example.com"})
     attrs = %{password: "pass", key: key}
     assert {:error, %Ecto.Changeset{}} = Accounts.update_password(user, attrs)
   end<% end %>
