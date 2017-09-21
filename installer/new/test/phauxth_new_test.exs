@@ -16,6 +16,9 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       assert_file "lib/phauxth_new_web/controllers/authorize.ex"
       assert_file "lib/phauxth_new_web/templates/session/new.html.eex"
 
+      refute_file "lib/phauxth_new/accounts/message.ex"
+      refute_file "lib/phauxth_new/mailer.ex"
+
       assert_file "config/config.exs", fn file ->
         refute file =~ ~s(config :phauxth)
       end
@@ -26,7 +29,7 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       end
 
       assert_file "lib/phauxth_new_web/controllers/session_controller.ex", fn file ->
-        assert file =~ ~s(Phauxth.Login.verify)
+        assert file =~ ~s(alias Phauxth.Login)
         assert file =~ "put_session(conn, :user_id, user.id)"
       end
 
@@ -38,7 +41,6 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       assert message =~ ~s(You need to first edit the `mix.exs` file)
       assert message =~ ~s({:phauxth, "~> 1.1"})
       assert message =~ ~s(And to start the server)
-      refute message =~ ~s(You will need to edit the Message module)
     end
   end
 
@@ -53,13 +55,17 @@ defmodule Mix.Tasks.Phauxth.NewTest do
         assert file =~ ~s(config :phauxth)
       end
 
+      assert_file "lib/phauxth_new/mailer.ex", fn file ->
+        assert file =~ ~s(use Bamboo.Mailer, otp_app: :phauxth_new)
+      end
+
       assert_file "lib/phauxth_new_web/router.ex", fn file ->
         assert file =~ ~s(plug Phauxth.Authenticate)
         assert file =~ ~s(resources "/password_resets", PasswordResetController, only: [:new, :create])
       end
 
       assert_file "lib/phauxth_new_web/controllers/session_controller.ex", fn file ->
-        assert file =~ ~s(Phauxth.Confirm.Login.verify)
+        assert file =~ ~s(alias Phauxth.Confirm)
       end
 
       assert_file "test/support/auth_case.ex", fn file ->
@@ -77,7 +83,7 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       end
 
       assert_received {:mix_shell, :info, ["\nWe are almost ready!" <> _ = message]}
-      assert message =~ ~s(will need to edit the Message module)
+      assert message =~ ~s(need to add bamboo to the deps)
     end
   end
 
@@ -87,6 +93,9 @@ defmodule Mix.Tasks.Phauxth.NewTest do
 
       assert_file "lib/phauxth_new_web/views/auth_view.ex"
       assert_file "lib/phauxth_new_web/controllers/authorize.ex"
+
+      refute_file "lib/phauxth_new/accounts/message.ex"
+      refute_file "lib/phauxth_new/mailer.ex"
 
       assert_file "config/config.exs", fn file ->
         assert file =~ ~s(config :phauxth,\n  token_salt: ")
@@ -120,6 +129,10 @@ defmodule Mix.Tasks.Phauxth.NewTest do
         assert file =~ ~s(endpoint: PhauxthNewWeb.Endpoint)
       end
 
+      assert_file "lib/phauxth_new/mailer.ex", fn file ->
+        assert file =~ ~s(use Bamboo.Mailer, otp_app: :phauxth_new)
+      end
+
       assert_file "lib/phauxth_new_web/router.ex", fn file ->
         assert file =~ ~s(plug Phauxth.Authenticate, method: :token)
         assert file =~ ~s(post "/password_resets", PasswordResetController, :create)
@@ -131,9 +144,6 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       assert_file "lib/phauxth_new_web/views/password_reset_view.ex", fn file ->
         assert file =~ "%{info: %{detail: message}}"
       end
-
-      assert_received {:mix_shell, :info, ["\nWe are almost ready!" <> _ = message]}
-      assert message =~ ~s(will need to edit the Message module)
     end
   end
 end

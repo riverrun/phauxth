@@ -2,7 +2,7 @@ defmodule <%= base %>Web.PasswordResetController do
   use <%= base %>Web, :controller<%= if not api do %>
 
   import <%= base %>Web.Authorize<% end %>
-  alias <%= base %>.{Accounts, Message}
+  alias <%= base %>.Accounts
 <%= if not api do %>
   def new(conn, _params) do
     render(conn, "new.html")
@@ -10,7 +10,7 @@ defmodule <%= base %>Web.PasswordResetController do
 
   def create(conn, %{"password_reset" => %{"email" => email}}) do
     key = Accounts.create_password_reset(<%= base %>Web.Endpoint, %{"email" => email})
-    Message.reset_request(email, key)
+    Accounts.Message.reset_request(email, key)
     message = "Check your inbox for instructions on how to reset your password"<%= if api do %>
     conn
     |> put_status(:created)
@@ -39,7 +39,7 @@ defmodule <%= base %>Web.PasswordResetController do
   end
 
   defp update_password({:ok, user}, conn, _params) do
-    Message.reset_success(user.email)
+    Accounts.Message.reset_success(user.email)
     message = "Your password has been reset"<%= if api do %>
     render(conn, <%= base %>Web.PasswordResetView, "info.json", %{info: message})<% else %>
     configure_session(conn, drop: true)

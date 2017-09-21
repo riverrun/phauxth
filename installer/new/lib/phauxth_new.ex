@@ -58,7 +58,9 @@ defmodule Mix.Tasks.Phauxth.New do
     {:text, "new.html.eex", "_web/templates/user/new.html.eex"},
     {:text, "show.html.eex", "_web/templates/user/show.html.eex"}]
 
-  @phx_confirm [{:eex, "message.ex", "_web/message.ex"},
+  @phx_confirm [{:eex, "message.ex", "/accounts/message.ex"},
+    {:eex, "mailer.ex", "/mailer.ex"},
+    {:eex, "message_test.exs", "test/namespace/accounts/message_test.exs"},
     {:eex, "confirm_controller.ex", "_web/controllers/confirm_controller.ex"},
     {:eex, "confirm_controller_test.exs", "test/namespace_web/controllers/confirm_controller_test.exs"},
     {:eex, "confirm_view.ex", "_web/views/confirm_view.ex"},
@@ -92,8 +94,11 @@ defmodule Mix.Tasks.Phauxth.New do
       _ -> @phx_html
     end
 
-    copy_files(files, base: base_module(), api: api, confirm: confirm)
-    if api || confirm, do: update_config()
+    base_name = base_name()
+    base = base_name |> Macro.camelize
+
+    copy_files(files, base_name: base_name, base: base, api: api, confirm: confirm)
+    if api || confirm, do: update_config(confirm, base_name, base)
 
     Mix.shell.info """
 
@@ -103,7 +108,7 @@ defmodule Mix.Tasks.Phauxth.New do
     to it. You also need to add one of the following password hashing libraries:
     `argon2_elixir`, `bcrypt_elixir` or `pbkdf2_elixir` (see the documentation
     for Comeonin for more information about these libraries) to the deps.
-    Then, run `mix deps.get`.#{confirm_message(confirm)}
+    #{confirm_message(confirm)}Then, run `mix deps.get`.
 
     For more information about authorization, see the authorize.ex file
     in the controllers directory. You can see how the `user_check` and
@@ -143,27 +148,24 @@ defmodule Mix.Tasks.Phauxth.New do
     end
   end
 
-  defp update_config do
-    entry = "config :phauxth,\n  token_salt: \"#{gen_token_salt(8)}\"" <>
-      ",\n  endpoint: <%= endpoint %>"
-      |> EEx.eval_string(endpoint: inspect(get_endpoint()))
+  defp update_config(confirm, base_name, base) do
+    entry = config_input(confirm, base_name, base)
+            |> EEx.eval_string(endpoint: inspect(get_endpoint(base_name)))
+
     {:ok, conf} = File.read("config/config.exs")
     new_conf = String.split(conf, "\n\n")
                |> List.insert_at(-3, entry)
                |> Enum.join("\n\n")
     File.write("config/config.exs", new_conf)
+    if confirm, do: add_test_config(base_name, base)
   end
 
   defp base_name do
     Mix.Project.config |> Keyword.fetch!(:app) |> to_string
   end
 
-  defp base_module do
-    base_name() |> Macro.camelize
-  end
-
-  defp get_endpoint do
-    web = base_name() <> "_web"
+  defp get_endpoint(base_name) do
+    web = base_name <> "_web"
     Macro.camelize(web)
     |> Module.concat(Endpoint)
   end
@@ -172,13 +174,37 @@ defmodule Mix.Tasks.Phauxth.New do
     :crypto.strong_rand_bytes(length) |> Base.encode64 |> binary_part(0, length)
   end
 
-  defp confirm_message(true) do
+  defp config_input(false, _, _) do
+    """
+    # Phauxth authentication configuration
+    config :phauxth,
+      token_salt: \"#{gen_token_salt(8)}\",
+      endpoint: <%= endpoint %>
+    """
+  end
+  defp config_input(true, base_name, base) do
+    config_input(false, base_name, base) <> """
+
+    # Mailer configuration
+    config :#{base_name}, #{base}.Mailer,
+      adapter: Bamboo.MandrillAdapter,
+      api_key: System.get_env("MANDRILL_API_KEY")
+    """
+  end
+
+  defp add_test_config(base_name, base) do
+    test_entry = """
+    \n# Mailer test configuration
+    config :#{base_name}, #{base}.Mailer,
+      adapter: Bamboo.TestAdapter
     """
 
-    You will need to edit the Message module, which is in the web directory.
-    Add the email / phone library of your choice to this module and edit the
-    functions so that they send messages to the user.
-    """
+    {:ok, test_conf} = File.read("config/test.exs")
+    File.write("config/test.exs", test_conf <> test_entry)
+  end
+
+  defp confirm_message(true) do
+    "You also need to add bamboo to the deps if you are using Bamboo for emailing users. "
   end
   defp confirm_message(_), do: ""
 

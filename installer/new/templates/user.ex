@@ -40,6 +40,7 @@ defmodule <%= base %>.Accounts.User do
     end)
   end
 
+  # If you are using Argon2 or Pbkdf2, change Bcrypt to Argon2 or Pbkdf2
   def put_pass_hash(%Ecto.Changeset{valid?: true, changes:
       %{password: password}} = changeset) do
     change(changeset, Comeonin.Bcrypt.add_hash(password))

@@ -3,10 +3,11 @@ defmodule <%= base %>Web.UserController do
 
   import <%= base %>Web.Authorize
   alias Phauxth.Log
-  alias <%= base %>.{Accounts<%= if confirm do %>, Message<% end %>}<%= if api do %>
+  alias <%= base %>.Accounts<%= if api do %>
 
   action_fallback <%= base %>Web.FallbackController<% end %>
 
+  # the following plugs are defined in the controllers/authorize.ex file
   plug :user_check when action in [:index, :show]<%= if api do %>
   plug :id_check when action in [:update, :delete]<% else %>
   plug :id_check when action in [:edit, :update, :delete]<% end %>
@@ -27,7 +28,7 @@ defmodule <%= base %>Web.UserController do
   def create(conn, %{"user" => user_params}) do<% end %><%= if api do %>
     with {:ok, user} <- Accounts.create_user(user_params) do
       Log.info(%Log{user: user.id, message: "user created"})<%= if confirm do %>
-      Message.confirm_request(email, key)<% end %>
+      Accounts.Message.confirm_request(email, key)<% end %>
       conn
       |> put_status(:created)
       |> put_resp_header("location", user_path(conn, :show, user))
@@ -35,7 +36,7 @@ defmodule <%= base %>Web.UserController do
     case Accounts.create_user(user_params) do
       {:ok, user} ->
         Log.info(%Log{user: user.id, message: "user created"})<%= if confirm do %>
-        Message.confirm_request(email, key)<% end %>
+        Accounts.Message.confirm_request(email, key)<% end %>
         success(conn, "User created successfully", session_path(conn, :new))
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)<% end %>

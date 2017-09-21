@@ -9,7 +9,7 @@ function enter_cave {
 }
 
 function edit_mix {
-    sed -i 's/{:postgrex, ">= 0.0.0"},/{:postgrex, ">= 0.0.0"},\n     {:phauxth, git: "https:\/\/github.com\/riverrun\/phauxth.git"},\n     {:bcrypt_elixir, "~> 0.12"},/g' mix.exs
+    sed -i 's/{:postgrex, ">= 0.0.0"},/{:postgrex, ">= 0.0.0"},\n     {:phauxth, git: "https:\/\/github.com\/riverrun\/phauxth.git"},\n     {:bcrypt_elixir, "~> 1.0"},\n     {:bamboo, "~> 0.8"},/g' mix.exs
     mix deps.get
 }
 

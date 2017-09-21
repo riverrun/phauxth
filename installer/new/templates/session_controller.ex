@@ -1,15 +1,18 @@
 defmodule <%= base %>Web.SessionController do
   use <%= base %>Web, :controller
 
-  import <%= base %>Web.Authorize<%= if not api do %>
+  import <%= base %>Web.Authorize<%= if confirm do %>
+  alias Phauxth.Confirm.Login<% else %>
+  alias Phauxth.Login<% end %><%= if not api do %>
 
   def new(conn, _) do
     render(conn, "new.html")
   end<% end %>
 
-  def create(conn, %{"session" => params}) do<%= if confirm do %>
-    case Phauxth.Confirm.Login.verify(params, <%= base %>.Accounts) do<% else %>
-    case Phauxth.Login.verify(params, <%= base %>.Accounts) do<% end %>
+  # If you are using Argon2 or Pbkdf2, add crypto: Comeonin.Argon2
+  # or crypto: Comeonin.Pbkdf2 to Login.verify (after Accounts)
+  def create(conn, %{"session" => params}) do
+    case Login.verify(params, <%= base %>.Accounts) do
       {:ok, user} -><%= if api do %>
         token = Phauxth.Token.sign(conn, user.id)
         render(conn, <%= base %>Web.SessionView, "info.json", %{info: token})

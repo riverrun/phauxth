@@ -9,10 +9,10 @@ defmodule MixHelper do
 
   def in_tmp(which, function) do
     path = Path.join(tmp_path(), String.replace(which, " ", "_"))
-    File.rm_rf! path
-    File.mkdir_p! path
+    File.rm_rf!(path)
+    File.mkdir_p!(path)
     create_config(Path.join(path, "config"))
-    File.cd! path, function
+    File.cd!(path, function)
   end
 
   def assert_file(file) do
@@ -36,11 +36,14 @@ defmodule MixHelper do
   end
 
   defp create_config(config_path) do
-    File.mkdir_p! config_path
+    File.mkdir_p!(config_path)
     config_file = Path.join(config_path, "config.exs")
     contents = "use Mix.Config\n\nconfig :myapp,\necto_repos: [MyApp.Repo]\n\n" <>
       "config :myapp, MyAppWeb.Endpoint,\nurl: [host: \"localhost\"]\n\n" <>
       "config :logger, :console\n\nimport_config Mix.env.exs"
-    File.write! config_file, contents
+    File.write!(config_file, contents)
+    test_config = Path.join(config_path, "test.exs")
+    contents = "use Mix.Config\n\nconfig :logger, level: :warn"
+    File.write!(test_config, contents)
   end
 end
