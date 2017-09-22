@@ -8,25 +8,6 @@ Authentication library for Phoenix, and other Plug-based, web applications.
 Phauxth is designed with Phoenix 1.3 in mind, but it can also be used with
 older versions of Phoenix and any other Plug-based application.
 
-## Configuring Phauxth
-
-Phauxth uses the user context module (normally MyApp.Accounts) to communicate
-with the underlying database. This module needs to have the `get(id)` and
-`get_by(attrs)` functions defined (see the examples below).
-
-```elixir
-def get(id), do: Repo.get(User, id)
-
-def get_by(%{"email" => email}) do
-  Repo.get_by(User, email: email)
-end
-```
-
-In addition, if you are using tokens, for an api or for user confirmation,
-you need to add `token_salt` and `endpoint` to the Phauxth config. You can generate a
-suitably secure random salt by running the `Phauxth.Config.gen_token_salt`
-command.
-
 ## Getting started with Phauxth and Phoenix
 
 ### Create new Phoenix project
@@ -68,16 +49,21 @@ And for api with user confirmation:
 
 ### Add phauxth to deps
 
-1. Make sure you are using Elixir 1.4 or above.
+Make sure you are using Elixir 1.4 or above.
 
-2. Add phauxth and the password hashing algorithm you want to use
-(argon2_elixir, bcrypt_elixir or pbkdf2_elixir) to your `mix.exs` dependencies.
+Add phauxth, the password hashing algorithm you want to use
+(argon2_elixir, bcrypt_elixir or pbkdf2_elixir) and bamboo to your
+`mix.exs` dependencies ().
+
+Bamboo is only needed if you are using email confirmation. It is also
+possible to use another email / phone library.
 
 ```elixir
 defp deps do
   [
     {:phauxth, "~> 1.1"},
     {:argon2_elixir, "~> 1.2"},
+    {:bamboo, "~> 0.8"},
   ]
 end
 ```
@@ -86,23 +72,39 @@ If you are using bcrypt_elixir, go to 3.
 If you are using argon2_elixir or pbkdf2_elixir to hash passwords, you also need to
 edit the user.ex file, in the accounts directory, and the session_controller.ex file.
 
-In the user.ex file, change the Comeonin.Bcrypt.add_hash function to Comeonin.Argon2.add_hash
-or Comeonin.Pbkdf2.add_hash.
+In the user.ex file, change the `Comeonin.Bcrypt.add_hash` function to `Comeonin.Argon2.add_hash`
+or `Comeonin.Pbkdf2.add_hash`.
 
 In the session_controller.ex file, add the crypto option to the Login.verify call, as
 in the following example:
 
     Phauxth.Login.verify(params, MyApp.Accounts, crypto: Comeonin.Argon2)
 
-3. Run `mix deps.get`.
+Run `mix deps.get`.
 
-4. Add the `get(id)` and `get_by(attrs)` functions to your user Accounts module.
+### Configure Phauxth
 
-5. If you are using tokens, or user confirmation, add the `token_salt` and
-`endpoint` values to the config.
+Phauxth uses the user context module (normally MyApp.Accounts) to communicate
+with the underlying database. This module needs to have the `get(id)` and
+`get_by(attrs)` functions defined (see the examples below).
+
+```elixir
+def get(id), do: Repo.get(User, id)
+
+def get_by(%{"email" => email}) do
+  Repo.get_by(User, email: email)
+end
+```
 
 See the [wiki](https://github.com/riverrun/phauxth/wiki) for more
 information about Phauxth.
+
+## Phauxth examples
+
+[A basic example](https://github.com/riverrun/phauxth-example) of using
+Phauxth with email confirmation.
+
+[An example api](https://github.com/riverrun/phoenix-todoapp) using Phauxth.
 
 ### License
 
