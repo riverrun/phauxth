@@ -2,7 +2,7 @@
 
 ## Version 1.1.0
 
-Enhancements:
+* Enhancements
     * the endpoint value in the config (used by the Confirm module) is now overridable
         * if necessary, you can set this value in the keyword options
         * this is to make it easier to use Phauxth with umbrella apps
