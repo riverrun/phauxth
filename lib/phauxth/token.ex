@@ -58,8 +58,8 @@ defmodule Phauxth.Token do
   def sign(key_source, data, opts \\ []) do
     secret = get_key_base(key_source) |> validate_secret |> get_secret(opts)
 
-    %{data: data, signed: now_ms()}
-    |> :erlang.term_to_binary()
+    %{"data" => data, "signed" => now_ms()}
+    |> Poison.encode!
     |> MessageVerifier.sign(secret)
   end
 
@@ -75,7 +75,7 @@ defmodule Phauxth.Token do
 
     case MessageVerifier.verify(token, secret) do
       {:ok, message} ->
-        %{data: data, signed: signed} = Plug.Crypto.safe_binary_to_term(message)
+        %{"data" => data, "signed" => signed} = Poison.decode!(message)
 
         if (signed + max_age_ms) < now_ms() do
           {:error, "expired token"}
