@@ -56,8 +56,7 @@ defmodule Phauxth.Token do
   See the module documentation for information about the options available.
   """
   def sign(key_source, data, opts \\ []) do
-    secret = get_key_base(key_source) |> validate_secret |> get_secret(opts)
-
+    secret = get_key_base(key_source) |> validate_secret |> run_kdf(opts)
     %{"data" => data, "signed" => now_ms()}
     |> Poison.encode!
     |> MessageVerifier.sign(secret)
@@ -70,21 +69,10 @@ defmodule Phauxth.Token do
   """
   def verify(key_source, token, max_age, opts \\ [])
   def verify(key_source, token, max_age, opts) when is_binary(token) do
-    secret = get_key_base(key_source) |> validate_secret |> get_secret(opts)
-    max_age_ms = max_age * 1000
-
-    case MessageVerifier.verify(token, secret) do
-      {:ok, message} ->
-        %{"data" => data, "signed" => signed} = Poison.decode!(message)
-
-        if (signed + max_age_ms) < now_ms() do
-          {:error, "expired token"}
-        else
-          {:ok, data}
-        end
-      :error ->
-        {:error, "invalid token"}
-    end
+    secret = get_key_base(key_source) |> validate_secret |> run_kdf(opts)
+    MessageVerifier.verify(token, secret)
+    |> get_token_data
+    |> handle_verify(max_age * 1000)
   end
   def verify(_, _, _, _), do: {:error, "invalid token"}
 
@@ -109,7 +97,7 @@ defmodule Phauxth.Token do
   end
   defp validate_secret(key), do: key
 
-  defp get_secret(secret_key_base, opts) do
+  defp run_kdf(secret_key_base, opts) do
     token_salt = Keyword.get(opts, :token_salt, Config.token_salt)
     key_opts = [iterations: opts[:key_iterations] || 1000,
                 length: validate_len(opts[:key_length]),
@@ -129,6 +117,14 @@ defmodule Phauxth.Token do
   defp validate_digest(digest) do
     raise ArgumentError, "Phauxth.Token does not support #{digest}"
   end
+
+  defp get_token_data({:ok, message}), do: Poison.decode(message)
+  defp get_token_data(:error), do: {:error, "invalid token"}
+
+  defp handle_verify({:ok, %{"data" => data, "signed" => signed}}, max_age) do
+    (signed + max_age) < now_ms() and {:error, "expired token"} || {:ok, data}
+  end
+  defp handle_verify(_, _), do: {:error, "invalid token"}
 
   defp now_ms, do: System.system_time(:millisecond)
 end

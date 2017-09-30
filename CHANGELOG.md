@@ -1,5 +1,11 @@
 # Phauxth Changelog
 
+## Version 1.1.2
+
+* Enhancements
+    * token implementation signs and verifies JSON strings
+        * this avoids the use of potentially vulnerable term_to_binary / binary_to_term variants
+
 ## Version 1.1.0
 
 * Enhancements

@@ -78,5 +78,4 @@ defmodule Phauxth.TokenTest do
       Token.sign(conn, 1, key_digest: :sha)
     end
   end
-
 end
