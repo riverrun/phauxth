@@ -1,6 +1,6 @@
 defmodule Phauxth.Token do
   @moduledoc """
-  Create api tokens, based on the Phoenix token implementation.
+  Create api tokens.
 
   The data stored in the token is signed to prevent tampering
   but not encrypted. This means it is safe to store identification
@@ -16,7 +16,7 @@ defmodule Phauxth.Token do
     * a `Plug.Conn` struct
     * a `Phoenix.Socket` struct
     * a string, representing the secret key base itself
-      * this string should be at least 20 randomly generated characters should be used
+      * this string should be at least 20 randomly generated characters long
 
   The second argument to sign/3 is the data to be signed, which can be
   an integer or string identifying the user, or a map with the user
@@ -31,7 +31,7 @@ defmodule Phauxth.Token do
   14_400, which is 4 hours.
 
   The third argument to sign/3, or the fourth argument to verify/4, is
-  the `opts`, the key generator options. # ADD DOCS ABOUT TOKEN_SALT
+  the `opts`, the key generator options.
 
   The key generator has three options:
 
@@ -41,6 +41,8 @@ defmodule Phauxth.Token do
       * the default is 32
     * key_digest - the hash algorithm that is used
       * the default is :sha256
+    * token_salt - the salt to be used when generating the secret key
+      * the default is the value set in the config
 
   Note that the same key generator options should be used for signing
   and verifying tokens.
@@ -53,28 +55,30 @@ defmodule Phauxth.Token do
   @doc """
   Sign the token.
 
-  See the module documentation for information about the options available.
+  See the module documentation for more information.
   """
   def sign(key_source, data, opts \\ []) do
-    secret = get_key_base(key_source) |> validate_secret |> run_kdf(opts)
     %{"data" => data, "signed" => now_ms()}
     |> Poison.encode!
-    |> MessageVerifier.sign(secret)
+    |> MessageVerifier.sign(gen_secret(key_source, opts))
   end
 
   @doc """
   Verify the token.
 
-  See the module documentation for information about the options available.
+  See the module documentation for more information.
   """
-  def verify(key_source, token, max_age, opts \\ [])
-  def verify(key_source, token, max_age, opts) when is_binary(token) do
-    secret = get_key_base(key_source) |> validate_secret |> run_kdf(opts)
-    MessageVerifier.verify(token, secret)
+  def verify(key_source, token, max_age_seconds, opts \\ [])
+  def verify(key_source, token, max_age_seconds, opts) when is_binary(token) do
+    MessageVerifier.verify(token, gen_secret(key_source, opts))
     |> get_token_data
-    |> handle_verify(max_age * 1000)
+    |> handle_verify(max_age_seconds * 1000)
   end
   def verify(_, _, _, _), do: {:error, "invalid token"}
+
+  defp gen_secret(key_source, opts) do
+    get_key_base(key_source) |> validate_secret |> run_kdf(opts)
+  end
 
   defp get_key_base(%Plug.Conn{secret_key_base: key}), do: key
   defp get_key_base(%{endpoint: endpoint}), do: get_endpoint_key_base(endpoint)
@@ -89,14 +93,6 @@ defmodule Phauxth.Token do
     """
   end
 
-  defp validate_secret(nil) do
-    raise ArgumentError, "The secret_key_base has not been set"
-  end
-  defp validate_secret(key) when byte_size(key) < 20 do
-    raise ArgumentError, "The secret_key_base is too short. It should be at least 20 bytes long."
-  end
-  defp validate_secret(key), do: key
-
   defp run_kdf(secret_key_base, opts) do
     token_salt = Keyword.get(opts, :token_salt, Config.token_salt)
     key_opts = [iterations: opts[:key_iterations] || 1000,
@@ -105,6 +101,24 @@ defmodule Phauxth.Token do
                 cache: Plug.Keys]
     KeyGenerator.generate(secret_key_base, token_salt, key_opts)
   end
+
+  defp get_token_data({:ok, message}), do: Poison.decode(message)
+  defp get_token_data(:error), do: {:error, "invalid token"}
+
+  defp handle_verify({:ok, %{"data" => data, "signed" => signed}}, max_age) do
+    (signed + max_age) < now_ms() and {:error, "expired token"} || {:ok, data}
+  end
+  defp handle_verify(_, _), do: {:error, "invalid token"}
+
+  defp now_ms, do: System.system_time(:millisecond)
+
+  defp validate_secret(nil) do
+    raise ArgumentError, "The secret_key_base has not been set"
+  end
+  defp validate_secret(key) when byte_size(key) < 20 do
+    raise ArgumentError, "The secret_key_base is too short. It should be at least 20 bytes long."
+  end
+  defp validate_secret(key), do: key
 
   defp validate_len(nil), do: 32
   defp validate_len(len) when len < 20 do
@@ -117,14 +131,4 @@ defmodule Phauxth.Token do
   defp validate_digest(digest) do
     raise ArgumentError, "Phauxth.Token does not support #{digest}"
   end
-
-  defp get_token_data({:ok, message}), do: Poison.decode(message)
-  defp get_token_data(:error), do: {:error, "invalid token"}
-
-  defp handle_verify({:ok, %{"data" => data, "signed" => signed}}, max_age) do
-    (signed + max_age) < now_ms() and {:error, "expired token"} || {:ok, data}
-  end
-  defp handle_verify(_, _), do: {:error, "invalid token"}
-
-  defp now_ms, do: System.system_time(:millisecond)
 end
