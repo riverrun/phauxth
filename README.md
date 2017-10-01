@@ -11,6 +11,13 @@ older versions of Phoenix and any other Plug-based application.
 [This guide](https://github.com/riverrun/phauxth/wiki/Getting-started)
 shows how you can set up a new Phoenix project with Phauxth.
 
+## Upgrading from Phauxth 1.1.0 and tokens
+
+Minor changes were made to the token implementation in version 1.1.1.
+As a result, when upgrading from 1.1.0 (or earlier) to versions higher
+than 1.1.0, the old tokens will no longer be valid, so the end users
+need to login again to generate new tokens.
+
 ## Phauxth examples
 
 * [A basic example](https://github.com/riverrun/phauxth-example) of using
