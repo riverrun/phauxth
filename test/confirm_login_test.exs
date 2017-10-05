@@ -2,7 +2,7 @@ defmodule Phauxth.Confirm.LoginTest do
   use ExUnit.Case
   use Plug.Test
 
-  def login(name, password, user_params \\ "email") do
+  defp login(name, password, user_params \\ "email") do
     params = %{user_params => name, "password" => password}
     Phauxth.Confirm.Login.verify(params, Phauxth.TestAccounts)
   end

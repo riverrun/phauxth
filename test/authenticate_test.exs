@@ -9,23 +9,23 @@ defmodule Phauxth.AuthenticateTest do
   @session_opts {:session, @max_age, TestAccounts, []}
   @token_opts {:token, @max_age, TestAccounts, []}
 
-  def add_session(id) do
+  defp add_session(id) do
     conn(:get, "/")
     |> SessionHelper.sign_conn
     |> put_session(:user_id, id)
   end
 
-  def call(id) do
+  defp call(id) do
     add_session(id)
     |> Authenticate.call({@session_opts, []})
   end
 
-  def add_token(id, token \\ nil, key_opts \\ []) do
+  defp add_token(id, token \\ nil, key_opts \\ []) do
     conn = conn(:get, "/") |> SessionHelper.add_key
     put_req_header(conn, "authorization", token || Token.sign(conn, id, key_opts))
   end
 
-  def call_api(id, token \\ nil, max_age \\ @max_age) do
+  defp call_api(id, token \\ nil, max_age \\ @max_age) do
     opts = {:token, max_age, TestAccounts, []}
     add_token(id, token)
     |> Authenticate.call({opts, []})

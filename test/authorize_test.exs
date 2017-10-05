@@ -7,13 +7,13 @@ defmodule Phauxth.AuthorizeTest do
   @admin %{id: 2, username: "Big Boss", role: "admin"}
   @user %{id: 1, username: "Raymond Luxury Yacht", role: "user"}
 
-  def call(path, current_user, roles) do
+  defp call(path, current_user, roles) do
     conn(:get, path)
     |> assign(:current_user, current_user)
     |> authorize_role(roles: roles)
   end
 
-  def call_id(conn, id, user) do
+  defp call_id(conn, id, user) do
     %{conn | params: %{"id" => id}}
     |> assign(:current_user, user)
     |> authorize_id([])

@@ -104,7 +104,7 @@ defmodule Phauxth.Authenticate.Base do
         Log.info(%Log{message: message, meta: meta}) && nil
       end
       def report(nil, meta) do
-        Log.info(%Log{meta: meta}) && nil
+        Log.info(%Log{message: "anonymous user", meta: meta}) && nil
       end
 
       @doc """
