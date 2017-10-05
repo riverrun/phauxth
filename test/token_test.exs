@@ -9,8 +9,12 @@ defmodule Phauxth.TokenTest do
     def config(:secret_key_base), do: String.duplicate("abcdef0123456789", 8)
   end
 
-  defmodule BadKeyEndpoint do
+  defmodule ShortKeyEndpoint do
     def config(:secret_key_base), do: "abcdef0123456789"
+  end
+
+  defmodule OtherKeyEndpoint do
+    def config(:secret_key_base), do: String.duplicate("0123456789abcdef", 8)
   end
 
   setup do
@@ -31,6 +35,12 @@ defmodule Phauxth.TokenTest do
     token = Token.sign(conn, 1)
     assert Token.verify(conn, token, @max_age) == {:ok, 1}
     assert Token.verify(conn, "garbage", @max_age) == {:error, "invalid token"}
+  end
+
+  test "fails when signed with wrong key" do
+    token = Token.sign(TokenEndpoint, 1)
+    assert Token.verify(TokenEndpoint, token, @max_age) == {:ok, 1}
+    assert Token.verify(OtherKeyEndpoint, token, @max_age) == {:error, "invalid token"}
   end
 
   test "max age is checked", %{conn: conn} do
@@ -62,7 +72,7 @@ defmodule Phauxth.TokenTest do
   end
 
   test "raises when the secret_key_base is too short when signing with endpoint" do
-    assert_raise ArgumentError, fn -> Token.sign(BadKeyEndpoint, 1) end
+    assert_raise ArgumentError, fn -> Token.sign(ShortKeyEndpoint, 1) end
   end
 
   test "raises when the key_length is too short", %{conn: conn} do
