@@ -25,10 +25,6 @@ defmodule <%= base %>Web.Router do
     plug Phauxth.Authenticate
   end
 
-  pipeline :api do
-    plug :accepts, ["json"]
-  end
-
   scope "/", <%= base %>Web do
     pipe_through :browser
 
