@@ -27,7 +27,7 @@ defmodule <%= base %>Web.SessionController do
   end<%= if not api do %>
 
   def delete(conn, _) do
-    configure_session(conn, drop: true)
+    delete_session(conn, :user_id)
     |> success("You have been logged out", page_path(conn, :index))
   end<% end %>
 end

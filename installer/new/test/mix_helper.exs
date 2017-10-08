@@ -3,6 +3,11 @@ Mix.shell(Mix.Shell.Process)
 defmodule MixHelper do
   import ExUnit.Assertions
 
+  @main_config "use Mix.Config\n\nconfig :myapp,\necto_repos: [MyApp.Repo]\n\n" <>
+    "config :myapp, MyAppWeb.Endpoint,\nurl: [host: \"localhost\"]\n\n" <>
+    "config :logger, :console\n\nimport_config Mix.env.exs"
+  @test_config "use Mix.Config\n\nconfig :logger, level: :warn"
+
   def tmp_path do
     Path.expand("../../tmp", __DIR__)
   end
@@ -26,7 +31,7 @@ defmodule MixHelper do
   def assert_file(file, match) do
     cond do
       is_list(match) ->
-        assert_file file, &(Enum.each(match, fn(m) -> assert &1 =~ m end))
+      assert_file file, &(Enum.each(match, fn(m) -> assert &1 =~ m end))
       is_binary(match) or Regex.regex?(match) ->
         assert_file file, &(assert &1 =~ match)
       is_function(match, 1) ->
@@ -38,12 +43,8 @@ defmodule MixHelper do
   defp create_config(config_path) do
     File.mkdir_p!(config_path)
     config_file = Path.join(config_path, "config.exs")
-    contents = "use Mix.Config\n\nconfig :myapp,\necto_repos: [MyApp.Repo]\n\n" <>
-      "config :myapp, MyAppWeb.Endpoint,\nurl: [host: \"localhost\"]\n\n" <>
-      "config :logger, :console\n\nimport_config Mix.env.exs"
-    File.write!(config_file, contents)
-    test_config = Path.join(config_path, "test.exs")
-    contents = "use Mix.Config\n\nconfig :logger, level: :warn"
-    File.write!(test_config, contents)
+    File.write!(config_file, @main_config)
+    test_config_path = Path.join(config_path, "test.exs")
+    File.write!(test_config_path, @test_config)
   end
 end

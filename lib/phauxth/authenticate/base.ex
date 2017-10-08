@@ -8,9 +8,8 @@ defmodule Phauxth.Authenticate.Base do
 
   ## Custom authentication modules
 
-  One example of a custom authentication module is provided by the
-  Phauxth.Remember module, which uses this base module to provide the
-  'remember me' functionality.
+  The next sections give examples of extending this module to create
+  custom authentication modules.
 
   ### Graphql authentication
 
@@ -18,9 +17,7 @@ defmodule Phauxth.Authenticate.Base do
   be extended, this time to provide authentication for absinthe-elixir:
 
       defmodule AbsintheAuthenticate do
-
         use Phauxth.Authenticate.Base
-        import Plug.Conn
 
         def set_user(user, conn) do
           put_private(conn, :absinthe, %{token: %{current_user: user}})
@@ -34,6 +31,27 @@ defmodule Phauxth.Authenticate.Base do
         plug :accepts, ["json"]
         plug AbsintheAuthenticate, method: :token
       end
+
+  ### Authentication for use with Phoenix channels
+
+  In this example, after adding the user struct to the current_user value,
+  a token is added (for use with Phoenix channels).
+
+      defmodule MyAppWeb.Authenticate do
+        use Phauxth.Authenticate.Base
+
+        def set_user(nil, conn), do: assign(conn, :current_user, nil)
+        def set_user(user, conn) do
+          token = Phauxth.Token.sign(conn, %{"user_id" => user.email})
+          assign(conn, :current_user, user)
+          |> assign(:user_token, token)
+        end
+      end
+
+  MyAppWeb.Authenticate is called in the same way as Phauxth.Authenticate.
+
+  Use Phauxth.Token.verify, in the `user_socket.ex` file, to verify the
+  token.
 
   ### Custom session / token implementations
 

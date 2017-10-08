@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.Phauxth.New do
   use Mix.Task
 
-  import Mix.Generator
+  #import Phauxth.Generator
 
   @moduledoc """
   Create modules for basic authorization.
@@ -82,10 +82,11 @@ defmodule Mix.Tasks.Phauxth.New do
   @doc false
   def run(args) do
     check_directory()
-    switches = [api: :boolean, confirm: :boolean]
+    switches = [api: :boolean, confirm: :boolean, backups: :boolean]
     {opts, _, _} = OptionParser.parse(args, switches: switches)
 
-    {api, confirm} = {opts[:api] == true, opts[:confirm] == true}
+    {api, confirm, backups} = {opts[:api] == true,
+      opts[:confirm] == true, opts[:backups] != false}
 
     files = @phx_base ++ case {api, confirm} do
       {true, true} -> @phx_api ++ @phx_confirm
@@ -97,7 +98,8 @@ defmodule Mix.Tasks.Phauxth.New do
     base_name = base_name()
     base = base_name |> Macro.camelize
 
-    copy_files(files, base_name: base_name, base: base, api: api, confirm: confirm)
+    copy_files(files, base_name: base_name, base: base, api: api,
+               confirm: confirm, backups: backups)
     if api || confirm, do: update_config(confirm, base_name, base)
 
     Mix.shell.info """
@@ -144,8 +146,19 @@ defmodule Mix.Tasks.Phauxth.New do
         :text -> render(source)
         :eex  -> EEx.eval_string(render(source), opts)
       end
-      create_file target, contents
+      create_file(target, contents, opts[:backups])
     end
+  end
+
+  defp create_file(path, contents, create_backups) do
+    if File.exists?(path) and create_backups do
+      backup = path <> ".bak"
+      Mix.shell.info [:green, "* creating ", :reset, Path.relative_to_cwd(backup)]
+      File.rename(path, backup)
+    end
+    Mix.shell.info [:green, "* creating ", :reset, Path.relative_to_cwd(path)]
+    File.mkdir_p!(Path.dirname(path))
+    File.write!(path, contents)
   end
 
   defp update_config(confirm, base_name, base) do
