@@ -20,7 +20,7 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       refute_file "lib/phauxth_new/mailer.ex"
 
       assert_file "config/config.exs", fn file ->
-        refute file =~ ~s(config :phauxth)
+        assert file =~ ~s(config :phauxth)
       end
 
       assert_file "lib/phauxth_new_web/router.ex", fn file ->

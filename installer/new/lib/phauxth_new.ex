@@ -101,7 +101,7 @@ defmodule Mix.Tasks.Phauxth.New do
 
     copy_files(files, base_name: base_name, base: base, api: api,
                confirm: confirm, backups: backups)
-    if api || confirm, do: update_config(confirm, base_name, base)
+    update_config(confirm, base_name, base)
 
     Mix.shell.info """
 

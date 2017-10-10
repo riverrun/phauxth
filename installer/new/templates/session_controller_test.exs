@@ -5,7 +5,7 @@ defmodule <%= base %>Web.SessionControllerTest do
 
   @create_attrs %{email: "robin@example.com", password: "reallyHard2gue$$"}
   @invalid_attrs %{email: "robin@example.com", password: "cannotGue$$it"}<%= if confirm do %>
-  @unconfirmed_attrs %{email: "lancelot@example.com", password: "reallyHard2gue$$"}
+  @unconfirmed_attrs %{email: "lancelot@example.com", password: "reallyHard2gue$$"}<% end %><%= if not api do %>
   @rem_attrs %{email: "robin@example.com", password: "reallyHard2gue$$", remember_me: true}<% end %>
 
   setup %{conn: conn} do<%= if not api do %>
