@@ -1,19 +1,20 @@
 defmodule Mix.Tasks.Phauxth.New do
   use Mix.Task
 
-  #import Phauxth.Generator
-
   @moduledoc """
   Create modules for basic authorization.
 
   ## Options and arguments
 
-  There are two options:
+  There are three options:
 
     * api - create files to authenticate an api instead of a html application
       * the default is false
     * confirm - create files for email / phone confirmation and password resetting
       * the default is false
+    * backups - if a file already exists, save the old version as a backup file
+      * the default is true
+      * the old version will be saved with the `.bak` extension
 
   ## Examples
 
@@ -52,8 +53,8 @@ defmodule Mix.Tasks.Phauxth.New do
 
   @phx_html [{:text, "layout_app.html.eex", "_web/templates/layout/app.html.eex"},
     {:text, "page_index.html.eex", "_web/templates/page/index.html.eex"},
-    {:text, "session_new.html.eex", "_web/templates/session/new.html.eex"},
-    {:text, "edit.html.eex", "_web/templates/user/edit.html.eex"},
+    {:eex, "session_new.html.eex", "_web/templates/session/new.html.eex"},
+    {:eex, "edit.html.eex", "_web/templates/user/edit.html.eex"},
     {:text, "index.html.eex", "_web/templates/user/index.html.eex"},
     {:text, "new.html.eex", "_web/templates/user/new.html.eex"},
     {:text, "show.html.eex", "_web/templates/user/show.html.eex"}]
@@ -110,7 +111,7 @@ defmodule Mix.Tasks.Phauxth.New do
     to it. You also need to add one of the following password hashing libraries:
     `argon2_elixir`, `bcrypt_elixir` or `pbkdf2_elixir` (see the documentation
     for Comeonin for more information about these libraries) to the deps.
-    #{confirm_message(confirm)}Then, run `mix deps.get`.
+    #{confirm_deps_message(confirm)}
 
     For more information about authorization, see the authorize.ex file
     in the controllers directory. You can see how the `user_check` and
@@ -216,10 +217,11 @@ defmodule Mix.Tasks.Phauxth.New do
     File.write("config/test.exs", test_conf <> test_entry)
   end
 
-  defp confirm_message(true) do
-    "You also need to add bamboo to the deps if you are using Bamboo for emailing users. "
+  defp confirm_deps_message(true) do
+    "You also need to add bamboo to the deps if you are using Bamboo\n" <>
+    "to email users. Then, run `mix deps.get`."
   end
-  defp confirm_message(_), do: ""
+  defp confirm_deps_message(_), do: "Then, run `mix deps.get`."
 
   defp timestamp do
     {{y, m, d}, {hh, mm, ss}} = :calendar.universal_time()

@@ -14,6 +14,9 @@ defmodule <%= base %>.Accounts.Message do
 
   Bamboo has adapters for Mailgun, Mailjet, Mandrill, Sendgrid, SMTP,
   SparkPost, PostageApp, Postmark and Sendcloud.
+
+  There is also a LocalAdapter, which is great for local development.
+
   See [Bamboo](https://github.com/thoughtbot/bamboo) for more information.
 
   ## Other email / phone library
