@@ -39,10 +39,10 @@ defmodule <%= base %>Web.UserControllerTest do
     assert html_response(conn, 200) =~ "New User"
   end<% end %>
 
-  @tag login: "reg"
+  @tag login: "reg@example.com"
   test "show chosen user's page", %{conn: conn, user: user} do
     conn = get conn, user_path(conn, :show, user)<%= if api do %>
-    assert json_response(conn, 200)["data"] == %{"id" => user.id, "email" => "reg"}<% else %>
+    assert json_response(conn, 200)["data"] == %{"id" => user.id, "email" => "reg@example.com"}<% else %>
     assert html_response(conn, 200) =~ "Show User"<% end %>
   end
 
