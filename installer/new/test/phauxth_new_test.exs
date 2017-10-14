@@ -26,11 +26,13 @@ defmodule Mix.Tasks.Phauxth.NewTest do
       assert_file "lib/phauxth_new_web/router.ex", fn file ->
         assert file =~ ~s(plug Phauxth.Authenticate)
         assert file =~ ~s(resources "/sessions", SessionController, only: [:new, :create, :delete])
+        refute file =~ ~s(plug Phauxth.Remember)
       end
 
       assert_file "lib/phauxth_new_web/controllers/session_controller.ex", fn file ->
         assert file =~ ~s(alias Phauxth.Login)
         assert file =~ "put_session(conn, :user_id, user.id)"
+        refute file =~ ~s(Phauxth.Remember.delete_rem_cookie)
       end
 
       assert_file "lib/phauxth_new_web/views/user_view.ex", fn file ->
@@ -84,6 +86,21 @@ defmodule Mix.Tasks.Phauxth.NewTest do
 
       assert_received {:mix_shell, :info, ["\nWe are almost ready!" <> _ = message]}
       assert message =~ ~s(need to add bamboo to the deps)
+    end
+  end
+
+  test "generates remember me" do
+    in_tmp "generates remember me", fn ->
+      Mix.Tasks.Phauxth.New.run ["--remember"]
+
+      assert_file "lib/phauxth_new_web/router.ex", fn file ->
+        assert file =~ ~s(plug Phauxth.Remember)
+      end
+
+      assert_file "lib/phauxth_new_web/controllers/session_controller.ex", fn file ->
+        assert file =~ ~s(Phauxth.Remember.delete_rem_cookie)
+      end
+
     end
   end
 

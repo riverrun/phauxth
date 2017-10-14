@@ -22,7 +22,8 @@ defmodule <%= base %>Web.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug Phauxth.Authenticate
+    plug Phauxth.Authenticate<%= if remember do %>
+    plug Phauxth.Remember<% end %>
   end
 
   scope "/", <%= base %>Web do

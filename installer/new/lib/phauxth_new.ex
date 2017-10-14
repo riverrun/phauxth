@@ -6,11 +6,13 @@ defmodule Mix.Tasks.Phauxth.New do
 
   ## Options and arguments
 
-  There are three options:
+  There are four options:
 
     * api - create files to authenticate an api instead of a html application
       * the default is false
     * confirm - create files for email / phone confirmation and password resetting
+      * the default is false
+    * remember - add functions to enable `remember_me` functionality
       * the default is false
     * backups - if a file already exists, save the old version as a backup file
       * the default is true
@@ -83,11 +85,14 @@ defmodule Mix.Tasks.Phauxth.New do
   @doc false
   def run(args) do
     check_directory()
-    switches = [api: :boolean, confirm: :boolean, backups: :boolean]
+    switches = [api: :boolean,
+                confirm: :boolean,
+                remember: :boolean,
+                backups: :boolean]
     {opts, _, _} = OptionParser.parse(args, switches: switches)
 
-    {api, confirm, backups} = {opts[:api] == true,
-      opts[:confirm] == true, opts[:backups] != false}
+    {api, confirm, remember, backups} = {opts[:api] == true, opts[:confirm] == true,
+      opts[:remember] == true, opts[:backups] != false}
 
     files = @phx_base ++ case {api, confirm} do
       {true, true} -> @phx_api ++ @phx_confirm
@@ -100,7 +105,7 @@ defmodule Mix.Tasks.Phauxth.New do
     base = base_name |> Macro.camelize
 
     copy_files(files, base_name: base_name, base: base, api: api,
-               confirm: confirm, backups: backups)
+               confirm: confirm, remember: remember, backups: backups)
     update_config(confirm, base_name, base)
 
     Mix.shell.info """

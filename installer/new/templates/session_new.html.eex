@@ -17,14 +17,14 @@
     <%%= label f, :password, class: "control-label" %>
     <%%= password_input f, :password, class: "form-control" %>
     <%%= error_tag f, :password %>
-  </div>
+  </div><%= if confirm or remember do %>
 
-  <div class="form-group">
+  <div class="form-group"><%= if remember do %>
     <%%= checkbox f, :remember_me %>
     <%%= label f, :remember_me, class: "control-label" %>
-    <%= if confirm do %>&emsp;&emsp;
+    &emsp;&emsp;<% end %><%= if confirm do %>
     <%%= link "Forgot password", to: password_reset_path(@conn, :new) %><% end %>
-  </div>
+  </div><% end %>
 
   <div class="form-group">
     <%%= submit "Login", class: "btn btn-primary" %>

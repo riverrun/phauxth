@@ -18,8 +18,8 @@ defmodule <%= base %>Web.SessionController do
         render(conn, <%= base %>Web.SessionView, "info.json", %{info: token})
       {:error, _message} ->
         error(conn, :unauthorized, 401)<% else %>
-        put_session(conn, :user_id, user.id)
-        |> add_remember_me(user.id, params)
+        put_session(conn, :user_id, user.id)<%= if remember do %>
+        |> add_remember_me(user.id, params)<% end %>
         |> configure_session(renew: true)
         |> success("You have been logged in", user_path(conn, :index))
       {:error, message} ->
@@ -28,16 +28,15 @@ defmodule <%= base %>Web.SessionController do
   end<%= if not api do %>
 
   def delete(conn, _) do
-    delete_session(conn, :user_id)
+    delete_session(conn, :user_id)<%= if remember do %>
+    |> Phauxth.Remember.delete_rem_cookie<% end %>
     |> success("You have been logged out", page_path(conn, :index))
-  end
+  end<%= if remember do %>
 
   # This function adds a remember_me cookie to the conn.
   # See the documentation for Phauxth.Remember for more details.
-  # If you do not want this, just remove this function and the
-  # `|> add_remember_me(user.id, params)` line in the create function.
-  defp add_remember_me(conn, user_id, %{"remember_me" => true}) do
+  defp add_remember_me(conn, user_id, %{"remember_me" => "true"}) do
     Phauxth.Remember.add_rem_cookie(conn, user_id)
   end
-  defp add_remember_me(conn, _, _), do: conn<% end %>
+  defp add_remember_me(conn, _, _), do: conn<% end %><% end %>
 end
