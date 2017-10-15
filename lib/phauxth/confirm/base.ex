@@ -45,20 +45,37 @@ defmodule Phauxth.Confirm.Base do
             case Phauxth.Confirm.verify(params, Accounts) do
               {:ok, user} ->
                 Accounts.confirm_user(user)
-                Message.confirm_success(user.email)
-                conn
-                |> put_flash(:info, "Your account has been confirmed")
-                |> redirect(to: session_path(conn, :new))
+                message = "Your account has been confirmed"
+                Accounts.Message.confirm_success(user.email)
+                handle_success() # redirect or send json
               {:error, message} ->
-                conn
-                |> put_flash(:error, message)
-                |> redirect(to: session_path(conn, :new))
-                |> halt
+                handle_error()
             end
           end
 
       In this example, the `Accounts.confirm_user` function updates the
       database, setting the `confirmed_at` value to the current time.
+
+      ### Password resetting
+
+      For password resetting, use the `mode: :pass_reset` option, as in the
+      following example:
+
+          def update(conn, %{"password_reset" => params}) do
+            case Phauxth.Confirm.verify(params, Accounts, mode: :pass_reset) do
+              {:ok, user} ->
+                Accounts.update_password(user, params)
+                |> handle_password_reset(conn, params)
+              {:error, message} ->
+                handle_error()
+            end
+          end
+
+      The `Accounts.update_password` function tries to add the new password
+      to the database. If the password reset is successful, the `handle_password_reset`
+      function sends a message (email or phone) to the user and redirects the
+      user to the next page or sends a json response. If unsuccessful, the
+      `handle_password_reset` function handles the error.
       """
       def verify(params, user_context, opts \\ [])
       def verify(%{"key" => key}, user_context, opts) do

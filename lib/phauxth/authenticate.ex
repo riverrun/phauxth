@@ -2,6 +2,9 @@ defmodule Phauxth.Authenticate do
   @moduledoc """
   Authenticate the current user, using Plug sessions or api tokens.
 
+  For information about customizing this Plug, see the documentation
+  for Phauxth.Authenticate.Base.
+
   ## Options
 
   There are four options:

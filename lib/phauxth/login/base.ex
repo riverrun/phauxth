@@ -13,8 +13,6 @@ defmodule Phauxth.Login.Base do
       defmodule Phauxth.Confirm.Login do
         use Phauxth.Login.Base
 
-        @behaviour Phauxth
-
         def check_pass(%{confirmed_at: nil}, _, _, _), do: {:error, "account unconfirmed"}
         def check_pass(user, password, crypto, opts) do
           super(user, password, crypto, opts)

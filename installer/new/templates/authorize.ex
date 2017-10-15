@@ -4,6 +4,10 @@ defmodule <%= base %>Web.Authorize do
   import Phoenix.Controller<%= if not api do %>
   import <%= base %>Web.Router.Helpers<% end %>
 
+  # This function can be used to customize the `action` function in
+  # the controller so that only authenticated users can access each route.
+  # See the [Authorization wiki page](https://github.com/riverrun/phauxth/wiki/Authorization)
+  # for more information and examples.
   def auth_action(%Plug.Conn{assigns: %{current_user: nil}} = conn, _) do<%= if api do %>
     error(conn, :unauthorized, 401)<% else %>
     error(conn, "You need to log in to view this page", session_path(conn, :new))<% end %>
@@ -13,26 +17,16 @@ defmodule <%= base %>Web.Authorize do
     apply(module, action_name(conn), [conn, params, current_user])
   end
 
-  def auth_action_id(%Plug.Conn{params: %{"user_id" => user_id} = params,
-      assigns: %{current_user: %{id: id} = current_user}} = conn, module) do
-    if user_id == to_string(id) do
-      apply(module, action_name(conn), [conn, params, current_user])
-    else<%= if api do %>
-      error(conn, :forbidden, 403)<% else %>
-      error(conn, "You are not authorized to view this page", user_path(conn, :index))<% end %>
-    end
-  end<%= if api do %>
-  def auth_action_id(conn, _), do: error(conn, :unauthorized, 401)<% else %>
-  def auth_action_id(conn, _) do
-    error(conn, "You need to log in to view this page", session_path(conn, :new))
-  end<% end %>
-
+  # Plug to only allow authenticated users to access the resource.
+  # See the user controller for an example.
   def user_check(%Plug.Conn{assigns: %{current_user: nil}} = conn, _opts) do<%= if api do %>
     error(conn, :unauthorized, 401)<% else %>
     error(conn, "You need to log in to view this page", session_path(conn, :new))<% end %>
   end
   def user_check(conn, _opts), do: conn
 
+  # Plug to only allow authenticated users with the correct id to access the resource.
+  # See the user controller for an example.
   def id_check(%Plug.Conn{assigns: %{current_user: nil}} = conn, _opts) do<%= if api do %>
     error(conn, :unauthorized, 401)<% else %>
     error(conn, "You need to log in to view this page", session_path(conn, :new))<% end %>

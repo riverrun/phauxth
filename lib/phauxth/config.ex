@@ -14,12 +14,24 @@ defmodule Phauxth.Config do
 
   ## Umbrella apps
 
-  INFO ABOUT OVERRIDING CONFIG AND THE REASONS FOR THIS
+  Due to how the configuration is handled in umbrella apps, you will
+  need to override the `token_salt` and `endpoint` values when using
+  them in the sub-apps.
+
+  The example below shows how the token can be generated this way:
+
+      Phauxth.Token.sign(conn, data, token_salt: "somesalt")
+
+  And this example shows how the Confirm.verify function needs to be
+  called:
+
+      Phauxth.Confirm.verify(params, MyApp.Accounts,
+        endpoint: MyAppWeb.Endpoint, token_salt: "somesalt")
 
   ## Examples
 
-  With a regular app, add a `phauxth` entry to the `config.exs`
-  file in your project, as in the following example.
+  Add a `phauxth` entry to the `config.exs` file in your project,
+  as in the following example.
 
       config :phauxth,
         token_salt: "YkLmt7+f",
@@ -63,7 +75,8 @@ defmodule Phauxth.Config do
   """
   def endpoint do
     Application.get_env(:phauxth, :endpoint) || raise """
-    You need to set the `endpoint` value in the config/config.exs file.
+    You need to either set the `endpoint` value in the config/config.exs
+    file or set it by using the `endpoint` keyword argument.
     """
   end
 
@@ -75,7 +88,8 @@ defmodule Phauxth.Config do
   """
   def token_salt do
     Application.get_env(:phauxth, :token_salt) || raise """
-    You need to set the `token_salt` value in the config/config.exs file.
+    You need to either set the `token_salt` value in the config/config.exs
+    file or set it by using the `token_salt` keyword argument.
 
     To generate a suitable random salt, use the `gen_token_salt` function
     in the Phauxth.Config module.
