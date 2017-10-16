@@ -88,9 +88,12 @@ defmodule Phauxth.Authenticate.Base do
 
       This function also calls the database to get user information.
       """
-      def get_user(conn, {:session, _, user_context, _}) do
-        with user_id when not is_nil(user_id) <- check_session(conn),
-          do: user_context.get(user_id)
+      def get_user(conn, {:session, max_age, user_context, _}) do
+        with <<session_id::binary-size(17), user_id::binary>> <- check_session(conn),
+             %{sessions: sessions} = user <- user_context.get(user_id),
+             %{^session_id => timestamp} = sessions,
+          do: (timestamp + max_age) > System.system_time(:millisecond) and
+            user || {:error, "session expired"}
       end
       def get_user(%Plug.Conn{req_headers: headers} = conn,
           {:token, max_age, user_context, opts}) do
@@ -102,7 +105,9 @@ defmodule Phauxth.Authenticate.Base do
       @doc """
       Check the session for the current user.
       """
-      def check_session(conn), do: get_session(conn, :user_id)
+      def check_session(conn) do
+        get_session(conn, :phauxth_session_id)
+      end
 
       @doc """
       Check the token for the current user.

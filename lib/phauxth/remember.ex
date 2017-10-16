@@ -36,7 +36,7 @@ defmodule Phauxth.Remember do
 
   use Phauxth.Authenticate.Base
   import Plug.Conn
-  alias Phauxth.Token
+  alias Phauxth.{Login, Token}
 
   @max_age 7 * 24 * 60 * 60
 
@@ -55,7 +55,7 @@ defmodule Phauxth.Remember do
       get_user(conn, token, opts)
       |> report(log_meta)
       |> set_user(conn)
-      |> add_session
+      |> Login.add_session("S")
     end
   end
   def call(conn, _), do: conn
@@ -79,9 +79,4 @@ defmodule Phauxth.Remember do
   def delete_rem_cookie(conn) do
     register_before_send(conn, &delete_resp_cookie(&1, "remember_me"))
   end
-
-  defp add_session(%Plug.Conn{assigns: %{current_user: %{id: user_id}}} = conn) do
-    put_session(conn, :user_id, user_id) |> configure_session(renew: true)
-  end
-  defp add_session(conn), do: conn
 end

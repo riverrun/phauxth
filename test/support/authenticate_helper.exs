@@ -13,7 +13,7 @@ defmodule Phauxth.CustomSession do
 
   def check_session(conn) do
     unless get_session(conn, :shoe_size) < 6 do
-      get_session(conn, :user_id)
+      get_session(conn, :phauxth_session_id)
     end
   end
 

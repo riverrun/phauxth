@@ -12,7 +12,7 @@ defmodule Phauxth.AuthenticateTest do
   defp add_session(id) do
     conn(:get, "/")
     |> SessionHelper.sign_conn
-    |> put_session(:user_id, id)
+    |> put_session(:phauxth_session_id, id)
   end
 
   defp call(id) do
@@ -32,19 +32,19 @@ defmodule Phauxth.AuthenticateTest do
   end
 
   test "current user in session" do
-    conn = call(1)
+    conn = call("F25/1mZuBno+Pfu061")
     %{current_user: user} = conn.assigns
     assert user.email == "fred+1@example.com"
     assert user.role == "user"
   end
 
   test "no user found" do
-    conn = call(10)
+    conn = call("F25/1mZuBno+Pfu0610")
     assert conn.assigns == %{current_user: nil}
   end
 
   test "user removed from session" do
-    conn = call(1) |> configure_session(drop: true)
+    conn = call("F25/1mZuBno+Pfu061") |> delete_session(:phauxth_session_id)
     newconn = conn(:get, "/")
               |> recycle_cookies(conn)
               |> SessionHelper.sign_conn
@@ -82,7 +82,7 @@ defmodule Phauxth.AuthenticateTest do
   end
 
   test "output to current_user does not contain password_hash" do
-    conn = call(1)
+    conn = call("F25/1mZuBno+Pfu061")
     %{current_user: user} = conn.assigns
     refute Map.has_key?(user, :password_hash)
   end
@@ -95,12 +95,12 @@ defmodule Phauxth.AuthenticateTest do
   end
 
   test "customized check_session - checks shoe size before authenticating" do
-    conn = add_session(1)
+    conn = add_session("F25/1mZuBno+Pfu061")
            |> put_session(:shoe_size, 6)
            |> Phauxth.CustomSession.call({@session_opts, []})
     %{current_user: user} = conn.assigns
     assert user.email == "fred+1@example.com"
-    conn = add_session(1)
+    conn = add_session("F25/1mZuBno+Pfu061")
            |> put_session(:shoe_size, 5)
            |> Phauxth.CustomSession.call({@session_opts, []})
     assert conn.assigns == %{current_user: nil}

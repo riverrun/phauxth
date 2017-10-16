@@ -29,8 +29,8 @@ defmodule Phauxth.RememberTest do
     %{current_user: user} = conn.assigns
     assert user.username == "fred"
     assert user.role == "user"
-    user_id = get_session(conn, :user_id)
-    assert user_id == 1
+    <<"S", _session_id::binary-size(16), user_id::binary>> = get_session(conn, :phauxth_session_id)
+    assert user_id == "1"
   end
 
   test "error log when the cookie is invalid", %{conn: conn} do
@@ -53,7 +53,7 @@ defmodule Phauxth.RememberTest do
 
   test "call remember with current_user already set", %{conn: conn} do
     conn = SessionHelper.recycle_and_sign(conn)
-           |> put_session(:user_id, 4)
+           |> put_session(:phauxth_session_id, "FQcPdSYY9HlaRUKCc4")
            |> Authenticate.call({{:session, @max_age, TestAccounts, []}, []})
            |> Remember.call({@opts, []})
     %{current_user: user} = conn.assigns
