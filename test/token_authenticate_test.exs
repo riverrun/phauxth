@@ -1,4 +1,4 @@
-defmodule Phauxth.AuthenticateTest do
+defmodule Phauxth.TokenAuthenticateTest do
   use ExUnit.Case
   use Plug.Test
   import ExUnit.CaptureLog
@@ -6,19 +6,7 @@ defmodule Phauxth.AuthenticateTest do
   alias Phauxth.{Authenticate, SessionHelper, TestAccounts, Token}
 
   @max_age 4 * 60 * 60
-  @session_opts {:session, @max_age, TestAccounts, []}
   @token_opts {:token, @max_age, TestAccounts, []}
-
-  defp add_session(id) do
-    conn(:get, "/")
-    |> SessionHelper.sign_conn
-    |> put_session(:phauxth_session_id, id)
-  end
-
-  defp call(id) do
-    add_session(id)
-    |> Authenticate.call({@session_opts, []})
-  end
 
   defp add_token(id, token \\ nil, key_opts \\ []) do
     conn = conn(:get, "/") |> SessionHelper.add_key
@@ -29,27 +17,6 @@ defmodule Phauxth.AuthenticateTest do
     opts = {:token, max_age, TestAccounts, []}
     add_token(id, token)
     |> Authenticate.call({opts, []})
-  end
-
-  test "current user in session" do
-    conn = call("F25/1mZuBno+Pfu061")
-    %{current_user: user} = conn.assigns
-    assert user.email == "fred+1@example.com"
-    assert user.role == "user"
-  end
-
-  test "no user found" do
-    conn = call("F25/1mZuBno+Pfu0610")
-    assert conn.assigns == %{current_user: nil}
-  end
-
-  test "user removed from session" do
-    conn = call("F25/1mZuBno+Pfu061") |> delete_session(:phauxth_session_id)
-    newconn = conn(:get, "/")
-              |> recycle_cookies(conn)
-              |> SessionHelper.sign_conn
-              |> Authenticate.call({@session_opts, []})
-    assert newconn.assigns == %{current_user: nil}
   end
 
   test "authenticate api sets the current_user" do
@@ -81,29 +48,11 @@ defmodule Phauxth.AuthenticateTest do
     assert conn.assigns == %{current_user: nil}
   end
 
-  test "output to current_user does not contain password_hash" do
-    conn = call("F25/1mZuBno+Pfu061")
-    %{current_user: user} = conn.assigns
-    refute Map.has_key?(user, :password_hash)
-  end
-
   test "customized set_user - absinthe example" do
     conn = add_token(1) |> Phauxth.AbsintheAuthenticate.call({@token_opts, []})
     %{token: %{current_user: user}} = conn.private.absinthe
     assert user.email == "fred+1@example.com"
     assert user.role == "user"
-  end
-
-  test "customized check_session - checks shoe size before authenticating" do
-    conn = add_session("F25/1mZuBno+Pfu061")
-           |> put_session(:shoe_size, 6)
-           |> Phauxth.CustomSession.call({@session_opts, []})
-    %{current_user: user} = conn.assigns
-    assert user.email == "fred+1@example.com"
-    conn = add_session("F25/1mZuBno+Pfu061")
-           |> put_session(:shoe_size, 5)
-           |> Phauxth.CustomSession.call({@session_opts, []})
-    assert conn.assigns == %{current_user: nil}
   end
 
   test "customized check_token" do

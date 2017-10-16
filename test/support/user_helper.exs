@@ -19,6 +19,7 @@ defmodule Phauxth.TestAccounts do
     %{id: 1, email: "brian@example.com", role: "admin", password_hash: Bcrypt.hash_pwd_salt("h4rd2gU3$$")}
   ]
 
+  def get("4a43f849-d9fa-439e-b887-735378009c95"), do: get(4)
   def get(id) when is_binary(id) do
     String.to_integer(id) |> get
   end

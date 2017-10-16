@@ -91,7 +91,7 @@ defmodule Phauxth.Authenticate.Base do
       def get_user(conn, {:session, max_age, user_context, _}) do
         with <<session_id::binary-size(17), user_id::binary>> <- check_session(conn),
              %{sessions: sessions} = user <- user_context.get(user_id),
-             %{^session_id => timestamp} = sessions,
+             timestamp when is_integer(timestamp) <- Map.get(sessions, session_id),
           do: (timestamp + max_age) > System.system_time(:millisecond) and
             user || {:error, "session expired"}
       end
