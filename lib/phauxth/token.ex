@@ -58,7 +58,7 @@ defmodule Phauxth.Token do
   See the module documentation for more information.
   """
   def sign(key_source, data, opts \\ []) do
-    %{"data" => data, "signed" => now_ms()}
+    %{"data" => data, "signed" => now()}
     |> Poison.encode!
     |> MessageVerifier.sign(gen_secret(key_source, opts))
   end
@@ -68,11 +68,11 @@ defmodule Phauxth.Token do
 
   See the module documentation for more information.
   """
-  def verify(key_source, token, max_age_seconds, opts \\ [])
-  def verify(key_source, token, max_age_seconds, opts) when is_binary(token) do
+  def verify(key_source, token, max_age, opts \\ [])
+  def verify(key_source, token, max_age, opts) when is_binary(token) do
     MessageVerifier.verify(token, gen_secret(key_source, opts))
     |> get_token_data
-    |> handle_verify(max_age_seconds * 1000)
+    |> handle_verify(max_age * 1000)
   end
   def verify(_, _, _, _), do: {:error, "invalid token"}
 
@@ -106,11 +106,11 @@ defmodule Phauxth.Token do
   defp get_token_data(:error), do: {:error, "invalid token"}
 
   defp handle_verify({:ok, %{"data" => data, "signed" => signed}}, max_age) do
-    (signed + max_age) < now_ms() and {:error, "expired token"} || {:ok, data}
+    (signed + max_age) < now() and {:error, "expired token"} || {:ok, data}
   end
   defp handle_verify(_, _), do: {:error, "invalid token"}
 
-  defp now_ms, do: System.system_time(:millisecond)
+  defp now, do: System.system_time(:millisecond)
 
   defp validate_secret(nil) do
     raise ArgumentError, "The secret_key_base has not been set"

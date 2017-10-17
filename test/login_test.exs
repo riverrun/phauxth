@@ -88,7 +88,7 @@ defmodule Phauxth.LoginTest do
     session_id = conn(:get, "/")
                  |> Phauxth.SessionHelper.sign_conn
                  |> assign(:current_user, %{id: 2})
-                 |> Login.add_session(Login.gen_session_id(2, "F"))
+                 |> Login.add_session(Login.gen_session_id("F"), 2)
                  |> get_session(:phauxth_session_id)
     <<"F", _session_id::binary-size(16), user_id::binary>> = session_id
     assert user_id == "2"

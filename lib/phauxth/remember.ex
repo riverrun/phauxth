@@ -48,20 +48,23 @@ defmodule Phauxth.Remember do
   end
 
   @doc false
+  def call(%Plug.Conn{assigns: %{current_user: %{}}} = conn, _), do: conn
   def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn, {opts, log_meta}) do
-    if conn.assigns[:current_user] do
-      conn
-    else
-      user = get_user(conn, token, opts)
-      conn = report(user, log_meta) |> set_user(conn)
-      user && Login.add_session(conn, Login.gen_session_id(user.id, "S")) || conn
-    end
+    get_user(conn, token, opts)
+    |> report(log_meta)
+    |> set_user(conn)
   end
   def call(conn, _), do: conn
 
   def get_user(conn, token, {max_age, user_context, opts}) do
     with {:ok, user_id} <- Token.verify(conn, token, max_age, opts),
       do: user_context.get(user_id)
+  end
+
+  def set_user(nil, conn), do: assign(conn, :current_user, nil)
+  def set_user(user, conn) do
+    assign(conn, :current_user, user)
+    |> Login.add_session(Login.gen_session_id("S"), user.id)
   end
 
   @doc """
