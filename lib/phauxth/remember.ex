@@ -52,10 +52,9 @@ defmodule Phauxth.Remember do
     if conn.assigns[:current_user] do
       conn
     else
-      get_user(conn, token, opts)
-      |> report(log_meta)
-      |> set_user(conn)
-      |> Login.add_session("S")
+      user = get_user(conn, token, opts)
+      conn = report(user, log_meta) |> set_user(conn)
+      user && Login.add_session(conn, Login.gen_session_id(user.id, "S")) || conn
     end
   end
   def call(conn, _), do: conn
