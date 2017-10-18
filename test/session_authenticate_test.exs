@@ -63,16 +63,11 @@ defmodule Phauxth.SessionAuthenticateTest do
     refute Map.has_key?(user, :password_hash)
   end
 
-  test "customized check_session - checks shoe size before authenticating" do
-    conn = add_session("F25/1mZuBno+Pfu061")
-           |> put_session(:shoe_size, 6)
+  test "customized check_session - with custom session id" do
+    conn = add_session("Fc0k6ku4lm61uO7pnBKreWoHo1")
            |> Phauxth.CustomSession.call({@session_opts, []})
     %{current_user: user} = conn.assigns
     assert user.email == "fred+1@example.com"
-    conn = add_session("F25/1mZuBno+Pfu061")
-           |> put_session(:shoe_size, 5)
-           |> Phauxth.CustomSession.call({@session_opts, []})
-    assert conn.assigns == %{current_user: nil}
   end
 
 end

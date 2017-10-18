@@ -4,7 +4,7 @@ defmodule Phauxth.TestAccounts do
     %{id: 1, email: "fred+1@example.com", username: "fred", phone: "55555555555", reset_sent_at: nil,
       role: "user", password_hash: Bcrypt.hash_pwd_salt("h4rd2gU3$$"), confirmed_at: nil,
       sessions: %{"F25/1mZuBno+Pfu06" => System.system_time(:second),
-        "FQcPdSYY9HlaRUKCc" => System.system_time(:second)}},
+        "Fc0k6ku4lm61uO7pnBKreWoHo" => System.system_time(:second)}},
     %{id: 2, email: "ray@example.com", role: "user", reset_sent_at: nil,
       password_hash: Bcrypt.hash_pwd_salt("h4rd2gU3$$"), confirmed_at: DateTime.utc_now},
     %{id: 3, email: "froderick@example.com", role: "user", confirmed_at: DateTime.utc_now,

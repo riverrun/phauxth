@@ -89,9 +89,9 @@ defmodule Phauxth.Authenticate.Base do
       This function also calls the database to get user information.
       """
       def get_user(conn, {:session, max_age, user_context, _}) do
-        with <<session_id::binary-size(17), user_id::binary>> <- check_session(conn),
+        with {session_id, user_id} <- check_session(conn),
              %{sessions: sessions} = user <- user_context.get(user_id),
-             timestamp when is_integer(timestamp) <- Map.get(sessions, session_id),
+             timestamp when is_integer(timestamp) <- sessions[session_id],
           do: (timestamp + max_age) > System.system_time(:second) and
             user || {:error, "session expired"}
       end
@@ -106,7 +106,9 @@ defmodule Phauxth.Authenticate.Base do
       Check the session for the current user.
       """
       def check_session(conn) do
-        get_session(conn, :phauxth_session_id)
+        with <<session_id::binary-size(17), user_id::binary>>
+             <- get_session(conn, :phauxth_session_id),
+          do: {session_id, user_id}
       end
 
       @doc """

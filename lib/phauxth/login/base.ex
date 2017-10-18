@@ -29,6 +29,7 @@ defmodule Phauxth.Login.Base do
   defmacro __using__(_) do
     quote do
       import unquote(__MODULE__)
+      import Plug.Conn
 
       @behaviour Phauxth
 
@@ -93,6 +94,21 @@ defmodule Phauxth.Login.Base do
       """
       def check_pass(user, password, crypto, opts) do
         crypto.check_pass(user, password, opts)
+      end
+
+      @doc """
+      Add the phauxth_session_id to the conn.
+      """
+      def add_session(conn, session_id, user_id) do
+        put_session(conn, :phauxth_session_id, session_id <> to_string(user_id))
+        |> configure_session(renew: true)
+      end
+
+      @doc """
+      Generate a session id.
+      """
+      def gen_session_id(fresh) do
+        "#{fresh}#{:crypto.strong_rand_bytes(12) |> Base.encode64}"
       end
 
       defoverridable [verify: 2, verify: 3, check_pass: 4]
