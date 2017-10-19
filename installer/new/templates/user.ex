@@ -8,7 +8,8 @@ defmodule <%= base %>.Accounts.User do
     field :password, :string, virtual: true
     field :password_hash, :string<%= if confirm do %>
     field :confirmed_at, :utc_datetime
-    field :reset_sent_at, :utc_datetime<% end %>
+    field :reset_sent_at, :utc_datetime<% end %><%= if not api do %>
+    field :sessions, {:map, :integer}, default: %{}<% end %>
 
     timestamps()
   end

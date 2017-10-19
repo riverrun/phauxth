@@ -7,8 +7,12 @@ defmodule <%= base %>Web.PasswordResetControllerTest do
 
   setup %{conn: conn} do<%= if not api do %>
     conn = conn |> bypass_through(<%= base %>Web.Router, :browser) |> get("/")<% end %>
-    add_reset_user("gladys@example.com")
-    {:ok, %{conn: conn}}
+    user = add_reset_user("gladys@example.com")
+    {:ok, %{conn: conn, user: user}}
+  end
+
+  defp get_user do
+    Accounts.get_by(%{"email" => "gladys@example.com"})
   end
 
   test "user can create a password reset request", %{conn: conn} do
@@ -16,7 +20,15 @@ defmodule <%= base %>Web.PasswordResetControllerTest do
     conn = post(conn, password_reset_path(conn, :create), password_reset: valid_attrs)<%= if api do %>
     assert json_response(conn, 201)["info"]["detail"]<% else %>
     assert conn.private.phoenix_flash["info"] =~ "your inbox for instructions"
-    assert redirected_to(conn) == page_path(conn, :index)<% end %>
+    assert redirected_to(conn) == page_path(conn, :index)
+  end
+
+  test "sessions are deleted when user creates a password reset request", %{conn: conn, user: user} do
+    valid_attrs = %{email: "gladys@example.com"}
+    add_phauxth_session(conn, user)
+    assert get_user().sessions != %{}
+    post(conn, password_reset_path(conn, :create), password_reset: valid_attrs)
+    assert get_user().sessions == %{}<% end %>
   end
 
   test "create function fails for no user", %{conn: conn} do

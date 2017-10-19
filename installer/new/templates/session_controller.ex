@@ -1,7 +1,8 @@
 defmodule <%= base %>Web.SessionController do
   use <%= base %>Web, :controller
 
-  import <%= base %>Web.Authorize<%= if confirm do %>
+  import <%= base %>Web.Authorize
+  alias <%= base %>.Accounts<%= if confirm do %>
   alias Phauxth.Confirm.Login<% else %>
   alias Phauxth.Login<% end %><%= if not api do %>
 
@@ -15,15 +16,16 @@ defmodule <%= base %>Web.SessionController do
   # If you are using Argon2 or Pbkdf2, add crypto: Comeonin.Argon2
   # or crypto: Comeonin.Pbkdf2 to Login.verify (after Accounts)
   def create(conn, %{"session" => params}) do
-    case Login.verify(params, <%= base %>.Accounts) do
+    case Login.verify(params, Accounts) do
       {:ok, user} -><%= if api do %>
         token = Phauxth.Token.sign(conn, user.id)
         render(conn, <%= base %>Web.SessionView, "info.json", %{info: token})
       {:error, _message} ->
         error(conn, :unauthorized, 401)<% else %>
-        put_session(conn, :user_id, user.id)<%= if remember do %>
+        session_id = Login.gen_session_id("F")
+        Accounts.add_session(user, session_id, System.system_time(:second))
+        Login.add_session(conn, session_id, user.id)<%= if remember do %>
         |> add_remember_me(user.id, params)<% end %>
-        |> configure_session(renew: true)
         |> success("You have been logged in", user_path(conn, :index))
       {:error, message} ->
         error(conn, message, session_path(conn, :new))<% end %>
@@ -32,6 +34,7 @@ defmodule <%= base %>Web.SessionController do
 
   def delete(%Plug.Conn{assigns: %{current_user: user}} = conn, _) do
     delete_session(conn, :user_id)<%= if remember do %>
+    delete_session(conn, :phauxth_session_id)<%= if remember do %>
     |> Phauxth.Remember.delete_rem_cookie<% end %>
     |> success("You have been logged out", page_path(conn, :index))
   end<%= if remember do %>

@@ -31,7 +31,7 @@ defmodule Mix.Tasks.Phauxth.NewTest do
 
       assert_file "lib/phauxth_new_web/controllers/session_controller.ex", fn file ->
         assert file =~ ~s(alias Phauxth.Login)
-        assert file =~ "put_session(conn, :user_id, user.id)"
+        assert file =~ "Login.add_session(conn, session_id, user.id)"
         refute file =~ ~s(Phauxth.Remember.delete_rem_cookie)
       end
 

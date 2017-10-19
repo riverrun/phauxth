@@ -42,7 +42,7 @@ defmodule <%= base %>Web.PasswordResetController do
     Accounts.Message.reset_success(user.email)
     message = "Your password has been reset"<%= if api do %>
     render(conn, <%= base %>Web.PasswordResetView, "info.json", %{info: message})<% else %>
-    delete_session(conn, :user_id)
+    delete_session(conn, :phauxth_session_id)
     |> success(message, session_path(conn, :new))<% end %>
   end
   defp update_password({:error, %Ecto.Changeset{} = changeset}, conn, <%= if api do %>_<% end %>params) do

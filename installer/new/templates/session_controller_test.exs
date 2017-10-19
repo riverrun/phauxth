@@ -53,7 +53,7 @@ defmodule <%= base %>Web.SessionControllerTest do
   end
 
   test "logout succeeds", %{conn: conn, user: user} do
-    conn = conn |> put_session(:user_id, user.id) |> send_resp(:ok, "/")
+    conn = conn |> add_phauxth_session(user) |> send_resp(:ok, "/")
     conn = delete conn, session_path(conn, :delete, user)
     assert redirected_to(conn) == page_path(conn, :index)
     conn = get conn, user_path(conn, :index)

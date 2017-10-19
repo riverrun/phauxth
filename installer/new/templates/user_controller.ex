@@ -68,7 +68,7 @@ defmodule <%= base %>Web.UserController do
   def delete(%Plug.Conn{assigns: %{current_user: user}} = conn, _) do
     {:ok, _user} = Accounts.delete_user(user)<%= if api do %>
     send_resp(conn, :no_content, "")<% else %>
-    delete_session(conn, :user_id)
+    delete_session(conn, :phauxth_session_id)
     |> success("User deleted successfully", session_path(conn, :new))<% end %>
   end
 end

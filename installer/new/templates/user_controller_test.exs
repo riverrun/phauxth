@@ -14,7 +14,7 @@ defmodule <%= base %>Web.UserControllerTest do
       user = add_user(email)
       other = add_user("tony@example.com")<%= if api do %>
       conn = conn |> add_token_conn(user)<% else %>
-      conn = conn |> put_session(:user_id, user.id) |> send_resp(:ok, "/")<% end %>
+      conn = conn |> add_phauxth_session(user) |> send_resp(:ok, "/")<% end %>
       {:ok, %{conn: conn, user: user, other: other}}
     else
       {:ok, %{conn: conn}}
