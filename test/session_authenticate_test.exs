@@ -70,4 +70,12 @@ defmodule Phauxth.SessionAuthenticateTest do
     assert user.email == "fred+1@example.com"
   end
 
+  test "fresh_session? can determine if session is fresh or not" do
+    conn = call("F25/1mZuBno+Pfu061")
+    assert Authenticate.fresh_session?(conn) == true
+    conn = call("S25/1mZuBno+Pfu061")
+    assert Authenticate.fresh_session?(conn) == false
+    conn = call(nil)
+    assert Authenticate.fresh_session?(conn) == false
+  end
 end

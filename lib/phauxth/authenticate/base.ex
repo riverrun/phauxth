@@ -139,6 +139,16 @@ defmodule Phauxth.Authenticate.Base do
         assign(conn, :current_user, user)
       end
 
+      @doc """
+      Checks to see if the session is fresh - newly logged in.
+      """
+      def fresh_session?(conn) do
+        get_session(conn, :phauxth_session_id) |> check_session_id
+      end
+
+      defp check_session_id("F" <> _), do: true
+      defp check_session_id(_), do: false
+
       defoverridable [init: 1, call: 2, get_user: 2, check_session: 1,
                       check_token: 4, report: 2, set_user: 2]
     end
