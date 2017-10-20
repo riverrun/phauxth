@@ -17,6 +17,12 @@ defmodule <%= base %>Web.SessionControllerTest do
     {:ok, %{conn: conn, user: user}}
   end
 
+  <%= if not api do %>test "rendering login form fails for user that is already logged in", %{conn: conn, user: user} do
+    conn = conn |> put_session(:user_id, user.id) |> send_resp(:ok, "/")
+    conn = get conn, session_path(conn, :new)
+    assert redirected_to(conn) == page_path(conn, :index)
+  end<% end %>
+
   test "login succeeds", %{conn: conn} do
     conn = post conn, session_path(conn, :create), session: @create_attrs<%= if api do %>
     assert json_response(conn, 200)["access_token"]<% else %>
@@ -29,6 +35,15 @@ defmodule <%= base %>Web.SessionControllerTest do
   end<% else %>
     assert redirected_to(conn) == session_path(conn, :new)
   end<% end %><% end %>
+
+
+  test "login fails for user that is already logged in", %{conn: conn, user: user} do
+    conn = conn |> put_session(:user_id, user.id) |> send_resp(:ok, "/")
+    conn = post conn, session_path(conn, :create), session: @create_attrs<%= if api do %>
+    assert json_response(conn, 401)
+  end<% else %>
+    assert redirected_to(conn) == page_path(conn, :index)
+  end<% end %>
 
   test "login fails for invalid password", %{conn: conn} do
     conn = post conn, session_path(conn, :create), session: @invalid_attrs<%= if api do %>

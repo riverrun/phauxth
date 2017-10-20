@@ -25,6 +25,14 @@ defmodule <%= base %>Web.Authorize do
   end
   def user_check(conn, _opts), do: conn
 
+  # Plug to only allow unauthenticated users to access the resource.
+  # See the session controller for an example.
+  def guest_check(%Plug.Conn{assigns: %{current_user: nil}} = conn, _opts), do: conn
+  def guest_check(%Plug.Conn{assigns: %{current_user: _current_user}} = conn, _opts) do<%= if api do %>
+    error(conn, :unauthorized, 401)<% else %>
+    error(conn, "You need to log out to view this page", page_path(conn, :index))<% end %>
+  end
+
   # Plug to only allow authenticated users with the correct id to access the resource.
   # See the user controller for an example.
   def id_check(%Plug.Conn{assigns: %{current_user: nil}} = conn, _opts) do<%= if api do %>
