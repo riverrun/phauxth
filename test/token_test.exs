@@ -45,13 +45,8 @@ defmodule Phauxth.TokenTest do
 
   test "max age is checked", %{conn: conn} do
     token = Token.sign(conn, 1)
-    assert Token.verify(conn, token, 1000) == {:ok, 1}
-    assert Token.verify(conn, token, -1000) == {:error, "expired token"}
-
-    token = Token.sign(conn, 1)
-    assert Token.verify(conn, token, 0.1) == {:ok, 1}
-    :timer.sleep(150)
-    assert Token.verify(conn, token, 0.1) == {:error, "expired token"}
+    assert Token.verify(conn, token, 1) == {:ok, 1}
+    assert Token.verify(conn, token, -1) == {:error, "expired token"}
   end
 
   test "passes options to key generator", %{conn: conn} do
