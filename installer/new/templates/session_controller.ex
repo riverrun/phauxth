@@ -5,6 +5,8 @@ defmodule <%= base %>Web.SessionController do
   alias Phauxth.Confirm.Login<% else %>
   alias Phauxth.Login<% end %><%= if not api do %>
 
+  plug :guest_check when action in [:new, :create]
+
   def new(conn, _) do
     render(conn, "new.html")
   end<% end %>
