@@ -6,6 +6,7 @@ defmodule <%= base %>Web.SessionController do
   alias Phauxth.Login<% end %><%= if not api do %>
 
   plug :guest_check when action in [:new, :create]
+  plug :id_check when action in [:delete]
 
   def new(conn, _) do
     render(conn, "new.html")
@@ -29,7 +30,7 @@ defmodule <%= base %>Web.SessionController do
     end
   end<%= if not api do %>
 
-  def delete(conn, _) do
+  def delete(%Plug.Conn{assigns: %{current_user: user}} = conn, _) do
     delete_session(conn, :user_id)<%= if remember do %>
     |> Phauxth.Remember.delete_rem_cookie<% end %>
     |> success("You have been logged out", page_path(conn, :index))
