@@ -1,7 +1,8 @@
 defmodule <%= base %>Web.SessionControllerTest do
   use <%= base %>Web.ConnCase
 
-  import <%= base %>Web.AuthCase
+  import <%= base %>Web.AuthCase<%= if not api do %>
+  alias <%= base %>.Accounts<% end %>
 
   @create_attrs %{email: "robin@example.com", password: "reallyHard2gue$$"}
   @invalid_attrs %{email: "robin@example.com", password: "cannotGue$$it"}<%= if confirm do %>
@@ -15,10 +16,10 @@ defmodule <%= base %>Web.SessionControllerTest do
     user = add_user_confirmed("robin@example.com")<% else %>
     user = add_user("robin@example.com")<% end %>
     {:ok, %{conn: conn, user: user}}
-  end
+  end<%= if not api do %>
 
-  <%= if not api do %>test "rendering login form fails for user that is already logged in", %{conn: conn, user: user} do
-    conn = conn |> put_session(:user_id, user.id) |> send_resp(:ok, "/")
+  test "rendering login form fails for user that is already logged in", %{conn: conn, user: user} do
+    conn = conn |> add_phauxth_session(user) |> send_resp(:ok, "/")
     conn = get conn, session_path(conn, :new)
     assert redirected_to(conn) == page_path(conn, :index)
   end<% end %>
@@ -36,12 +37,13 @@ defmodule <%= base %>Web.SessionControllerTest do
     assert redirected_to(conn) == session_path(conn, :new)
   end<% end %><% end %>
 
-
-  test "login fails for user that is already logged in", %{conn: conn, user: user} do
-    conn = conn |> put_session(:user_id, user.id) |> send_resp(:ok, "/")
-    conn = post conn, session_path(conn, :create), session: @create_attrs<%= if api do %>
-    assert json_response(conn, 401)
+  test "login fails for user that is already logged in", %{conn: conn, user: user} do<%= if api do %>
+    conn = conn |> add_token_conn(user)
+    conn = post conn, session_path(conn, :create), session: @create_attrs
+    assert json_response(conn, 401)["errors"]["detail"] =~ "already logged in"
   end<% else %>
+    conn = conn |> add_phauxth_session(user) |> send_resp(:ok, "/")
+    conn = post conn, session_path(conn, :create), session: @create_attrs
     assert redirected_to(conn) == page_path(conn, :index)
   end<% end %>
 
@@ -52,12 +54,13 @@ defmodule <%= base %>Web.SessionControllerTest do
     assert redirected_to(conn) == session_path(conn, :new)
   end
 
-  test "logout succeeds", %{conn: conn, user: user} do
+  test "logout succeeds and session is deleted", %{conn: conn, user: user} do
     conn = conn |> add_phauxth_session(user) |> send_resp(:ok, "/")
     conn = delete conn, session_path(conn, :delete, user)
     assert redirected_to(conn) == page_path(conn, :index)
     conn = get conn, user_path(conn, :index)
     assert redirected_to(conn) == session_path(conn, :new)
+    assert Accounts.list_sessions(user.id) == %{}
   end<%= if remember do %>
 
   test "remember me cookie is added / not added", %{conn: conn} do

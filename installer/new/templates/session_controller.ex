@@ -4,7 +4,9 @@ defmodule <%= base %>Web.SessionController do
   import <%= base %>Web.Authorize
   alias <%= base %>.Accounts<%= if confirm do %>
   alias Phauxth.Confirm.Login<% else %>
-  alias Phauxth.Login<% end %><%= if not api do %>
+  alias Phauxth.Login<% end %><%= if api do %>
+
+  plug :guest_check when action in [:create]<% else %>
 
   plug :guest_check when action in [:new, :create]
   plug :id_check when action in [:delete]
@@ -33,7 +35,8 @@ defmodule <%= base %>Web.SessionController do
   end<%= if not api do %>
 
   def delete(%Plug.Conn{assigns: %{current_user: user}} = conn, _) do
-    delete_session(conn, :user_id)<%= if remember do %>
+    <<session_id::binary-size(17), _::binary>> = get_session(conn, :phauxth_session_id)
+    Accounts.delete_session(user, session_id)
     delete_session(conn, :phauxth_session_id)<%= if remember do %>
     |> Phauxth.Remember.delete_rem_cookie<% end %>
     |> success("You have been logged out", page_path(conn, :index))

@@ -2,8 +2,8 @@ defmodule <%= base %>Web.PasswordResetController do
   use <%= base %>Web, :controller<%= if not api do %>
 
   import <%= base %>Web.Authorize<% end %>
-  alias <%= base %>.Accounts
-<%= if not api do %>
+  alias <%= base %>.Accounts<%= if not api do %>
+
   def new(conn, _params) do
     render(conn, "new.html")
   end<% end %>
@@ -23,7 +23,7 @@ defmodule <%= base %>Web.PasswordResetController do
     render(conn, "edit.html", key: key)
   end
   def edit(conn, _params) do
-    render(conn, <%= base %>.ErrorView, "404.html")
+    render(conn, <%= base %>Web.ErrorView, "404.html")
   end<% end %>
 
   def update(conn, %{"password_reset" => params}) do
