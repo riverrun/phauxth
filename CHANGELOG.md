@@ -1,5 +1,13 @@
 # Phauxth Changelog
 
+## Version 1.2.0
+
+* Enhancements
+  * Improvements to session management
+    * the session id in the Plug Session has a customizable max age
+    * session ids are stored in the database (as a map in the users table)
+      * if the session id is not found in the database, the user is not authenticated
+
 ## Version 1.1.3
 
 * Enhancements
