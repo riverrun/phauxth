@@ -98,7 +98,7 @@ defmodule Phauxth do
   The easiest way to get started is to use the phauxth_new installer.
   First, download and install it:
 
-      mix archive.install https://github.com/riverrun/phauxth/raw/master/installer/archives/phauxth_new.ez
+      mix archive.install https://github.com/riverrun/phauxth_installer/blob/master/archives/phauxth_new.ez
 
   Then run the `mix phauxth.new` command in the main directory of the
   Phoenix app. The following options are available:
