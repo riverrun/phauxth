@@ -8,6 +8,9 @@
     * session ids are stored in the database (as a map in the users table)
       * if the session id is not found in the database, the user is not authenticated
 
+* Changes
+  * Moved the installer to a separate (phauxth_installer) repository
+
 ## Version 1.1.3
 
 * Enhancements
