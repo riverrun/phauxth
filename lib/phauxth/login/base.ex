@@ -117,10 +117,6 @@ defmodule Phauxth.Login.Base do
 
   alias Phauxth.{Config, Log}
 
-  @messages %{
-    "account unconfirmed" => "The account needs to be confirmed"
-  }
-
   @doc """
   Prints out a log message and returns {:ok, user} or {:error, message}.
   """
@@ -128,8 +124,12 @@ defmodule Phauxth.Login.Base do
     Log.info(%Log{user: user.id, message: ok_message, meta: meta})
     {:ok, Map.drop(user, Config.drop_user_keys)}
   end
+  def report({:error, "account unconfirmed"}, _, meta) do
+    Log.warn(%Log{message: "account unconfirmed", meta: meta})
+    {:error, Config.user_messages.need_confirm()}
+  end
   def report({:error, message}, _, meta) do
     Log.warn(%Log{message: message, meta: meta})
-    {:error, @messages[message] || "Invalid credentials"}
+    {:error, Config.user_messages.invalid()}
   end
 end

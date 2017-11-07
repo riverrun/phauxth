@@ -9,6 +9,7 @@ defmodule Phauxth.Config do
   | :----------------- | :-----------  | ---------------: |
   | log_level          | atom          | :info            |
   | drop_user_keys     | list of atoms | []               |
+  | user_messages      | module        | Phauxth.UserMessages |
   | endpoint           | module        | N/A              |
   | token_salt         | string        | N/A              |
 
@@ -66,6 +67,17 @@ defmodule Phauxth.Config do
   def drop_user_keys do
     Application.get_env(:phauxth, :drop_user_keys, []) ++
     [:password_hash, :password, :otp_secret]
+  end
+
+  @doc """
+  Module to be used to display messages to users.
+
+  The default is Phauxth.UserMessages. See the documentation for
+  Phauxth.UserMessages.Base for details about customizing these
+  messages.
+  """
+  def user_messages do
+    Application.get_env(:phauxth, :user_messages, Phauxth.UserMessages)
   end
 
   @doc """

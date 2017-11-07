@@ -1,6 +1,7 @@
 defmodule Phauxth.Confirm.PassResetTest do
   use ExUnit.Case
   use Plug.Test
+  import ExUnit.CaptureLog
 
   alias Phauxth.{Confirm, TestAccounts, Token}
 
@@ -23,10 +24,10 @@ defmodule Phauxth.Confirm.PassResetTest do
   end
 
   test "reset fails when reset_sent_at is not found", %{conn: conn} do
-    valid_key = Token.sign(conn, %{"email" => "igor@example.com"})
-    params = %{"key" => valid_key, "password" => "password"}
-    {:error, message} = Confirm.verify(params, TestAccounts, mode: :pass_reset)
-    assert message =~ "user has not been sent a reset token"
+    assert capture_log(fn ->
+      valid_key = Token.sign(conn, %{"email" => "igor@example.com"})
+      params = %{"key" => valid_key, "password" => "password"}
+      {:error, _} = Confirm.verify(params, TestAccounts, mode: :pass_reset)
+    end) =~ ~s([warn]  user=nil message="no reset token found")
   end
-
 end

@@ -33,7 +33,7 @@ defmodule Phauxth.ConfirmTest do
     confirmed_email = Token.sign(conn, %{"email" => "ray@example.com"})
     %{params: params} = conn(:get, "/confirm?key=" <> confirmed_email) |> fetch_query_params
     {:error, message} = Confirm.verify(params, TestAccounts)
-    assert message =~ "The user has already been confirmed"
+    assert message =~ "Your account has already been confirmed"
   end
 
   test "confirmation succeeds with different identifier", %{conn: conn} do
