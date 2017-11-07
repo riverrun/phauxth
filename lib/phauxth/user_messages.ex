@@ -14,14 +14,14 @@ defmodule Phauxth.UserMessages.Base do
         use Phauxth.UserMessages.Base
         import MyApp.Gettext
 
-        def invalid, do: gettext "Invalid credentials"
+        def default_error, do: gettext "Invalid credentials"
       end
 
   """
 
   @callback need_confirm() :: String.t
   @callback already_confirmed() :: String.t
-  @callback invalid() :: String.t
+  @callback default_error() :: String.t
 
   defmacro __using__(_) do
     quote do
@@ -29,7 +29,7 @@ defmodule Phauxth.UserMessages.Base do
 
       def need_confirm, do: "Your account needs to be confirmed"
       def already_confirmed, do: "Your account has already been confirmed"
-      def invalid, do: "Invalid credentials"
+      def default_error, do: "Invalid credentials"
 
       defoverridable Phauxth.UserMessages.Base
     end

@@ -1,5 +1,11 @@
 # Phauxth Changelog
 
+## Version 1.2.2
+
+* Enhancements
+  * Added UserMessages module to make it easier to customize messages that are sent to the end user
+    * this can also be used to translate these messages (using gettext)
+
 ## Version 1.2.0
 
 * Enhancements

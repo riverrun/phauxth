@@ -130,6 +130,6 @@ defmodule Phauxth.Login.Base do
   end
   def report({:error, message}, _, meta) do
     Log.warn(%Log{message: message, meta: meta})
-    {:error, Config.user_messages.invalid()}
+    {:error, Config.user_messages.default_error()}
   end
 end
