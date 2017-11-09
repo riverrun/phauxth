@@ -49,9 +49,8 @@ defmodule Phauxth.Authenticate.Base do
       end
 
   MyAppWeb.Authenticate is called in the same way as Phauxth.Authenticate.
-
-  Use Phauxth.Token.verify, in the `user_socket.ex` file, to verify the
-  token.
+  You can then use Phauxth.Token.verify, in the `user_socket.ex` file, to
+  verify the token.
 
   ### Custom session / token implementations
 

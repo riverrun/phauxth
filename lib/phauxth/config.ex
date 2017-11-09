@@ -45,8 +45,7 @@ defmodule Phauxth.Config do
   @doc """
   The log level for Phauxth logs.
 
-  This should either be an atom, :debug, :info, :warn or :error, or
-  false.
+  This can be false, :debug, :info, :warn or :error.
 
   The default is :info, which means that :info, :warn and :error logs
   will be returned.
@@ -73,8 +72,8 @@ defmodule Phauxth.Config do
   Module to be used to display messages to users.
 
   The default is Phauxth.UserMessages. See the documentation for
-  Phauxth.UserMessages.Base for details about customizing these
-  messages.
+  Phauxth.UserMessages.Base for details about customizing / translating
+  these messages.
   """
   def user_messages do
     Application.get_env(:phauxth, :user_messages, Phauxth.UserMessages)
