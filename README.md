@@ -12,12 +12,23 @@ designed to be secure, extensible and well-documented.
 For a general overview of some of the goals of Phauxth and its basic usage,
 see [this post](https://riverrun.github.io/projects/phauxth/2017/09/25/phauxth.html).
 
+## Getting started
+
 [This guide](https://github.com/riverrun/phauxth/wiki/Getting-started)
 shows how you can set up a new Phoenix project with Phauxth.
 
-The wiki also has information about
-[authorization](https://github.com/riverrun/phauxth/wiki/Authorization)
-and [upgrading existing apps](https://github.com/riverrun/phauxth/wiki/Upgrading-Phauxth-apps).
+## Authentication and authorization
+
+The core Phauxth library handles authentication, verifying who the
+user is.
+
+For information about authorization, or access control, see the
+[Authorization](https://github.com/riverrun/phauxth/wiki/Authorization) page
+in the wiki.
+
+If you have set up your app using the [Phauxth installer](https://github.com/riverrun/phauxth_installer),
+the `authorize.ex` file in the controllers directory provides examples
+of functions you can use to authorize users' access to resources.
 
 ## Phauxth examples
 
