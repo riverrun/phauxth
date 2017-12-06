@@ -45,9 +45,9 @@ defmodule Phauxth.Config do
   @doc """
   The log level for Phauxth logs.
 
-  This can be false, :debug, :info, :warn or :error.
+  This can be `false`, `:debug`, `:info`, `:warn` or `:error`.
 
-  The default is :info, which means that :info, :warn and :error logs
+  The default is `:info`, which means that `:info`, `:warn` and `:error` logs
   will be returned.
   """
   def log_level do

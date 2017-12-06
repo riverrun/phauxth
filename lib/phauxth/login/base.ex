@@ -47,9 +47,9 @@ defmodule Phauxth.Login.Base do
 
       There are two options for the verify function:
 
-        * crypto - the password hashing module to use
+        * `:crypto` - the password hashing module to use
           * the default is Comeonin.Bcrypt
-        * log_meta - additional custom metadata for Phauxth.Log
+        * `:log_meta` - additional custom metadata for Phauxth.Log
           * this should be a keyword list
 
       The check_pass function also has options. See the documentation for

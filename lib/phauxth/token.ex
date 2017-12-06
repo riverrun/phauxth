@@ -35,13 +35,13 @@ defmodule Phauxth.Token do
 
   The key generator has three options:
 
-    * key_iterations - the number of iterations the key derivation function uses
+    * `:key_iterations` - the number of iterations the key derivation function uses
       * the default is 1000
-    * key_length - the length of the key, in bytes
+    * `:key_length` - the length of the key, in bytes
       * the default is 32
-    * key_digest - the hash algorithm that is used
+    * `:key_digest` - the hash algorithm that is used
       * the default is :sha256
-    * token_salt - the salt to be used when generating the secret key
+    * `:token_salt` - the salt to be used when generating the secret key
       * the default is the value set in the config
 
   Note that the same key generator options should be used for signing

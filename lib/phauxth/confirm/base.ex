@@ -24,13 +24,13 @@ defmodule Phauxth.Confirm.Base do
 
       There are four options for the verify function:
 
-        * endpoint - the name of the endpoint of your app
+        * `:endpoint` - the name of the endpoint of your app
           * this can also be set in the config
-        * max_age - the maximum age of the token, in seconds
+        * `:max_age` - the maximum age of the token, in seconds
           * the default is 1200 seconds (20 minutes)
-        * mode - the mode - email confirmation or password resetting
+        * `:mode` - the mode - email confirmation or password resetting
           * set this to :pass_reset to use this function for password resetting
-        * log_meta - additional custom metadata for Phauxth.Log
+        * `:log_meta` - additional custom metadata for Phauxth.Log
           * this should be a keyword list
 
       In addition, there are also options for generating the token.

@@ -8,9 +8,9 @@ defmodule Phauxth.Log do
 
     15:31:08.575 [warn] user=ray@example.com message="invalid password"
 
-    * user - the user identifier (one of email, username, nil)
-    * message - error / info message
-    * meta - additional metadata that does not fit into any of the other categories
+    * `:user` - the user identifier (one of email, username, nil)
+    * `:message` - error / info message
+    * `:meta` - additional metadata that does not fit into any of the other categories
 
   ## Log levels
 

@@ -13,11 +13,11 @@ defmodule Phauxth.Remember do
 
   There are three options:
 
-    * max_age - the length of the validity of the cookie / token
+    * `:max_age` - the length of the validity of the cookie / token
       * the default is one week
-    * user_context - the user context module to be used
+    * `:user_context` - the user context module to be used
       * the default is MyApp.Accounts
-    * log_meta - additional custom metadata for Phauxth.Log
+    * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
   In addition, there are also options for generating the token.

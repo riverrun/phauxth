@@ -28,14 +28,14 @@ defmodule Phauxth.Authenticate do
 
   There are four options:
 
-    * method - the method used to authenticate the user
+    * `:method` - the method used to authenticate the user
       * this is either `:session` (using sessions) or `:token` (using api tokens)
       * the default is `:session`
-    * max_age - the length of the validity of the session / token
+    * `:max_age` - the length of the validity of the session / token
       * the default is four hours
-    * user_context - the user context module to be used
+    * `:user_context` - the user context module to be used
       * the default is MyApp.Accounts
-    * log_meta - additional custom metadata for Phauxth.Log
+    * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
   There are also options for signing / verifying the token.
