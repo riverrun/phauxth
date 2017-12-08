@@ -15,5 +15,4 @@ defmodule Phauxth.CustomLoginTest do
     {:ok, %{email: email}} = CustomLogin.verify(params, TestAccounts)
     assert email == "frank@example.com"
   end
-
 end

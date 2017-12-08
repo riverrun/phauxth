@@ -78,22 +78,24 @@ defmodule Phauxth.Confirm.Base do
       `handle_password_reset` function handles the error.
       """
       def verify(params, user_context, opts \\ [])
+
       def verify(%{"key" => key}, user_context, opts) do
-        endpoint = Keyword.get(opts, :endpoint, Config.endpoint)
+        endpoint = Keyword.get(opts, :endpoint, Config.endpoint())
         max_age = Keyword.get(opts, :max_age, 1200)
         log_meta = Keyword.get(opts, :log_meta, [])
 
         get_user(endpoint, {key, max_age, user_context, opts})
         |> report(opts[:mode], log_meta)
       end
-      def verify(_, _, _), do: raise ArgumentError, "No key found in the params"
+
+      def verify(_, _, _), do: raise(ArgumentError, "No key found in the params")
 
       def get_user(key_source, {key, max_age, user_context, opts}) do
         with {:ok, params} <- Token.verify(key_source, key, max_age, opts),
-          do: user_context.get_by(params)
+             do: user_context.get_by(params)
       end
 
-      defoverridable [verify: 2, verify: 3, get_user: 2]
+      defoverridable verify: 2, verify: 3, get_user: 2
     end
   end
 end

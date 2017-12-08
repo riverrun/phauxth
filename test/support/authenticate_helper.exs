@@ -10,9 +10,9 @@ defmodule Phauxth.CustomSession do
   use Phauxth.Authenticate.Base
 
   def check_session(conn) do
-    with <<session_id::binary-size(25), user_id::binary>>
-         <- get_session(conn, :phauxth_session_id),
-      do: {session_id, user_id}
+    with <<session_id::binary-size(25), user_id::binary>> <-
+           get_session(conn, :phauxth_session_id),
+         do: {session_id, user_id}
   end
 end
 

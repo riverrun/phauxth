@@ -5,7 +5,7 @@ defmodule Phauxth.CustomConfirmTest do
   alias Phauxth.{CustomConfirm, TestAccounts, Token}
 
   setup do
-    conn = conn(:get, "/") |> Phauxth.SessionHelper.add_key
+    conn = conn(:get, "/") |> Phauxth.SessionHelper.add_key()
     email = Token.sign(conn, %{"email" => "ray@example.com"})
     {:ok, %{conn: conn, email: email}}
   end
@@ -15,5 +15,4 @@ defmodule Phauxth.CustomConfirmTest do
     {:ok, user} = CustomConfirm.verify(params, TestAccounts, conn: conn)
     assert user.email == "ray@example.com"
   end
-
 end

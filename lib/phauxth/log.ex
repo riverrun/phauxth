@@ -39,10 +39,10 @@ defmodule Phauxth.Log do
     Returns the #{level} log message.
     """
     def unquote(level)(%Phauxth.Log{user: user, message: message, meta: meta}) do
-      if Config.log_level && Logger.compare_levels(unquote(level), Config.log_level) != :lt do
-        Logger.log unquote(level), fn ->
+      if Config.log_level() && Logger.compare_levels(unquote(level), Config.log_level()) != :lt do
+        Logger.log(unquote(level), fn ->
           Enum.map_join([{"user", user}, {"message", message}] ++ meta, " ", &format/1)
-        end
+        end)
       end
     end
   end
@@ -60,5 +60,6 @@ defmodule Phauxth.Log do
       ~s(#{key}=#{val})
     end
   end
+
   defp format({key, val}), do: format({key, to_string(val)})
 end

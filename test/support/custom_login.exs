@@ -10,6 +10,7 @@ defmodule Phauxth.CustomLogin do
   def check_pass(%{password_hash: "$argon2" <> _} = user, password, _crypto, opts) do
     Comeonin.Argon2.check_pass(user, password, opts)
   end
+
   def check_pass(user, password, crypto, opts) do
     crypto.check_pass(user, password, opts)
   end

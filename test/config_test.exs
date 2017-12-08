@@ -12,5 +12,4 @@ defmodule Phauxth.ConfigTest do
     assert_raise ArgumentError, fn -> Config.gen_token_salt(4) end
     assert_raise ArgumentError, fn -> Config.gen_token_salt(7) end
   end
-
 end

@@ -71,10 +71,15 @@ defmodule Phauxth.Authenticate.Base do
 
       @doc false
       def init(opts) do
-        {{Keyword.get(opts, :method, :session),
-          Keyword.get(opts, :max_age, 4 * 60 * 60),
-          Keyword.get(opts, :user_context, Utils.default_user_context()), opts},
-          Keyword.get(opts, :log_meta, [])}
+        {
+          {
+            Keyword.get(opts, :method, :session),
+            Keyword.get(opts, :max_age, 4 * 60 * 60),
+            Keyword.get(opts, :user_context, Utils.default_user_context()),
+            opts
+          },
+          Keyword.get(opts, :log_meta, [])
+        }
       end
 
       @doc false
@@ -91,23 +96,24 @@ defmodule Phauxth.Authenticate.Base do
         with {session_id, user_id} <- check_session(conn),
              %{sessions: sessions} = user <- user_context.get(user_id),
              timestamp when is_integer(timestamp) <- sessions[session_id],
-          do: (timestamp + max_age) > System.system_time(:second) and
-            user || {:error, "session expired"}
+             do:
+               (timestamp + max_age > System.system_time(:second) and user) ||
+                 {:error, "session expired"}
       end
-      def get_user(%Plug.Conn{req_headers: headers} = conn,
-          {:token, max_age, user_context, opts}) do
+
+      def get_user(%Plug.Conn{req_headers: headers} = conn, {:token, max_age, user_context, opts}) do
         with {_, token} <- List.keyfind(headers, "authorization", 0),
              {:ok, user_id} <- check_token(conn, token, max_age, opts),
-          do: user_context.get(user_id)
+             do: user_context.get(user_id)
       end
 
       @doc """
       Check the session for the current user.
       """
       def check_session(conn) do
-        with <<session_id::binary-size(17), user_id::binary>>
-             <- get_session(conn, :phauxth_session_id),
-          do: {session_id, user_id}
+        with <<session_id::binary-size(17), user_id::binary>> <-
+               get_session(conn, :phauxth_session_id),
+             do: {session_id, user_id}
       end
 
       @doc """
@@ -122,11 +128,13 @@ defmodule Phauxth.Authenticate.Base do
       """
       def report(%{} = user, meta) do
         Log.info(%Log{user: user.id, message: "user authenticated", meta: meta})
-        Map.drop(user, Config.drop_user_keys)
+        Map.drop(user, Config.drop_user_keys())
       end
+
       def report({:error, message}, meta) do
         Log.info(%Log{message: message, meta: meta}) && nil
       end
+
       def report(nil, meta) do
         Log.info(%Log{message: "anonymous user", meta: meta}) && nil
       end
@@ -148,8 +156,13 @@ defmodule Phauxth.Authenticate.Base do
       defp check_session_id("F" <> _), do: true
       defp check_session_id(_), do: false
 
-      defoverridable [init: 1, call: 2, get_user: 2, check_session: 1,
-                      check_token: 4, report: 2, set_user: 2]
+      defoverridable init: 1,
+                     call: 2,
+                     get_user: 2,
+                     check_session: 1,
+                     check_token: 4,
+                     report: 2,
+                     set_user: 2
     end
   end
 end

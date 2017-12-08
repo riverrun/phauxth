@@ -18,7 +18,7 @@ defmodule Phauxth.TokenTest do
   end
 
   setup do
-    conn = conn(:get, "/") |> Phauxth.SessionHelper.add_key
+    conn = conn(:get, "/") |> Phauxth.SessionHelper.add_key()
     {:ok, %{conn: conn}}
   end
 
@@ -79,6 +79,7 @@ defmodule Phauxth.TokenTest do
     assert_raise ArgumentError, "Phauxth.Token does not support md5", fn ->
       Token.sign(conn, 1, key_digest: :md5)
     end
+
     assert_raise ArgumentError, "Phauxth.Token does not support sha", fn ->
       Token.sign(conn, 1, key_digest: :sha)
     end

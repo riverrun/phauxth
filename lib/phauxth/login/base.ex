@@ -76,6 +76,7 @@ defmodule Phauxth.Login.Base do
       to the /users page.
       """
       def verify(params, user_context, opts \\ [])
+
       def verify(%{"password" => password} = params, user_context, opts) do
         crypto = Keyword.get(opts, :crypto, Comeonin.Bcrypt)
         log_meta = Keyword.get(opts, :log_meta, [])
@@ -84,7 +85,8 @@ defmodule Phauxth.Login.Base do
         |> check_pass(password, crypto, opts)
         |> report("successful login", log_meta)
       end
-      def verify(_, _, _), do: raise ArgumentError, "No password found in the params"
+
+      def verify(_, _, _), do: raise(ArgumentError, "No password found in the params")
 
       @doc """
       Check the password by comparing it with a stored hash.
@@ -108,10 +110,10 @@ defmodule Phauxth.Login.Base do
       Generate a session id.
       """
       def gen_session_id(fresh) do
-        "#{fresh}#{:crypto.strong_rand_bytes(12) |> Base.encode64}"
+        "#{fresh}#{:crypto.strong_rand_bytes(12) |> Base.encode64()}"
       end
 
-      defoverridable [verify: 2, verify: 3, check_pass: 4]
+      defoverridable verify: 2, verify: 3, check_pass: 4
     end
   end
 
@@ -122,14 +124,16 @@ defmodule Phauxth.Login.Base do
   """
   def report({:ok, user}, ok_message, meta) do
     Log.info(%Log{user: user.id, message: ok_message, meta: meta})
-    {:ok, Map.drop(user, Config.drop_user_keys)}
+    {:ok, Map.drop(user, Config.drop_user_keys())}
   end
+
   def report({:error, "account unconfirmed"}, _, meta) do
     Log.warn(%Log{message: "account unconfirmed", meta: meta})
-    {:error, Config.user_messages.need_confirm()}
+    {:error, Config.user_messages().need_confirm()}
   end
+
   def report({:error, message}, _, meta) do
     Log.warn(%Log{message: message, meta: meta})
-    {:error, Config.user_messages.default_error()}
+    {:error, Config.user_messages().default_error()}
   end
 end

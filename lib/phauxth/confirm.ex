@@ -7,5 +7,4 @@ defmodule Phauxth.Confirm do
   """
 
   use Phauxth.Confirm.Base
-
 end

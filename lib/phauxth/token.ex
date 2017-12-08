@@ -59,7 +59,7 @@ defmodule Phauxth.Token do
   """
   def sign(key_source, data, opts \\ []) do
     %{"data" => data, "signed" => now()}
-    |> Poison.encode!
+    |> Poison.encode!()
     |> MessageVerifier.sign(gen_secret(key_source, opts))
   end
 
@@ -69,11 +69,13 @@ defmodule Phauxth.Token do
   See the module documentation for more information.
   """
   def verify(key_source, token, max_age, opts \\ [])
+
   def verify(key_source, token, max_age, opts) when is_binary(token) do
     MessageVerifier.verify(token, gen_secret(key_source, opts))
     |> get_token_data
     |> handle_verify(max_age)
   end
+
   def verify(_, _, _, _), do: {:error, "invalid token"}
 
   defp gen_secret(key_source, opts) do
@@ -82,23 +84,30 @@ defmodule Phauxth.Token do
 
   defp get_key_base(%Plug.Conn{secret_key_base: key}), do: key
   defp get_key_base(%{endpoint: endpoint}), do: get_endpoint_key_base(endpoint)
+
   defp get_key_base(endpoint) when is_atom(endpoint) do
     get_endpoint_key_base(endpoint)
   end
+
   defp get_key_base(key) when is_binary(key), do: key
 
   defp get_endpoint_key_base(endpoint) do
-    endpoint.config(:secret_key_base) || raise """
-    no :secret_key_base configuration found in #{inspect endpoint}.
-    """
+    endpoint.config(:secret_key_base) ||
+      raise """
+      no :secret_key_base configuration found in #{inspect(endpoint)}.
+      """
   end
 
   defp run_kdf(secret_key_base, opts) do
-    token_salt = Keyword.get(opts, :token_salt, Config.token_salt)
-    key_opts = [iterations: opts[:key_iterations] || 1000,
-                length: validate_len(opts[:key_length]),
-                digest: validate_digest(opts[:key_digest]),
-                cache: Plug.Keys]
+    token_salt = Keyword.get(opts, :token_salt, Config.token_salt())
+
+    key_opts = [
+      iterations: opts[:key_iterations] || 1000,
+      length: validate_len(opts[:key_length]),
+      digest: validate_digest(opts[:key_digest]),
+      cache: Plug.Keys
+    ]
+
     KeyGenerator.generate(secret_key_base, token_salt, key_opts)
   end
 
@@ -108,13 +117,15 @@ defmodule Phauxth.Token do
   # fallback for tokens signed with pre-v1.2
   # remove in v2.0
   defp handle_verify({:ok, %{"data" => data, "signed" => signed}}, max_age)
-      when signed > 1500000000000 do
+       when signed > 1_500_000_000_000 do
     signed = trunc(signed / 1000)
-    (signed + max_age) < now() and {:error, "expired token"} || {:ok, data}
+    (signed + max_age < now() and {:error, "expired token"}) || {:ok, data}
   end
+
   defp handle_verify({:ok, %{"data" => data, "signed" => signed}}, max_age) do
-    (signed + max_age) < now() and {:error, "expired token"} || {:ok, data}
+    (signed + max_age < now() and {:error, "expired token"}) || {:ok, data}
   end
+
   defp handle_verify(_, _), do: {:error, "invalid token"}
 
   defp now, do: System.system_time(:second)
@@ -122,19 +133,24 @@ defmodule Phauxth.Token do
   defp validate_secret(nil) do
     raise ArgumentError, "The secret_key_base has not been set"
   end
+
   defp validate_secret(key) when byte_size(key) < 20 do
     raise ArgumentError, "The secret_key_base is too short. It should be at least 20 bytes long."
   end
+
   defp validate_secret(key), do: key
 
   defp validate_len(nil), do: 32
+
   defp validate_len(len) when len < 20 do
     raise ArgumentError, "The key_length is too short. It should be at least 20 bytes long."
   end
+
   defp validate_len(len), do: len
 
   defp validate_digest(nil), do: :sha256
   defp validate_digest(digest) when digest in [:sha256, :sha512], do: digest
+
   defp validate_digest(digest) do
     raise ArgumentError, "Phauxth.Token does not support #{digest}"
   end

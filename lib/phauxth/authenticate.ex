@@ -55,5 +55,4 @@ defmodule Phauxth.Authenticate do
   """
 
   use Phauxth.Authenticate.Base
-
 end

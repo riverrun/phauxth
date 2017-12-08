@@ -6,5 +6,4 @@ defmodule Phauxth.Login do
   """
 
   use Phauxth.Login.Base
-
 end

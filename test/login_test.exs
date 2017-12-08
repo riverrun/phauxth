@@ -73,9 +73,9 @@ defmodule Phauxth.LoginTest do
 
   test "login with custom metadata for logging" do
     assert capture_log(fn ->
-      params = %{"email" => "fred+1@example.com", "password" => "h4rd2gU3$$"}
-      {:ok, _} = Login.verify(params, TestAccounts, log_meta: [path: "/sessions/create"])
-    end) =~ ~s(user=1 message="successful login" path=/sessions/create)
+             params = %{"email" => "fred+1@example.com", "password" => "h4rd2gU3$$"}
+             {:ok, _} = Login.verify(params, TestAccounts, log_meta: [path: "/sessions/create"])
+           end) =~ ~s(user=1 message="successful login" path=/sessions/create)
   end
 
   test "raises an error if no password is found in the params" do
@@ -85,13 +85,14 @@ defmodule Phauxth.LoginTest do
   end
 
   test "add_session adds phauxth_session_id to conn" do
-    session_id = conn(:get, "/")
-                 |> Phauxth.SessionHelper.sign_conn
-                 |> assign(:current_user, %{id: 2})
-                 |> Login.add_session(Login.gen_session_id("F"), 2)
-                 |> get_session(:phauxth_session_id)
+    session_id =
+      conn(:get, "/")
+      |> Phauxth.SessionHelper.sign_conn()
+      |> assign(:current_user, %{id: 2})
+      |> Login.add_session(Login.gen_session_id("F"), 2)
+      |> get_session(:phauxth_session_id)
+
     <<"F", _session_id::binary-size(16), user_id::binary>> = session_id
     assert user_id == "2"
   end
-
 end

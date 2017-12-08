@@ -21,5 +21,4 @@ defmodule Phauxth.Confirm.LoginTest do
     {:error, message} = login("ray", "oohwhatwasitagain")
     assert message =~ "Invalid credentials"
   end
-
 end

@@ -19,9 +19,9 @@ defmodule Phauxth.UserMessages.Base do
 
   """
 
-  @callback need_confirm() :: String.t
-  @callback already_confirmed() :: String.t
-  @callback default_error() :: String.t
+  @callback need_confirm() :: String.t()
+  @callback already_confirmed() :: String.t()
+  @callback default_error() :: String.t()
 
   defmacro __using__(_) do
     quote do
@@ -35,6 +35,7 @@ defmodule Phauxth.UserMessages.Base do
     end
   end
 end
+
 defmodule Phauxth.UserMessages do
   use Phauxth.UserMessages.Base
 end

@@ -9,7 +9,7 @@ defmodule Phauxth.SessionAuthenticateTest do
 
   defp add_session(id) do
     conn(:get, "/")
-    |> SessionHelper.sign_conn
+    |> SessionHelper.sign_conn()
     |> put_session(:phauxth_session_id, id)
   end
 
@@ -32,10 +32,13 @@ defmodule Phauxth.SessionAuthenticateTest do
 
   test "user removed from session" do
     conn = call("F25/1mZuBno+Pfu061") |> delete_session(:phauxth_session_id)
-    newconn = conn(:get, "/")
-              |> recycle_cookies(conn)
-              |> SessionHelper.sign_conn
-              |> Authenticate.call({@session_opts, []})
+
+    newconn =
+      conn(:get, "/")
+      |> recycle_cookies(conn)
+      |> SessionHelper.sign_conn()
+      |> Authenticate.call({@session_opts, []})
+
     assert newconn.assigns == %{current_user: nil}
   end
 
@@ -64,8 +67,10 @@ defmodule Phauxth.SessionAuthenticateTest do
   end
 
   test "customized check_session - with custom session id" do
-    conn = add_session("Fc0k6ku4lm61uO7pnBKreWoHo1")
-           |> Phauxth.CustomSession.call({@session_opts, []})
+    conn =
+      add_session("Fc0k6ku4lm61uO7pnBKreWoHo1")
+      |> Phauxth.CustomSession.call({@session_opts, []})
+
     %{current_user: user} = conn.assigns
     assert user.email == "fred+1@example.com"
   end

@@ -12,7 +12,7 @@ defmodule Phauxth.Mixfile do
       app: :phauxth,
       version: @version,
       elixir: "~> 1.4",
-      start_permanent: Mix.env == :prod,
+      start_permanent: Mix.env() == :prod,
       name: "Phauxth",
       description: @description,
       package: package(),

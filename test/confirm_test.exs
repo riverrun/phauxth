@@ -6,7 +6,7 @@ defmodule Phauxth.ConfirmTest do
   alias Phauxth.{Confirm, TestAccounts, Token}
 
   setup do
-    conn = conn(:get, "/") |> Phauxth.SessionHelper.add_key
+    conn = conn(:get, "/") |> Phauxth.SessionHelper.add_key()
     valid_email = Token.sign(conn, %{"email" => "fred+1@example.com"})
     {:ok, %{conn: conn, valid_email: valid_email}}
   end
@@ -45,9 +45,9 @@ defmodule Phauxth.ConfirmTest do
 
   test "confirm with custom metadata for logging", %{valid_email: valid_email} do
     assert capture_log(fn ->
-      %{params: params} = conn(:get, "/confirm?key=" <> valid_email) |> fetch_query_params
-      {:ok, _} = Confirm.verify(params, TestAccounts, log_meta: [path: "/confirm"])
-    end) =~ ~s(user=1 message="user confirmed" path=/confirm)
+             %{params: params} = conn(:get, "/confirm?key=" <> valid_email) |> fetch_query_params
+             {:ok, _} = Confirm.verify(params, TestAccounts, log_meta: [path: "/confirm"])
+           end) =~ ~s(user=1 message="user confirmed" path=/confirm)
   end
 
   test "raises an error if no key is found in the params" do
@@ -64,5 +64,4 @@ defmodule Phauxth.ConfirmTest do
     {:error, message} = Confirm.verify(params, TestAccounts)
     assert message =~ "Invalid credentials"
   end
-
 end
