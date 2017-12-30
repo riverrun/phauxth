@@ -12,8 +12,6 @@ defmodule Phauxth.Confirm.Base do
       import Phauxth.Confirm.Report
       alias Phauxth.{Config, Token}
 
-      @behaviour Phauxth
-
       @doc """
       Verify the confirmation key and get the user data from the database.
 

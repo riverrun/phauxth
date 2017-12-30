@@ -125,7 +125,4 @@ defmodule Phauxth do
   [Phauxth wiki](https://github.com/riverrun/phauxth/wiki).
 
   """
-
-  @callback verify(params :: map, context :: atom, opts :: keyword | tuple) ::
-              {:ok, user :: map} | {:error, message :: String.t()}
 end

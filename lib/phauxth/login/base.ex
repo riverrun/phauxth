@@ -31,8 +31,6 @@ defmodule Phauxth.Login.Base do
       import Plug.Conn
       alias Phauxth.{Config, Log}
 
-      @behaviour Phauxth
-
       @doc """
       Verify a user's password.
 

@@ -35,12 +35,11 @@ defmodule Phauxth.Remember do
   """
 
   use Phauxth.Authenticate.Base
-  import Plug.Conn
-  alias Phauxth.{Login, Token}
+  alias Phauxth.Login
 
   @max_age 7 * 24 * 60 * 60
 
-  @doc false
+  @impl true
   def init(opts) do
     {
       {
@@ -52,7 +51,7 @@ defmodule Phauxth.Remember do
     }
   end
 
-  @doc false
+  @impl true
   def call(%Plug.Conn{assigns: %{current_user: %{}}} = conn, _), do: conn
 
   def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn, {opts, log_meta}) do
@@ -64,9 +63,11 @@ defmodule Phauxth.Remember do
   def call(conn, _), do: conn
 
   def get_user(conn, token, {max_age, user_context, opts}) do
-    with {:ok, user_id} <- Token.verify(conn, token, max_age, opts), do: user_context.get(user_id)
+    with {:ok, user_id} <- Token.verify(conn, token, max_age, opts),
+      do: user_context.get(user_id)
   end
 
+  @impl true
   def set_user(nil, conn), do: assign(conn, :current_user, nil)
 
   def set_user(user, conn) do

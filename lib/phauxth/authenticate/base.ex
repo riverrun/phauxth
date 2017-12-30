@@ -60,6 +60,38 @@ defmodule Phauxth.Authenticate.Base do
   `check_token` function.
   """
 
+  @doc """
+  Get the user based on the session id or token id.
+
+  This function also calls the database to get user information.
+  """
+  @callback get_user(conn :: Plug.Conn.t, opts :: tuple) :: map
+
+  @doc """
+  Check the session for the current user.
+  """
+  @callback check_session(conn :: Plug.Conn.t) :: tuple
+
+  @doc """
+  Check the token for the current user.
+  """
+  @callback check_token(conn :: Plug.Conn.t, token :: String.t, max_age :: integer, opts :: tuple) :: tuple
+
+  @doc """
+  Log the result of the authentication and return the user struct or nil.
+  """
+  @callback report(result :: tuple, metadata :: list) :: map | nil
+
+  @doc """
+  Set the `current_user` variable.
+  """
+  @callback set_user(user :: map | nil, conn :: Plug.Conn.t) :: Plug.Conn.t
+
+  @doc """
+  Checks to see if the session is fresh - newly logged in.
+  """
+  @callback fresh_session?(Plug.Conn.t) :: boolean
+
   @doc false
   defmacro __using__(_) do
     quote do
@@ -67,8 +99,9 @@ defmodule Phauxth.Authenticate.Base do
       alias Phauxth.{Config, Log, Token, Utils}
 
       @behaviour Plug
+      @behaviour Phauxth.Authenticate.Base
 
-      @doc false
+      @impl Plug
       def init(opts) do
         {
           {
@@ -81,16 +114,12 @@ defmodule Phauxth.Authenticate.Base do
         }
       end
 
-      @doc false
+      @impl Plug
       def call(conn, {opts, log_meta}) do
         get_user(conn, opts) |> report(log_meta) |> set_user(conn)
       end
 
-      @doc """
-      Get the user based on the session id or token id.
-
-      This function also calls the database to get user information.
-      """
+      @impl Phauxth.Authenticate.Base
       def get_user(conn, {:session, max_age, user_context, _}) do
         with {session_id, user_id} <- check_session(conn),
              %{sessions: sessions} = user <- user_context.get(user_id),
@@ -106,25 +135,19 @@ defmodule Phauxth.Authenticate.Base do
              do: user_context.get(user_id)
       end
 
-      @doc """
-      Check the session for the current user.
-      """
+      @impl Phauxth.Authenticate.Base
       def check_session(conn) do
         with <<session_id::binary-size(17), user_id::binary>> <-
                get_session(conn, :phauxth_session_id),
              do: {session_id, user_id}
       end
 
-      @doc """
-      Check the token for the current user.
-      """
+      @impl Phauxth.Authenticate.Base
       def check_token(conn, token, max_age, opts) do
         Token.verify(conn, token, max_age, opts)
       end
 
-      @doc """
-      Log the result of the authentication and return the user struct or nil.
-      """
+      @impl Phauxth.Authenticate.Base
       def report(%{} = user, meta) do
         Log.info(%Log{user: user.id, message: "user authenticated", meta: meta})
         Map.drop(user, Config.drop_user_keys())
@@ -138,16 +161,12 @@ defmodule Phauxth.Authenticate.Base do
         Log.info(%Log{message: "anonymous user", meta: meta}) && nil
       end
 
-      @doc """
-      Set the `current_user` variable.
-      """
+      @impl Phauxth.Authenticate.Base
       def set_user(user, conn) do
         assign(conn, :current_user, user)
       end
 
-      @doc """
-      Checks to see if the session is fresh - newly logged in.
-      """
+      @impl Phauxth.Authenticate.Base
       def fresh_session?(conn) do
         get_session(conn, :phauxth_session_id) |> check_session_id
       end
@@ -155,13 +174,8 @@ defmodule Phauxth.Authenticate.Base do
       defp check_session_id("F" <> _), do: true
       defp check_session_id(_), do: false
 
-      defoverridable init: 1,
-                     call: 2,
-                     get_user: 2,
-                     check_session: 1,
-                     check_token: 4,
-                     report: 2,
-                     set_user: 2
+      defoverridable Plug
+      defoverridable Phauxth.Authenticate.Base
     end
   end
 end

@@ -1,7 +1,7 @@
 defmodule Phauxth.Mixfile do
   use Mix.Project
 
-  @version "1.2.3"
+  @version "1.3.0"
 
   @description """
   Authentication library for Phoenix, and other Plug-based, web applications
@@ -11,7 +11,7 @@ defmodule Phauxth.Mixfile do
     [
       app: :phauxth,
       version: @version,
-      elixir: "~> 1.4",
+      elixir: "~> 1.5",
       start_permanent: Mix.env() == :prod,
       name: "Phauxth",
       description: @description,
