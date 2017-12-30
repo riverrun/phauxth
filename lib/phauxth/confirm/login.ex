@@ -17,4 +17,13 @@ defmodule Phauxth.Confirm.Login do
   def check_pass(user, password, crypto, opts) do
     super(user, password, crypto, opts)
   end
+
+  def report({:error, "account unconfirmed"}, _, meta) do
+    Log.warn(%Log{message: "account unconfirmed", meta: meta})
+    {:error, Config.user_messages().need_confirm()}
+  end
+
+  def report(result, ok_message, meta) do
+    super(result, ok_message, meta)
+  end
 end

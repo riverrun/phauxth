@@ -63,7 +63,6 @@ defmodule Phauxth.Authenticate.Base do
   @doc false
   defmacro __using__(_) do
     quote do
-      import unquote(__MODULE__)
       import Plug.Conn
       alias Phauxth.{Config, Log, Token, Utils}
 

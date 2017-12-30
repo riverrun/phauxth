@@ -28,8 +28,8 @@ defmodule Phauxth.Login.Base do
   @doc false
   defmacro __using__(_) do
     quote do
-      import unquote(__MODULE__)
       import Plug.Conn
+      alias Phauxth.{Config, Log}
 
       @behaviour Phauxth
 
@@ -99,6 +99,19 @@ defmodule Phauxth.Login.Base do
       end
 
       @doc """
+      Prints out a log message and returns {:ok, user} or {:error, message}.
+      """
+      def report({:ok, user}, ok_message, meta) do
+        Log.info(%Log{user: user.id, message: ok_message, meta: meta})
+        {:ok, Map.drop(user, Config.drop_user_keys())}
+      end
+
+      def report({:error, message}, _, meta) do
+        Log.warn(%Log{message: message, meta: meta})
+        {:error, Config.user_messages().default_error()}
+      end
+
+      @doc """
       Add the phauxth_session_id to the conn.
       """
       def add_session(conn, session_id, user_id) do
@@ -113,27 +126,7 @@ defmodule Phauxth.Login.Base do
         "#{fresh}#{:crypto.strong_rand_bytes(12) |> Base.encode64()}"
       end
 
-      defoverridable verify: 2, verify: 3, check_pass: 4
+      defoverridable verify: 2, verify: 3, check_pass: 4, report: 3
     end
-  end
-
-  alias Phauxth.{Config, Log}
-
-  @doc """
-  Prints out a log message and returns {:ok, user} or {:error, message}.
-  """
-  def report({:ok, user}, ok_message, meta) do
-    Log.info(%Log{user: user.id, message: ok_message, meta: meta})
-    {:ok, Map.drop(user, Config.drop_user_keys())}
-  end
-
-  def report({:error, "account unconfirmed"}, _, meta) do
-    Log.warn(%Log{message: "account unconfirmed", meta: meta})
-    {:error, Config.user_messages().need_confirm()}
-  end
-
-  def report({:error, message}, _, meta) do
-    Log.warn(%Log{message: message, meta: meta})
-    {:error, Config.user_messages().default_error()}
   end
 end
