@@ -80,7 +80,7 @@ defmodule Phauxth.Authenticate.Base do
   @doc """
   Log the result of the authentication and return the user struct or nil.
   """
-  @callback report(result :: tuple, metadata :: list) :: map | nil
+  @callback report(result :: tuple, metadata :: keyword) :: map | nil
 
   @doc """
   Set the `current_user` variable.

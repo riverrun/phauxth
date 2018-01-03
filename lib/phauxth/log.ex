@@ -11,6 +11,7 @@ defmodule Phauxth.Log do
     * `:user` - the user identifier (one of email, username, nil)
     * `:message` - error / info message
     * `:meta` - additional metadata that does not fit into any of the other categories
+      * this should be a keyword list
 
   ## Log levels
 
