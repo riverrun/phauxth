@@ -68,7 +68,7 @@ defmodule Phauxth.Login.Base do
   to the /users page.
   """
   @callback verify(params :: map, user_context :: module, opts :: keyword) ::
-              {:ok, user :: map} | {:error, message :: String.t()}
+              {:ok, map} | {:error, String.t()}
 
   @doc """
   Check the password by comparing it with a stored hash.
@@ -77,7 +77,7 @@ defmodule Phauxth.Login.Base do
   or `encrypted_password` as a key.
   """
   @callback check_pass(user :: map, password :: String.t(), crypto :: module, opts :: keyword) ::
-              {:ok, user :: map} | {:error, message :: String.t()}
+              {:ok, map} | {:error, String.t()}
 
   @doc """
   Prints out a log message and returns {:ok, user} or {:error, message}.
@@ -86,7 +86,7 @@ defmodule Phauxth.Login.Base do
               result :: {:ok, user :: map} | {:error, message :: String.t()},
               ok_message :: String.t(),
               meta :: keyword
-            ) :: {:ok, user :: map} | {:error, message :: String.t()}
+            ) :: {:ok, map} | {:error, String.t()}
 
   @doc false
   defmacro __using__(_) do

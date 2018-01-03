@@ -35,7 +35,7 @@ defmodule Phauxth.Remember do
   """
 
   use Phauxth.Authenticate.Base
-  alias Phauxth.Login
+  alias Phauxth.{Login, Token}
 
   @max_age 7 * 24 * 60 * 60
 
@@ -63,8 +63,7 @@ defmodule Phauxth.Remember do
   def call(conn, _), do: conn
 
   def get_user(conn, token, {max_age, user_context, opts}) do
-    with {:ok, user_id} <- Token.verify(conn, token, max_age, opts),
-      do: user_context.get(user_id)
+    with {:ok, user_id} <- Token.verify(conn, token, max_age, opts), do: user_context.get(user_id)
   end
 
   @impl true

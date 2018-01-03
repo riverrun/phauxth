@@ -51,13 +51,6 @@ defmodule Phauxth.Authenticate.Base do
   MyAppWeb.Authenticate is called in the same way as Phauxth.Authenticate.
   You can then use Phauxth.Token.verify, in the `user_socket.ex` file, to
   verify the token.
-
-  ### Custom session / token implementations
-
-  This module uses Plug sessions or Phauxth tokens (based on Phoenix.Token)
-  by default. To use custom sessions or tokens, you need to create your
-  own custom Authenticate module and override the `check_session` or
-  `check_token` function.
   """
 
   @doc """
@@ -65,17 +58,7 @@ defmodule Phauxth.Authenticate.Base do
 
   This function also calls the database to get user information.
   """
-  @callback get_user(conn :: Plug.Conn.t, opts :: tuple) :: map
-
-  @doc """
-  Check the session for the current user.
-  """
-  @callback check_session(conn :: Plug.Conn.t) :: tuple
-
-  @doc """
-  Check the token for the current user.
-  """
-  @callback check_token(conn :: Plug.Conn.t, token :: String.t, max_age :: integer, opts :: tuple) :: tuple
+  @callback get_user(conn :: Plug.Conn.t(), opts :: tuple) :: map
 
   @doc """
   Log the result of the authentication and return the user struct or nil.
@@ -85,18 +68,19 @@ defmodule Phauxth.Authenticate.Base do
   @doc """
   Set the `current_user` variable.
   """
-  @callback set_user(user :: map | nil, conn :: Plug.Conn.t) :: Plug.Conn.t
+  @callback set_user(user :: map | nil, conn :: Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Checks to see if the session is fresh - newly logged in.
   """
-  @callback fresh_session?(Plug.Conn.t) :: boolean
+  @callback fresh_session?(Plug.Conn.t()) :: boolean
 
   @doc false
   defmacro __using__(_) do
     quote do
       import Plug.Conn
-      alias Phauxth.{Config, Log, Token, Utils}
+      alias Phauxth.Authenticate.Base, as: AuthBase
+      alias Phauxth.{Config, Log, Utils}
 
       @behaviour Plug
       @behaviour Phauxth.Authenticate.Base
@@ -121,30 +105,11 @@ defmodule Phauxth.Authenticate.Base do
 
       @impl Phauxth.Authenticate.Base
       def get_user(conn, {:session, max_age, user_context, _}) do
-        with {session_id, user_id} <- check_session(conn),
-             %{sessions: sessions} = user <- user_context.get(user_id),
-             timestamp when is_integer(timestamp) <- sessions[session_id],
-             do:
-               (timestamp + max_age > System.system_time(:second) and user) ||
-                 {:error, "session expired"}
+        AuthBase.get_user_from_session(conn, &AuthBase.check_session/1, {max_age, user_context})
       end
 
-      def get_user(%Plug.Conn{req_headers: headers} = conn, {:token, max_age, user_context, opts}) do
-        with {_, token} <- List.keyfind(headers, "authorization", 0),
-             {:ok, user_id} <- check_token(conn, token, max_age, opts),
-             do: user_context.get(user_id)
-      end
-
-      @impl Phauxth.Authenticate.Base
-      def check_session(conn) do
-        with <<session_id::binary-size(17), user_id::binary>> <-
-               get_session(conn, :phauxth_session_id),
-             do: {session_id, user_id}
-      end
-
-      @impl Phauxth.Authenticate.Base
-      def check_token(conn, token, max_age, opts) do
-        Token.verify(conn, token, max_age, opts)
+      def get_user(conn, {:token, max_age, user_context, opts}) do
+        AuthBase.get_user_from_token(conn, &AuthBase.check_token/4, {max_age, user_context, opts})
       end
 
       @impl Phauxth.Authenticate.Base
@@ -177,5 +142,49 @@ defmodule Phauxth.Authenticate.Base do
       defoverridable Plug
       defoverridable Phauxth.Authenticate.Base
     end
+  end
+
+  import Plug.Conn
+  alias Phauxth.Token
+
+  @doc """
+  Get the user struct from the session.
+  """
+  def get_user_from_session(conn, check_func, {max_age, user_context}) do
+    with {session_id, user_id} <- check_func.(conn),
+         %{sessions: sessions} = user <- user_context.get(user_id),
+         timestamp when is_integer(timestamp) <- sessions[session_id],
+         do:
+           (timestamp + max_age > System.system_time(:second) and user) ||
+             {:error, "session expired"}
+  end
+
+  @doc """
+  Get the user struct from the token.
+  """
+  def get_user_from_token(
+        %Plug.Conn{req_headers: headers} = conn,
+        check_func,
+        {max_age, user_context, opts}
+      ) do
+    with {_, token} <- List.keyfind(headers, "authorization", 0),
+         {:ok, user_id} <- check_func.(conn, token, max_age, opts),
+         do: user_context.get(user_id)
+  end
+
+  @doc """
+  Check the session for the current user.
+  """
+  def check_session(conn) do
+    with <<session_id::binary-size(17), user_id::binary>> <-
+           get_session(conn, :phauxth_session_id),
+         do: {session_id, user_id}
+  end
+
+  @doc """
+  Check the token for the current user.
+  """
+  def check_token(conn, token, max_age, opts) do
+    Token.verify(conn, token, max_age, opts)
   end
 end

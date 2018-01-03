@@ -68,18 +68,17 @@ defmodule Phauxth.Confirm.Base do
   `handle_password_reset` function handles the error.
   """
   @callback verify(params :: map, user_context :: module, opts :: keyword) ::
-              {:ok, user :: map} | {:error, message :: String.t()}
+              {:ok, map} | {:error, String.t()}
 
   @doc """
   """
-  @callback get_user(key_source :: term, opts :: tuple) :: user :: map | nil
+  @callback get_user(key_source :: term, opts :: tuple) :: map | nil
 
   @doc """
   Print out a log message and then return {:ok, user} or
   {:error, message} to the calling function.
   """
-  @callback report(result :: map, meta :: keyword) ::
-              {:ok, user :: map} | {:error, message :: String.t()}
+  @callback report(result :: map, meta :: keyword) :: {:ok, map} | {:error, String.t()}
 
   @doc false
   defmacro __using__(_) do
