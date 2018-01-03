@@ -1,12 +1,12 @@
-defmodule Phauxth.TokenAuthenticateTest do
+defmodule Phauxth.AuthenticateApiTest do
   use ExUnit.Case
   use Plug.Test
   import ExUnit.CaptureLog
 
-  alias Phauxth.{Authenticate, SessionHelper, TestAccounts, Token}
+  alias Phauxth.{AuthenticateApi, SessionHelper, TestAccounts, Token}
 
   @max_age 4 * 60 * 60
-  @token_opts {:token, @max_age, TestAccounts, []}
+  @token_opts {@max_age, TestAccounts, []}
 
   defp add_token(id, token \\ nil, key_opts \\ []) do
     conn = conn(:get, "/") |> SessionHelper.add_key()
@@ -14,10 +14,10 @@ defmodule Phauxth.TokenAuthenticateTest do
   end
 
   defp call_api(id, token \\ nil, max_age \\ @max_age) do
-    opts = {:token, max_age, TestAccounts, []}
+    opts = {max_age, TestAccounts, []}
 
     add_token(id, token)
-    |> Authenticate.call({opts, []})
+    |> AuthenticateApi.call({opts, []})
   end
 
   test "authenticate api sets the current_user" do
@@ -45,7 +45,7 @@ defmodule Phauxth.TokenAuthenticateTest do
   end
 
   test "authenticate api with no token sets the current_user to nil" do
-    conn = conn(:get, "/") |> Authenticate.call({@token_opts, []})
+    conn = conn(:get, "/") |> AuthenticateApi.call({@token_opts, []})
     assert conn.assigns == %{current_user: nil}
   end
 
@@ -64,12 +64,12 @@ defmodule Phauxth.TokenAuthenticateTest do
 
   test "key options passed on to the Token module" do
     conn = add_token(3, nil, key_length: 20)
-    opts_1 = {:token, @max_age, TestAccounts, [key_length: 20]}
-    opts_2 = {:token, @max_age, TestAccounts, []}
-    conn = Authenticate.call(conn, {opts_1, []})
+    opts_1 = {@max_age, TestAccounts, [key_length: 20]}
+    opts_2 = {@max_age, TestAccounts, []}
+    conn = AuthenticateApi.call(conn, {opts_1, []})
     %{current_user: user} = conn.assigns
     assert user.email == "froderick@example.com"
-    conn = Authenticate.call(conn, {opts_2, []})
+    conn = AuthenticateApi.call(conn, {opts_2, []})
     assert conn.assigns == %{current_user: nil}
   end
 end

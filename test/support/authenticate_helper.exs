@@ -1,5 +1,5 @@
 defmodule Phauxth.AbsintheAuthenticate do
-  use Phauxth.Authenticate.Base
+  use Phauxth.Authenticate.Base, :token
 
   @impl true
   def set_user(user, conn) do
@@ -11,7 +11,7 @@ defmodule Phauxth.CustomSession do
   use Phauxth.Authenticate.Base
 
   @impl true
-  def get_user(conn, {:session, max_age, user_context, _}) do
+  def get_user(conn, {max_age, user_context, _}) do
     AuthBase.get_user_from_session(conn, &custom_check_session/1, {max_age, user_context})
   end
 
@@ -26,7 +26,7 @@ defmodule Phauxth.CustomToken do
   use Phauxth.Authenticate.Base
 
   @impl true
-  def get_user(conn, {:token, max_age, user_context, opts}) do
+  def get_user(conn, {max_age, user_context, opts}) do
     AuthBase.get_user_from_token(conn, &custom_check_token/4, {max_age, user_context, opts})
   end
 

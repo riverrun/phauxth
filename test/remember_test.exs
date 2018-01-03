@@ -64,7 +64,7 @@ defmodule Phauxth.RememberTest do
     conn =
       SessionHelper.recycle_and_sign(conn)
       |> put_session(:phauxth_session_id, "FQcPdSYY9HlaRUKCc4")
-      |> Authenticate.call({{:session, @max_age, TestAccounts, []}, []})
+      |> Authenticate.call({{@max_age, TestAccounts, []}, []})
       |> Remember.call({@opts, []})
 
     %{current_user: user} = conn.assigns

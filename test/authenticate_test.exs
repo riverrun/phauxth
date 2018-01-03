@@ -1,11 +1,11 @@
-defmodule Phauxth.SessionAuthenticateTest do
+defmodule Phauxth.AuthenticateTest do
   use ExUnit.Case
   use Plug.Test
 
   alias Phauxth.{Authenticate, SessionHelper, TestAccounts}
 
   @max_age 4 * 60 * 60
-  @session_opts {:session, @max_age, TestAccounts, []}
+  @session_opts {@max_age, TestAccounts, []}
 
   defp add_session(id) do
     conn(:get, "/")
@@ -48,7 +48,7 @@ defmodule Phauxth.SessionAuthenticateTest do
   end
 
   test "user not authenticated if session has expired" do
-    conn = call("F25/1mZuBno+Pfu061", {:session, 0, TestAccounts, []})
+    conn = call("F25/1mZuBno+Pfu061", {0, TestAccounts, []})
     assert conn.assigns == %{current_user: nil}
   end
 

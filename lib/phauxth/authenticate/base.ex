@@ -76,7 +76,7 @@ defmodule Phauxth.Authenticate.Base do
   @callback fresh_session?(Plug.Conn.t()) :: boolean
 
   @doc false
-  defmacro __using__(_) do
+  defmacro __using__(options) do
     quote do
       import Plug.Conn
       alias Phauxth.Authenticate.Base, as: AuthBase
@@ -89,7 +89,6 @@ defmodule Phauxth.Authenticate.Base do
       def init(opts) do
         {
           {
-            Keyword.get(opts, :method, :session),
             Keyword.get(opts, :max_age, 4 * 60 * 60),
             Keyword.get(opts, :user_context, Utils.default_user_context()),
             opts
@@ -104,12 +103,12 @@ defmodule Phauxth.Authenticate.Base do
       end
 
       @impl Phauxth.Authenticate.Base
-      def get_user(conn, {:session, max_age, user_context, _}) do
-        AuthBase.get_user_from_session(conn, &AuthBase.check_session/1, {max_age, user_context})
-      end
-
-      def get_user(conn, {:token, max_age, user_context, opts}) do
-        AuthBase.get_user_from_token(conn, &AuthBase.check_token/4, {max_age, user_context, opts})
+      def get_user(conn, {max_age, user_context, opts}) do
+        if unquote(options) == :token do
+          AuthBase.get_user_from_token(conn, &AuthBase.check_token/4, {max_age, user_context, opts})
+        else
+          AuthBase.get_user_from_session(conn, &AuthBase.check_session/1, {max_age, user_context})
+        end
       end
 
       @impl Phauxth.Authenticate.Base
