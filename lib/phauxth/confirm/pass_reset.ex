@@ -1,6 +1,6 @@
-defmodule Phauxth.Confirm do
+defmodule Phauxth.Confirm.PassReset do
   @moduledoc """
-  Module to provide user confirmation for new users.
+  Module to provide user confirmation when resetting passwords.
 
   See the documentation for the `verify` function for details.
   """
@@ -9,7 +9,7 @@ defmodule Phauxth.Confirm do
 
   @impl true
   def report(%{} = user, meta) do
-    Phauxth.Confirm.Base.check_user_confirmed(user, meta)
+    Phauxth.Confirm.Base.check_reset_sent_at(user, meta)
   end
 
   def report(result, meta), do: super(result, meta)

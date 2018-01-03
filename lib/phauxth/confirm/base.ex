@@ -20,8 +20,6 @@ defmodule Phauxth.Confirm.Base do
       * this can also be set in the config
     * `:max_age` - the maximum age of the token, in seconds
       * the default is 1200 seconds (20 minutes)
-    * `:mode` - the mode - email confirmation or password resetting
-      * set this to :pass_reset to use this function for password resetting
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
@@ -51,7 +49,7 @@ defmodule Phauxth.Confirm.Base do
   ### Password resetting
 
   For password resetting, use the `mode: :pass_reset` option, as in the
-  following example:
+  following example: # change this to use Confirm.PassReset.verify
 
       def update(conn, %{"password_reset" => params}) do
         case Phauxth.Confirm.verify(params, Accounts, mode: :pass_reset) do
@@ -80,7 +78,7 @@ defmodule Phauxth.Confirm.Base do
   Print out a log message and then return {:ok, user} or
   {:error, message} to the calling function.
   """
-  @callback report(result :: map, mode :: atom, meta :: keyword) ::
+  @callback report(result :: map, meta :: keyword) ::
               {:ok, user :: map} | {:error, message :: String.t()}
 
   @doc false
@@ -90,7 +88,7 @@ defmodule Phauxth.Confirm.Base do
 
       @behaviour Phauxth.Confirm.Base
 
-      @impl Phauxth.Confirm.Base
+      @impl true
       def verify(params, user_context, opts \\ [])
 
       def verify(%{"key" => key}, user_context, opts) do
@@ -99,46 +97,52 @@ defmodule Phauxth.Confirm.Base do
         log_meta = Keyword.get(opts, :log_meta, [])
 
         get_user(endpoint, {key, max_age, user_context, opts})
-        |> report(opts[:mode], log_meta)
+        |> report(log_meta)
       end
 
       def verify(_, _, _), do: raise(ArgumentError, "No key found in the params")
 
-      @impl Phauxth.Confirm.Base
+      @impl true
       def get_user(key_source, {key, max_age, user_context, opts}) do
         with {:ok, params} <- Token.verify(key_source, key, max_age, opts),
              do: user_context.get_by(params)
       end
 
-      @impl Phauxth.Confirm.Base
-      def report(%{reset_sent_at: nil}, :pass_reset, meta) do
-        Log.warn(%Log{message: "no reset token found", meta: meta})
-        {:error, Config.user_messages().default_error()}
-      end
-
-      def report(%{reset_sent_at: time} = user, :pass_reset, meta) when not is_nil(time) do
-        Log.info(%Log{user: user.id, message: "user confirmed for password reset", meta: meta})
-        {:ok, Map.drop(user, Config.drop_user_keys())}
-      end
-
-      def report(%{confirmed_at: nil} = user, _, meta) do
-        Log.info(%Log{user: user.id, message: "user confirmed", meta: meta})
-        {:ok, Map.drop(user, Config.drop_user_keys())}
-      end
-
-      def report(%{} = user, _, meta) do
-        Log.warn(%Log{user: user.id, message: "user already confirmed", meta: meta})
-        {:error, Config.user_messages().already_confirmed()}
-      end
-
-      def report({:error, message}, _, meta) do
+      @impl true
+      def report({:error, message}, meta) do
         Log.warn(%Log{message: message, meta: meta})
         {:error, Config.user_messages().default_error()}
       end
 
-      def report(nil, _, meta), do: report({:error, "no user found"}, nil, meta)
+      def report(nil, meta), do: report({:error, "no user found"}, meta)
 
       defoverridable Phauxth.Confirm.Base
     end
+  end
+
+  alias Phauxth.{Config, Log}
+
+  @doc """
+  """
+  def check_user_confirmed(%{confirmed_at: nil} = user, meta) do
+    Log.info(%Log{user: user.id, message: "user confirmed", meta: meta})
+    {:ok, Map.drop(user, Config.drop_user_keys())}
+  end
+
+  def check_user_confirmed(%{} = user, meta) do
+    Log.warn(%Log{user: user.id, message: "user already confirmed", meta: meta})
+    {:error, Config.user_messages().already_confirmed()}
+  end
+
+  @doc """
+  """
+  def check_reset_sent_at(%{reset_sent_at: nil}, meta) do
+    Log.warn(%Log{message: "no reset token found", meta: meta})
+    {:error, Config.user_messages().default_error()}
+  end
+
+  def check_reset_sent_at(%{reset_sent_at: time} = user, meta) when not is_nil(time) do
+    Log.info(%Log{user: user.id, message: "user confirmed for password reset", meta: meta})
+    {:ok, Map.drop(user, Config.drop_user_keys())}
   end
 end

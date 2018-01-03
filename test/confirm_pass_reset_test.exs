@@ -3,7 +3,7 @@ defmodule Phauxth.Confirm.PassResetTest do
   use Plug.Test
   import ExUnit.CaptureLog
 
-  alias Phauxth.{Confirm, TestAccounts, Token}
+  alias Phauxth.{Confirm.PassReset, TestAccounts, Token}
 
   setup do
     conn = conn(:get, "/") |> Phauxth.SessionHelper.add_key()
@@ -13,13 +13,13 @@ defmodule Phauxth.Confirm.PassResetTest do
 
   test "reset password succeeds", %{valid_email: valid_email} do
     params = %{"key" => valid_email, "password" => "password"}
-    {:ok, user} = Confirm.verify(params, TestAccounts, mode: :pass_reset)
+    {:ok, user} = PassReset.verify(params, TestAccounts)
     assert user
   end
 
   test "reset password fails with expired token", %{valid_email: valid_email} do
     params = %{"key" => valid_email, "password" => "password"}
-    {:error, message} = Confirm.verify(params, TestAccounts, max_age: -1, mode: :pass_reset)
+    {:error, message} = PassReset.verify(params, TestAccounts, max_age: -1)
     assert message =~ "Invalid credentials"
   end
 
@@ -27,7 +27,7 @@ defmodule Phauxth.Confirm.PassResetTest do
     assert capture_log(fn ->
              valid_key = Token.sign(conn, %{"email" => "igor@example.com"})
              params = %{"key" => valid_key, "password" => "password"}
-             {:error, _} = Confirm.verify(params, TestAccounts, mode: :pass_reset)
+             {:error, _} = PassReset.verify(params, TestAccounts)
            end) =~ ~s([warn]  user=nil message="no reset token found")
   end
 end

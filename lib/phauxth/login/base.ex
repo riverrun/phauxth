@@ -96,7 +96,7 @@ defmodule Phauxth.Login.Base do
 
       @behaviour Phauxth.Login.Base
 
-      @impl Phauxth.Login.Base
+      @impl true
       def verify(params, user_context, opts \\ [])
 
       def verify(%{"password" => password} = params, user_context, opts) do
@@ -110,12 +110,12 @@ defmodule Phauxth.Login.Base do
 
       def verify(_, _, _), do: raise(ArgumentError, "No password found in the params")
 
-      @impl Phauxth.Login.Base
+      @impl true
       def check_pass(user, password, crypto, opts) do
         crypto.check_pass(user, password, opts)
       end
 
-      @impl Phauxth.Login.Base
+      @impl true
       def report({:ok, user}, ok_message, meta) do
         Log.info(%Log{user: user.id, message: ok_message, meta: meta})
         {:ok, Map.drop(user, Config.drop_user_keys())}
