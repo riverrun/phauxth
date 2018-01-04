@@ -4,9 +4,9 @@ defmodule Phauxth.Authenticate.Session do
 
   import Plug.Conn
 
-  @doc """
-  Get the user struct from the session.
-  """
+  @behaviour Phauxth.Authenticate.UserData
+
+  @impl true
   def get_user_data(conn, {max_age, user_context, _}, check_func \\ &verify_user/1) do
     with {session_id, user_id} <- check_func.(conn),
          %{sessions: sessions} = user <- user_context.get(user_id),
@@ -24,11 +24,4 @@ defmodule Phauxth.Authenticate.Session do
            get_session(conn, :phauxth_session_id),
          do: {session_id, user_id}
   end
-
-  def fresh_session?(conn) do
-    get_session(conn, :phauxth_session_id) |> check_session_id
-  end
-
-  defp check_session_id("F" <> _), do: true
-  defp check_session_id(_), do: false
 end

@@ -55,4 +55,11 @@ defmodule Phauxth.Authenticate do
   """
 
   use Phauxth.Authenticate.Base
+
+  def fresh_session?(conn) do
+    get_session(conn, :phauxth_session_id) |> check_session_id
+  end
+
+  defp check_session_id("F" <> _), do: true
+  defp check_session_id(_), do: false
 end

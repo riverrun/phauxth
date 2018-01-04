@@ -58,7 +58,7 @@ defmodule Phauxth.Authenticate.Base do
 
   This function also calls the database to get user information.
   """
-  @callback get_user(conn :: Plug.Conn.t(), opts :: tuple) :: map
+  @callback get_user(conn :: Plug.Conn.t(), opts :: tuple) :: map | {:error, String.t()} | nil
 
   @doc """
   Log the result of the authentication and return the user struct or nil.
@@ -72,15 +72,11 @@ defmodule Phauxth.Authenticate.Base do
 
   @doc false
   defmacro __using__(options) do
-    get_user_mod = if options == :token do
-      Phauxth.Authenticate.Token
-    else
-      Phauxth.Authenticate.Session
-    end
+    user_data_mod = Keyword.get(options, :user_data, Phauxth.Authenticate.Session)
 
     quote do
       import Plug.Conn
-      import unquote(get_user_mod)
+      import unquote(user_data_mod)
       alias Phauxth.{Config, Log, Utils}
 
       @behaviour Plug

@@ -4,9 +4,9 @@ defmodule Phauxth.Authenticate.Token do
 
   alias Phauxth.Token
 
-  @doc """
-  Get the user struct from the token.
-  """
+  @behaviour Phauxth.Authenticate.UserData
+
+  @impl true
   def get_user_data(
         %Plug.Conn{req_headers: headers} = conn,
         {max_age, user_context, opts},
