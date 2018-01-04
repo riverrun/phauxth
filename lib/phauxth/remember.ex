@@ -2,9 +2,8 @@ defmodule Phauxth.Remember do
   @moduledoc """
   Remember me module.
 
-  Calling Phauxth.Remember with plug checks for a `remember_me` cookie,
-  which contains a token. The token is then checked, and if it is valid,
-  the user is added to the session.
+  Check for a `remember_me` cookie, which contains a token. The token is
+  then checked, and if it is valid, the user is added to the session.
 
   This module also contains functions to add / delete the `remember_me`
   cookie.
@@ -55,14 +54,14 @@ defmodule Phauxth.Remember do
   def call(%Plug.Conn{assigns: %{current_user: %{}}} = conn, _), do: conn
 
   def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn, {opts, log_meta}) do
-    get_user(conn, token, opts)
+    get_user_data(conn, token, opts)
     |> report(log_meta)
     |> set_user(conn)
   end
 
   def call(conn, _), do: conn
 
-  def get_user(conn, token, {max_age, user_context, opts}) do
+  def get_user_data(conn, token, {max_age, user_context, opts}) do
     with {:ok, user_id} <- Token.verify(conn, token, max_age, opts), do: user_context.get(user_id)
   end
 

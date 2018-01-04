@@ -6,7 +6,7 @@ defmodule Phauxth.RememberTest do
   alias Phauxth.{Authenticate, Remember, SessionHelper, TestAccounts}
 
   @max_age 7 * 24 * 60 * 60
-  @opts {@max_age, TestAccounts, []}
+  @opts {{@max_age, TestAccounts, []}, []}
 
   setup do
     conn =
@@ -25,7 +25,7 @@ defmodule Phauxth.RememberTest do
   test "call remember with default options", %{conn: conn} do
     conn =
       SessionHelper.recycle_and_sign(conn)
-      |> Remember.call({@opts, []})
+      |> Remember.call(@opts)
 
     %{current_user: user} = conn.assigns
     assert user.username == "fred"
@@ -47,7 +47,7 @@ defmodule Phauxth.RememberTest do
              conn(:get, "/")
              |> recycle_cookies(conn)
              |> SessionHelper.sign_conn()
-             |> Remember.call({@opts, []})
+             |> Remember.call(@opts)
            end) =~ ~s(user=nil message="invalid token")
   end
 
@@ -55,7 +55,7 @@ defmodule Phauxth.RememberTest do
     conn =
       conn(:get, "/")
       |> SessionHelper.sign_conn()
-      |> Remember.call({@opts, []})
+      |> Remember.call(@opts)
 
     refute conn.assigns[:current_user]
   end
@@ -64,8 +64,8 @@ defmodule Phauxth.RememberTest do
     conn =
       SessionHelper.recycle_and_sign(conn)
       |> put_session(:phauxth_session_id, "FQcPdSYY9HlaRUKCc4")
-      |> Authenticate.call({{@max_age, TestAccounts, []}, []})
-      |> Remember.call({@opts, []})
+      |> Authenticate.call({:session, {@max_age, TestAccounts, []}, []})
+      |> Remember.call(@opts)
 
     %{current_user: user} = conn.assigns
     assert user.id == 4
@@ -88,7 +88,7 @@ defmodule Phauxth.RememberTest do
   test "output to current_user does not contain password_hash", %{conn: conn} do
     conn =
       SessionHelper.recycle_and_sign(conn)
-      |> Remember.call({@opts, []})
+      |> Remember.call(@opts)
 
     %{current_user: user} = conn.assigns
     refute Map.has_key?(user, :password_hash)

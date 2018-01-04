@@ -85,10 +85,9 @@ defmodule Phauxth do
   Note that the verify function does not update the database or send
   an email to the user. Those need to be handled in your app.
 
-  To use Phauxth.Confirm for password resetting add the `mode: :pass_reset`
-  option to the verify function:
+  For password resetting, use `Phauxth.Confirm.PassReset.verify`:
 
-      Phauxth.Confirm.verify(params, MyApp.Accounts, mode: :pass_reset)
+      Phauxth.Confirm.PassReset.verify(params, MyApp.Accounts)
 
   This function just verifies the confirmation key. It does not reset
   the password or send an email to the user.

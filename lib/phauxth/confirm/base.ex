@@ -9,12 +9,12 @@ defmodule Phauxth.Confirm.Base do
   @doc """
   Verify the confirmation key and get the user data from the database.
 
-  This can be used to confirm an email for new users and also for
-  password resetting.
+  `Phauxth.Confirm.verify` is used to confirm an email for new users
+  and `Phauxth.Confirm.PassReset.verify` is used for password resetting.
 
   ## Options
 
-  There are four options for the verify function:
+  There are three options for the verify function:
 
     * `:endpoint` - the name of the endpoint of your app
       * this can also be set in the config
@@ -23,13 +23,13 @@ defmodule Phauxth.Confirm.Base do
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
-  In addition, there are also options for generating the token.
+  In addition, there are also options for verifying the token.
   See the documentation for the Phauxth.Token module for details.
 
   ## Examples
 
-  The following function is an example of using verify in a Phoenix
-  controller.
+  The following function is an example of using `Phauxth.Confirm.verify`
+  in a Phoenix controller.
 
       def index(conn, params) do
         case Phauxth.Confirm.verify(params, Accounts) do
@@ -48,11 +48,11 @@ defmodule Phauxth.Confirm.Base do
 
   ### Password resetting
 
-  For password resetting, use the `mode: :pass_reset` option, as in the
-  following example: # change this to use Confirm.PassReset.verify
+  For password resetting, use `Phauxth.Confirm.PassReset.verify`, as
+  in the following example:
 
       def update(conn, %{"password_reset" => params}) do
-        case Phauxth.Confirm.verify(params, Accounts, mode: :pass_reset) do
+        case Phauxth.Confirm.PassReset.verify(params, Accounts) do
           {:ok, user} ->
             Accounts.update_password(user, params)
             |> handle_password_reset(conn, params)
@@ -71,6 +71,7 @@ defmodule Phauxth.Confirm.Base do
               {:ok, map} | {:error, String.t()}
 
   @doc """
+  Get the user struct based on the supplied key.
   """
   @callback get_user(key_source :: term, opts :: tuple) :: map | nil
 
@@ -122,6 +123,7 @@ defmodule Phauxth.Confirm.Base do
   alias Phauxth.{Config, Log}
 
   @doc """
+  Check if the user has been confirmed.
   """
   def check_user_confirmed(%{confirmed_at: nil} = user, meta) do
     Log.info(%Log{user: user.id, message: "user confirmed", meta: meta})
@@ -134,6 +136,7 @@ defmodule Phauxth.Confirm.Base do
   end
 
   @doc """
+  Check if a reset token has been sent to the user.
   """
   def check_reset_sent_at(%{reset_sent_at: nil}, meta) do
     Log.warn(%Log{message: "no reset token found", meta: meta})

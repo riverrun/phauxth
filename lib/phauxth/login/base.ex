@@ -8,14 +8,26 @@ defmodule Phauxth.Login.Base do
   ## Custom login modules
 
   One example of a custom login module is provided by the Phauxth.Confirm.Login
-  module, which is shown below:
+  module, which is shown below: # ADD A DIFFERENT EXAMPLE HERE
 
       defmodule Phauxth.Confirm.Login do
         use Phauxth.Login.Base
 
+        @impl true
         def check_pass(%{confirmed_at: nil}, _, _, _), do: {:error, "account unconfirmed"}
+
         def check_pass(user, password, crypto, opts) do
           super(user, password, crypto, opts)
+        end
+
+        @impl true
+        def report({:error, "account unconfirmed"}, _, meta) do
+          Log.warn(%Log{message: "account unconfirmed", meta: meta})
+          {:error, Config.user_messages().need_confirm()}
+        end
+
+        def report(result, ok_message, meta) do
+          super(result, ok_message, meta)
         end
       end
 

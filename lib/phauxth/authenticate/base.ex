@@ -17,7 +17,7 @@ defmodule Phauxth.Authenticate.Base do
   be extended, this time to provide authentication for absinthe-elixir:
 
       defmodule AbsintheAuthenticate do
-  use Phauxth.Authenticate.Base, :token # add docs about adding :token to use
+        use Phauxth.Authenticate.Base
 
         def set_user(user, conn) do
           put_private(conn, :absinthe, %{token: %{current_user: user}})
@@ -29,7 +29,7 @@ defmodule Phauxth.Authenticate.Base do
 
       pipeline :api do
         plug :accepts, ["json"]
-        plug AbsintheAuthenticate
+        plug AbsintheAuthenticate, method: :token
       end
 
   ### Authentication for use with Phoenix channels
@@ -58,7 +58,8 @@ defmodule Phauxth.Authenticate.Base do
 
   This function also calls the database to get user information.
   """
-  @callback get_user(conn :: Plug.Conn.t(), opts :: tuple) :: map | {:error, String.t()} | nil
+  @callback get_user(conn :: Plug.Conn.t(), method :: :session | :token, opts :: tuple) ::
+              map | {:error, String.t()} | nil
 
   @doc """
   Log the result of the authentication and return the user struct or nil.
@@ -71,12 +72,10 @@ defmodule Phauxth.Authenticate.Base do
   @callback set_user(user :: map | nil, conn :: Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc false
-  defmacro __using__(options) do
-    user_data_mod = Keyword.get(options, :user_data, Phauxth.Authenticate.Session)
-
+  defmacro __using__(_) do
     quote do
       import Plug.Conn
-      import unquote(user_data_mod)
+      import Phauxth.Authenticate.Base
       alias Phauxth.{Config, Log, Utils}
 
       @behaviour Plug
@@ -85,6 +84,7 @@ defmodule Phauxth.Authenticate.Base do
       @impl Plug
       def init(opts) do
         {
+          Keyword.get(opts, :method, :session),
           {
             Keyword.get(opts, :max_age, 4 * 60 * 60),
             Keyword.get(opts, :user_context, Utils.default_user_context()),
@@ -95,14 +95,13 @@ defmodule Phauxth.Authenticate.Base do
       end
 
       @impl Plug
-      def call(conn, {opts, log_meta}) do
-        get_user(conn, opts) |> report(log_meta) |> set_user(conn)
+      def call(conn, {method, opts, log_meta}) do
+        get_user(conn, method, opts) |> report(log_meta) |> set_user(conn)
       end
 
       @impl Phauxth.Authenticate.Base
-      def get_user(conn, opts) do
-        get_user_data(conn, opts)
-      end
+      def get_user(conn, :session, opts), do: user_from_session(conn, opts)
+      def get_user(conn, :token, opts), do: user_from_token(conn, opts)
 
       @impl Phauxth.Authenticate.Base
       def report(%{} = user, meta) do
@@ -126,5 +125,49 @@ defmodule Phauxth.Authenticate.Base do
       defoverridable Plug
       defoverridable Phauxth.Authenticate.Base
     end
+  end
+
+  import Plug.Conn
+  alias Phauxth.Token
+
+  @doc """
+  Get the user struct from the session data.
+  """
+  def user_from_session(conn, {max_age, user_context, _}, check_func \\ &check_session/1) do
+    with {session_id, user_id} <- check_func.(conn),
+         %{sessions: sessions} = user <- user_context.get(user_id),
+         timestamp when is_integer(timestamp) <- sessions[session_id],
+         do:
+           (timestamp + max_age > System.system_time(:second) and user) ||
+             {:error, "session expired"}
+  end
+
+  @doc """
+  Check the session for the current user.
+  """
+  def check_session(conn) do
+    with <<session_id::binary-size(17), user_id::binary>> <-
+           get_session(conn, :phauxth_session_id),
+         do: {session_id, user_id}
+  end
+
+  @doc """
+  Get the user struct using the token data.
+  """
+  def user_from_token(
+        %Plug.Conn{req_headers: headers} = conn,
+        {max_age, user_context, opts},
+        check_func \\ &check_token/4
+      ) do
+    with {_, token} <- List.keyfind(headers, "authorization", 0),
+         {:ok, user_id} <- check_func.(conn, token, max_age, opts),
+         do: user_context.get(user_id)
+  end
+
+  @doc """
+  Check the token for the current user.
+  """
+  def check_token(conn, token, max_age, opts) do
+    Token.verify(conn, token, max_age, opts)
   end
 end
