@@ -12,10 +12,10 @@ defmodule Phauxth.CustomSession do
 
   @impl true
   def get_user(conn, {max_age, user_context, _}) do
-    AuthBase.get_user_from_session(conn, &custom_check_session/1, {max_age, user_context})
+    get_user_data(conn, {max_age, user_context, nil}, &custom_verify_user/1)
   end
 
-  def custom_check_session(conn) do
+  def custom_verify_user(conn) do
     with <<session_id::binary-size(25), user_id::binary>> <-
            get_session(conn, :phauxth_session_id),
          do: {session_id, user_id}
@@ -23,14 +23,14 @@ defmodule Phauxth.CustomSession do
 end
 
 defmodule Phauxth.CustomToken do
-  use Phauxth.Authenticate.Base
+  use Phauxth.Authenticate.Base, :token
 
   @impl true
   def get_user(conn, {max_age, user_context, opts}) do
-    AuthBase.get_user_from_token(conn, &custom_check_token/4, {max_age, user_context, opts})
+    get_user_data(conn, {max_age, user_context, opts}, &custom_verify_user/4)
   end
 
-  def custom_check_token(_conn, _token, _max_age, _opts) do
+  def custom_verify_user(_conn, _token, _max_age, _opts) do
     {:ok, 3}
   end
 end

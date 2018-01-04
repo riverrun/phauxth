@@ -17,7 +17,7 @@ defmodule Phauxth.Authenticate.Base do
   be extended, this time to provide authentication for absinthe-elixir:
 
       defmodule AbsintheAuthenticate do
-        use Phauxth.Authenticate.Base
+  use Phauxth.Authenticate.Base, :token # add docs about adding :token to use
 
         def set_user(user, conn) do
           put_private(conn, :absinthe, %{token: %{current_user: user}})
@@ -25,11 +25,11 @@ defmodule Phauxth.Authenticate.Base do
       end
 
   And in the `router.ex` file, call this plug in the pipeline you
-  want to authenticate (setting the method to :token).
+  want to authenticate.
 
       pipeline :api do
         plug :accepts, ["json"]
-        plug AbsintheAuthenticate, method: :token
+        plug AbsintheAuthenticate
       end
 
   ### Authentication for use with Phoenix channels
@@ -70,16 +70,17 @@ defmodule Phauxth.Authenticate.Base do
   """
   @callback set_user(user :: map | nil, conn :: Plug.Conn.t()) :: Plug.Conn.t()
 
-  @doc """
-  Checks to see if the session is fresh - newly logged in.
-  """
-  @callback fresh_session?(Plug.Conn.t()) :: boolean
-
   @doc false
   defmacro __using__(options) do
+    get_user_mod = if options == :token do
+      Phauxth.Authenticate.Token
+    else
+      Phauxth.Authenticate.Session
+    end
+
     quote do
       import Plug.Conn
-      alias Phauxth.Authenticate.Base, as: AuthBase
+      import unquote(get_user_mod)
       alias Phauxth.{Config, Log, Utils}
 
       @behaviour Plug
@@ -103,12 +104,8 @@ defmodule Phauxth.Authenticate.Base do
       end
 
       @impl Phauxth.Authenticate.Base
-      def get_user(conn, {max_age, user_context, opts}) do
-        if unquote(options) == :token do
-          AuthBase.get_user_from_token(conn, &AuthBase.check_token/4, {max_age, user_context, opts})
-        else
-          AuthBase.get_user_from_session(conn, &AuthBase.check_session/1, {max_age, user_context})
-        end
+      def get_user(conn, opts) do
+        get_user_data(conn, opts)
       end
 
       @impl Phauxth.Authenticate.Base
@@ -130,60 +127,8 @@ defmodule Phauxth.Authenticate.Base do
         assign(conn, :current_user, user)
       end
 
-      @impl Phauxth.Authenticate.Base
-      def fresh_session?(conn) do
-        get_session(conn, :phauxth_session_id) |> check_session_id
-      end
-
-      defp check_session_id("F" <> _), do: true
-      defp check_session_id(_), do: false
-
       defoverridable Plug
       defoverridable Phauxth.Authenticate.Base
     end
-  end
-
-  import Plug.Conn
-  alias Phauxth.Token
-
-  @doc """
-  Get the user struct from the session.
-  """
-  def get_user_from_session(conn, check_func, {max_age, user_context}) do
-    with {session_id, user_id} <- check_func.(conn),
-         %{sessions: sessions} = user <- user_context.get(user_id),
-         timestamp when is_integer(timestamp) <- sessions[session_id],
-         do:
-           (timestamp + max_age > System.system_time(:second) and user) ||
-             {:error, "session expired"}
-  end
-
-  @doc """
-  Get the user struct from the token.
-  """
-  def get_user_from_token(
-        %Plug.Conn{req_headers: headers} = conn,
-        check_func,
-        {max_age, user_context, opts}
-      ) do
-    with {_, token} <- List.keyfind(headers, "authorization", 0),
-         {:ok, user_id} <- check_func.(conn, token, max_age, opts),
-         do: user_context.get(user_id)
-  end
-
-  @doc """
-  Check the session for the current user.
-  """
-  def check_session(conn) do
-    with <<session_id::binary-size(17), user_id::binary>> <-
-           get_session(conn, :phauxth_session_id),
-         do: {session_id, user_id}
-  end
-
-  @doc """
-  Check the token for the current user.
-  """
-  def check_token(conn, token, max_age, opts) do
-    Token.verify(conn, token, max_age, opts)
   end
 end
