@@ -5,7 +5,7 @@ defmodule Phauxth do
   Phauxth is designed to be secure, extensible and well-documented.
 
   Phauxth offers two types of functions: Plugs, which are called with plug,
-  and verify/3 functions, which are called inside the function bodies.
+  and `verify/3` functions.
 
   ## Plugs
 
@@ -14,7 +14,7 @@ defmodule Phauxth do
 
   ### Authenticate
 
-  Phauxth.Authenticate checks to see if there is a valid cookie or token
+  `Phauxth.Authenticate` checks to see if there is a valid cookie or token
   for the user and sets the current_user value accordingly.
 
   This is usually added to the pipeline you want to authenticate in the
@@ -42,9 +42,9 @@ defmodule Phauxth do
 
   ## Phauxth verify/3
 
-  The verify/3 function takes a map (usually Phoenix params), a context
+  The `verify/3` function takes a map (usually Phoenix params), a context
   module (usually MyApp.Accounts) and opts (an empty list by default)
-  and returns {:ok, user} or {:error, message}.
+  and returns `{:ok, user}` or `{:error, message}`.
 
   ### Login
 
@@ -58,14 +58,14 @@ defmodule Phauxth do
         end
       end
 
-  Note that the Phauxth.Login verify function does not add the user to
+  Note that the `Phauxth.Login.verify` function does not add the user to
   the session or send the user a token. You need to do that in the
   handle_successful_login function.
 
-  ### User confirmation and password resetting
+  ### User confirmation
 
-  The verify function in Phauxth.Confirm is used for user confirmation,
-  using email or phone, and for password resetting.
+  `Phauxth.Confirm.verify` is used for user confirmation, using email
+  or phone.
 
   The function below is an example of how you would call verify to
   confirm a user's account.
@@ -85,7 +85,10 @@ defmodule Phauxth do
   Note that the verify function does not update the database or send
   an email to the user. Those need to be handled in your app.
 
-  For password resetting, use `Phauxth.Confirm.PassReset.verify`:
+  ### Password resetting
+
+  `Phauxth.Confirm.PassReset.verify` is used for password resetting, as
+  in the example below:
 
       Phauxth.Confirm.PassReset.verify(params, MyApp.Accounts)
 
@@ -104,6 +107,8 @@ defmodule Phauxth do
 
     * `--api` - create files for an api
     * `--confirm` - add files for email confirmation
+    * `--remember` - add `remember_me` functionality
+    * `--backups` - create backup files, with `.bak` extension, before writing new files
 
   Phauxth uses the user context module (normally MyApp.Accounts) to communicate
   with the underlying database. This module needs to have the `get(id)` and

@@ -8,12 +8,12 @@ defmodule Phauxth.Authenticate do
   ## Session authentication
 
   This module checks the current Plug session for a `phauxth_session_id`,
-  which contains a session id and the user id. It then checks the user
-  schema to see if the session id is valid. The sessions are stored in
-  a map with session ids as keys and timestamps as values.
+  which contains a session id and user id. It then checks the user
+  schema to see if the session id is valid. The sessions should be stored
+  in a map with session ids as keys and timestamps as values.
 
-  This process can be customized by overriding the `get_user` and / or
-  `check_session` function in Phauxth.Authenticate.Base.
+  This process can be customized by overriding the `get_user` function
+  in Phauxth.Authenticate.Base.
 
   ## Token authentication
 
@@ -21,8 +21,8 @@ defmodule Phauxth.Authenticate do
   Phauxth.Token to check that it is valid. If it is valid, user information
   is retrieved from the database.
 
-  This process can be customized by overriding the `get_user` and / or
-  `check_token` function in Phauxth.Authenticate.Base.
+  This process can be customized by overriding the `get_user` function
+  in Phauxth.Authenticate.Base.
 
   ## Options
 

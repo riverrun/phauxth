@@ -23,8 +23,8 @@ defmodule Phauxth.Config do
 
       Phauxth.Token.sign(conn, data, token_salt: "somesalt")
 
-  And this example shows how the Confirm.verify function needs to be
-  called:
+  And this example shows how the Phauxth.Confirm.verify function needs
+  to be called:
 
       Phauxth.Confirm.verify(params, MyApp.Accounts,
         endpoint: MyAppWeb.Endpoint, token_salt: "somesalt")

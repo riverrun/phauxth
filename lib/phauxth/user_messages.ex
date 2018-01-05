@@ -3,7 +3,7 @@ defmodule Phauxth.UserMessages.Base do
   Customizable module to be used to display messages to users.
 
   These messages can be customized to display different messages or
-  add translation using gettext.
+  add translations using gettext.
 
   ## Custom messages
 

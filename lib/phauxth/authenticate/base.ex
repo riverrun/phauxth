@@ -54,7 +54,7 @@ defmodule Phauxth.Authenticate.Base do
   """
 
   @doc """
-  Get the user based on the session id or token id.
+  Get the user based on the session or token data.
 
   This function also calls the database to get user information.
   """

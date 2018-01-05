@@ -7,41 +7,31 @@ defmodule Phauxth.Login.Base do
 
   ## Custom login modules
 
-  One example of a custom login module is provided by the Phauxth.Confirm.Login
-  module, which is shown below: # ADD A DIFFERENT EXAMPLE HERE
+  One example of a custom login module is provided by the `Phauxth.Confirm.Login`
+  module, in which the `check_pass` and `report` functions are customized to
+  check if the user has confirmed the account.
 
-      defmodule Phauxth.Confirm.Login do
+  The following example shows how the `report` function can be extended:
+
+      defmodule MyApp.Login do
         use Phauxth.Login.Base
 
-        @impl true
-        def check_pass(%{confirmed_at: nil}, _, _, _), do: {:error, "account unconfirmed"}
-
-        def check_pass(user, password, crypto, opts) do
-          super(user, password, crypto, opts)
-        end
-
-        @impl true
-        def report({:error, "account unconfirmed"}, _, meta) do
-          Log.warn(%Log{message: "account unconfirmed", meta: meta})
-          {:error, Config.user_messages().need_confirm()}
+        def report({:error, "account blocked"}, _, meta) do
+          Log.warn(%Log{message: message, meta: meta})
+          {:error, "You cannot access this account at the moment"}
         end
 
         def report(result, ok_message, meta) do
           super(result, ok_message, meta)
         end
       end
-
-  In this example, the check_pass function is overridden to check
-  the user struct to see if the user is confirmed. If the user has not
-  been confirmed, an error is returned. Otherwise, the default check_pass
-  function is run.
   """
 
   @doc """
   Verify a user's password.
 
-  Check the user's password, and return {:ok, user} if login is
-  successful or {:error, message} if there is an error.
+  Check the user's password, and return `{:ok, user}` if login is
+  successful or `{:error, message}` if there is an error.
 
   If login is successful, you need to either add the user to the
   session, by running `put_session(conn, :user_id, id)`, or send
@@ -56,8 +46,8 @@ defmodule Phauxth.Login.Base do
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
-  The check_pass function also has options. See the documentation for
-  the password hashing module you are using for details.
+  The `check_pass` function also has various options. See the documentation
+  for the password hashing module you are using for details.
 
   ## Examples
 
@@ -92,7 +82,7 @@ defmodule Phauxth.Login.Base do
               {:ok, map} | {:error, String.t()}
 
   @doc """
-  Prints out a log message and returns {:ok, user} or {:error, message}.
+  Prints out a log message and returns `{:ok, user}` or `{:error, message}`.
   """
   @callback report(
               result :: {:ok, user :: map} | {:error, message :: String.t()},
