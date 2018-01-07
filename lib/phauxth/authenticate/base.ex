@@ -100,8 +100,13 @@ defmodule Phauxth.Authenticate.Base do
       end
 
       @impl Phauxth.Authenticate.Base
-      def get_user(conn, :session, opts), do: user_from_session(conn, opts)
-      def get_user(conn, :token, opts), do: user_from_token(conn, opts)
+      def get_user(conn, :session, opts) do
+        user_from_session(conn, opts, &Phauxth.Session.get_session_data/1)
+      end
+
+      def get_user(conn, :token, opts) do
+        user_from_token(conn, opts, &Phauxth.Token.verify/4)
+      end
 
       @impl Phauxth.Authenticate.Base
       def report(%{} = user, meta) do
@@ -127,13 +132,10 @@ defmodule Phauxth.Authenticate.Base do
     end
   end
 
-  import Plug.Conn
-  alias Phauxth.Token
-
   @doc """
   Get the user struct from the session data.
   """
-  def user_from_session(conn, {max_age, user_context, _}, check_func \\ &check_session/1) do
+  def user_from_session(conn, {max_age, user_context, _}, check_func) do
     with {session_id, user_id} <- check_func.(conn),
          %{sessions: sessions} = user <- user_context.get(user_id),
          timestamp when is_integer(timestamp) <- sessions[session_id],
@@ -143,31 +145,15 @@ defmodule Phauxth.Authenticate.Base do
   end
 
   @doc """
-  Check the session for the current user.
-  """
-  def check_session(conn) do
-    with <<session_id::binary-size(17), user_id::binary>> <-
-           get_session(conn, :phauxth_session_id),
-         do: {session_id, user_id}
-  end
-
-  @doc """
   Get the user struct using the token data.
   """
   def user_from_token(
         %Plug.Conn{req_headers: headers} = conn,
         {max_age, user_context, opts},
-        check_func \\ &check_token/4
+        check_func
       ) do
     with {_, token} <- List.keyfind(headers, "authorization", 0),
          {:ok, user_id} <- check_func.(conn, token, max_age, opts),
          do: user_context.get(user_id)
-  end
-
-  @doc """
-  Check the token for the current user.
-  """
-  def check_token(conn, token, max_age, opts) do
-    Token.verify(conn, token, max_age, opts)
   end
 end

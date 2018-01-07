@@ -34,7 +34,7 @@ defmodule Phauxth.Remember do
   """
 
   use Phauxth.Authenticate.Base
-  alias Phauxth.{Login, Token}
+  alias Phauxth.{Session, Token}
 
   @max_age 7 * 24 * 60 * 60
 
@@ -70,7 +70,7 @@ defmodule Phauxth.Remember do
 
   def set_user(user, conn) do
     assign(conn, :current_user, user)
-    |> Login.add_session(Login.gen_session_id("S"), user.id)
+    |> Session.add_session(Session.gen_session_id("S"), user.id)
   end
 
   @doc """
