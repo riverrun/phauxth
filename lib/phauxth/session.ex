@@ -1,5 +1,6 @@
 defmodule Phauxth.Session do
   @moduledoc """
+  Session-related functions.
   """
 
   import Plug.Conn
@@ -23,8 +24,17 @@ defmodule Phauxth.Session do
 
   @doc """
   Generate a session id.
+
+  The session id is a 17-character long string. The first character
+  indicates if the session is fresh - if the user is newly logged in.
+  The other 16 characters are randomly generated.
   """
-  def gen_session_id(fresh) do
+  def gen_session_id(sessions, fresh) do
+    id = gen_id(fresh)
+    (Map.has_key?(sessions, id) and gen_session_id(sessions, fresh)) || id
+  end
+
+  defp gen_id(fresh) do
     "#{fresh}#{:crypto.strong_rand_bytes(12) |> Base.encode64()}"
   end
 

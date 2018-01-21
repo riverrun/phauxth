@@ -3,7 +3,7 @@ defmodule Phauxth.AbsintheAuthenticate do
 
   @impl true
   def set_user(user, conn) do
-    put_private(conn, :absinthe, %{token: %{current_user: user}})
+    put_private(conn, :absinthe, %{context: %{current_user: user}})
   end
 end
 

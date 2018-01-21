@@ -143,7 +143,7 @@ defmodule Phauxth.Confirm.Base do
     {:error, Config.user_messages().default_error()}
   end
 
-  def check_reset_sent_at(%{reset_sent_at: time} = user, meta) when not is_nil(time) do
+  def check_reset_sent_at(%{reset_sent_at: _time} = user, meta) do
     Log.info(%Log{user: user.id, message: "user confirmed for password reset", meta: meta})
     {:ok, Map.drop(user, Config.drop_user_keys())}
   end

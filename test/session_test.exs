@@ -10,11 +10,12 @@ defmodule Phauxth.SessionTest do
   end
 
   test "add_session adds phauxth_session_id to conn" do
+    sessions = %{}
     session_id =
       conn(:get, "/")
       |> Phauxth.SessionHelper.sign_conn()
       |> assign(:current_user, %{id: 2})
-      |> Session.add_session(Session.gen_session_id("F"), 2)
+      |> Session.add_session(Session.gen_session_id(sessions, "F"), 2)
       |> get_session(:phauxth_session_id)
 
     <<"F", _session_id::binary-size(16), user_id::binary>> = session_id

@@ -51,7 +51,7 @@ defmodule Phauxth.AuthenticateApiTest do
 
   test "customized set_user - absinthe example" do
     conn = add_token(1) |> Phauxth.AbsintheAuthenticate.call(@token_opts)
-    %{token: %{current_user: user}} = conn.private.absinthe
+    %{context: %{current_user: user}} = conn.private.absinthe
     assert user.email == "fred+1@example.com"
     assert user.role == "user"
   end
