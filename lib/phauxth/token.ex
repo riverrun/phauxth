@@ -48,6 +48,10 @@ defmodule Phauxth.Token do
   and verifying tokens.
   """
 
+  @type key_source :: module | Plug.Conn.t() | String.t()
+  @type token_data :: map | String.t() | integer
+  @type result :: {:ok, token_data} | {:error, String.t()}
+
   alias Plug.Crypto.KeyGenerator
   alias Plug.Crypto.MessageVerifier
   alias Phauxth.Config
@@ -57,6 +61,7 @@ defmodule Phauxth.Token do
 
   See the module documentation for more information.
   """
+  @spec sign(key_source, token_data, list) :: String.t()
   def sign(key_source, data, opts \\ []) do
     %{"data" => data, "signed" => now()}
     |> Poison.encode!()
@@ -68,6 +73,7 @@ defmodule Phauxth.Token do
 
   See the module documentation for more information.
   """
+  @spec verify(key_source, String.t(), integer, list) :: result
   def verify(key_source, token, max_age, opts \\ [])
 
   def verify(key_source, token, max_age, opts) when is_binary(token) do
@@ -113,14 +119,6 @@ defmodule Phauxth.Token do
 
   defp get_token_data({:ok, message}), do: Poison.decode(message)
   defp get_token_data(:error), do: {:error, "invalid token"}
-
-  # fallback for tokens signed with pre-v1.2
-  # remove in v2.0
-  defp handle_verify({:ok, %{"data" => data, "signed" => signed}}, max_age)
-       when signed > 1_500_000_000_000 do
-    signed = trunc(signed / 1000)
-    (signed + max_age < now() and {:error, "expired token"}) || {:ok, data}
-  end
 
   defp handle_verify({:ok, %{"data" => data, "signed" => signed}}, max_age) do
     (signed + max_age < now() and {:error, "expired token"}) || {:ok, data}

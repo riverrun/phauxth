@@ -8,6 +8,7 @@ defmodule Phauxth.Session do
   @doc """
   Get the session id and user id for the current user.
   """
+  @spec get_session_data(Plug.Conn.t()) :: tuple | nil
   def get_session_data(conn) do
     with <<session_id::binary-size(17), user_id::binary>> <-
            get_session(conn, :phauxth_session_id),
@@ -17,6 +18,7 @@ defmodule Phauxth.Session do
   @doc """
   Add the phauxth_session_id to the conn.
   """
+  @spec add_session(Plug.Conn.t(), binary, binary) :: Plug.Conn.t()
   def add_session(conn, session_id, user_id) do
     put_session(conn, :phauxth_session_id, session_id <> to_string(user_id))
     |> configure_session(renew: true)
@@ -29,6 +31,7 @@ defmodule Phauxth.Session do
   indicates if the session is fresh - if the user is newly logged in.
   The other 16 characters are randomly generated.
   """
+  @spec gen_session_id(map, binary) :: binary
   def gen_session_id(sessions, fresh) do
     id = gen_id(fresh)
     (Map.has_key?(sessions, id) and gen_session_id(sessions, fresh)) || id
@@ -41,6 +44,7 @@ defmodule Phauxth.Session do
   @doc """
   Check if the user session is fresh - newly logged in.
   """
+  @spec fresh_session?(Plug.Conn.t()) :: boolean
   def fresh_session?(conn) do
     get_session(conn, :phauxth_session_id) |> check_session_id
   end

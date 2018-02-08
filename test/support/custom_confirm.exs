@@ -17,7 +17,7 @@ defmodule Phauxth.CustomConfirm do
 
   @impl true
   def report(%{} = user, meta) do
-    Phauxth.Confirm.Base.check_user_confirmed(user, meta)
+    check_user_confirmed(user, meta)
   end
 
   def report(result, meta), do: super(result, meta)

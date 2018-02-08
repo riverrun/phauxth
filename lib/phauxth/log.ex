@@ -51,6 +51,7 @@ defmodule Phauxth.Log do
   @doc """
   Returns the id of the currently logged-in user, if present.
   """
+  @spec current_user_id(map | nil) :: String.t()
   def current_user_id(%{current_user: %{id: id}}), do: "#{id}"
   def current_user_id(_), do: "nil"
 

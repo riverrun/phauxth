@@ -5,7 +5,7 @@ defmodule Phauxth.Authenticate do
   For information about customizing this Plug, see the documentation
   for Phauxth.Authenticate.Base.
 
-  ## Session authentication
+  ## Session authentication # change title - Plug session (cookie)?
 
   This module checks the current Plug session for a `phauxth_session_id`,
   which contains a session id and user id. It then checks the user

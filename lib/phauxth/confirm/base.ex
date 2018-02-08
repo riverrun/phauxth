@@ -84,9 +84,10 @@ defmodule Phauxth.Confirm.Base do
   @doc false
   defmacro __using__(_) do
     quote do
-      alias Phauxth.{Config, Log, Token}
-
       @behaviour Phauxth.Confirm.Base
+
+      import Phauxth.Confirm.Base
+      alias Phauxth.{Config, Log, Token}
 
       @impl true
       def verify(params, user_context, opts \\ [])
@@ -125,6 +126,7 @@ defmodule Phauxth.Confirm.Base do
   @doc """
   Check if the user has been confirmed.
   """
+  @spec check_user_confirmed(map, list) :: {:ok, map} | {:error, String.t()}
   def check_user_confirmed(%{confirmed_at: nil} = user, meta) do
     Log.info(%Log{user: user.id, message: "user confirmed", meta: meta})
     {:ok, Map.drop(user, Config.drop_user_keys())}
@@ -138,6 +140,7 @@ defmodule Phauxth.Confirm.Base do
   @doc """
   Check if a reset token has been sent to the user.
   """
+  @spec check_reset_sent_at(map, list) :: {:ok, map} | {:error, String.t()}
   def check_reset_sent_at(%{reset_sent_at: nil}, meta) do
     Log.warn(%Log{message: "no reset token found", meta: meta})
     {:error, Config.user_messages().default_error()}

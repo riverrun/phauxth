@@ -74,12 +74,12 @@ defmodule Phauxth.Authenticate.Base do
   @doc false
   defmacro __using__(_) do
     quote do
+      @behaviour Plug
+      @behaviour Phauxth.Authenticate.Base
+
       import Plug.Conn
       import Phauxth.Authenticate.Base
       alias Phauxth.{Config, Log, Utils}
-
-      @behaviour Plug
-      @behaviour Phauxth.Authenticate.Base
 
       @impl Plug
       def init(opts) do
@@ -118,7 +118,7 @@ defmodule Phauxth.Authenticate.Base do
         Log.info(%Log{message: message, meta: meta}) && nil
       end
 
-      def report(nil, meta) do
+      def report(none, meta) when none in [nil, []] do
         Log.info(%Log{message: "anonymous user", meta: meta}) && nil
       end
 
@@ -132,9 +132,12 @@ defmodule Phauxth.Authenticate.Base do
     end
   end
 
+  import Plug.Conn
+
   @doc """
   Get the user struct from the session data.
   """
+  @spec user_from_session(Plug.Conn.t(), tuple, function) :: map | nil | {:error, String.t()}
   def user_from_session(conn, {max_age, user_context, _}, check_func) do
     with {session_id, user_id} <- check_func.(conn),
          %{sessions: sessions} = user <- user_context.get(user_id),
@@ -147,12 +150,9 @@ defmodule Phauxth.Authenticate.Base do
   @doc """
   Get the user struct using the token data.
   """
-  def user_from_token(
-        %Plug.Conn{req_headers: headers} = conn,
-        {max_age, user_context, opts},
-        check_func
-      ) do
-    with {_, token} <- List.keyfind(headers, "authorization", 0),
+  @spec user_from_token(Plug.Conn.t(), tuple, function) :: map | nil | [] | {:error, String.t()}
+  def user_from_token(conn, {max_age, user_context, opts}, check_func) do
+    with [token | _] <- get_req_header(conn, "authorization"),
          {:ok, user_id} <- check_func.(conn, token, max_age, opts),
          do: user_context.get(user_id)
   end

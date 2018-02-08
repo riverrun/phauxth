@@ -93,9 +93,9 @@ defmodule Phauxth.Login.Base do
   @doc false
   defmacro __using__(_) do
     quote do
-      alias Phauxth.{Config, Log}
-
       @behaviour Phauxth.Login.Base
+
+      alias Phauxth.{Config, Log}
 
       @impl true
       def verify(params, user_context, opts \\ [])

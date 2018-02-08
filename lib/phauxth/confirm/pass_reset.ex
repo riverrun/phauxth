@@ -9,7 +9,7 @@ defmodule Phauxth.Confirm.PassReset do
 
   @impl true
   def report(%{} = user, meta) do
-    Phauxth.Confirm.Base.check_reset_sent_at(user, meta)
+    check_reset_sent_at(user, meta)
   end
 
   def report(result, meta), do: super(result, meta)

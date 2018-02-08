@@ -61,6 +61,10 @@ defmodule Phauxth.Remember do
 
   def call(conn, _), do: conn
 
+  @doc """
+  Gets the user data from the token.
+  """
+  @spec get_user_data(Plug.Conn.t(), String.t(), tuple) :: map | nil
   def get_user_data(conn, token, {max_age, user_context, opts}) do
     with {:ok, user_id} <- Token.verify(conn, token, max_age, opts), do: user_context.get(user_id)
   end
@@ -74,16 +78,18 @@ defmodule Phauxth.Remember do
   end
 
   @doc """
-  Add a remember me cookie to the conn.
+  Adds a remember me cookie to the conn.
   """
+  @spec add_rem_cookie(Plug.Conn.t(), integer, integer) :: Plug.Conn.t()
   def add_rem_cookie(conn, user_id, max_age \\ @max_age) do
     cookie = Token.sign(conn, user_id)
     put_resp_cookie(conn, "remember_me", cookie, http_only: true, max_age: max_age)
   end
 
   @doc """
-  Delete the remember_me cookie from the conn.
+  Deletes the remember_me cookie from the conn.
   """
+  @spec delete_rem_cookie(Plug.Conn.t()) :: Plug.Conn.t()
   def delete_rem_cookie(conn) do
     register_before_send(conn, &delete_resp_cookie(&1, "remember_me"))
   end
