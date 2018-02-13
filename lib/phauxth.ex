@@ -46,22 +46,6 @@ defmodule Phauxth do
   module (usually MyApp.Accounts) and opts (an empty list by default)
   and returns `{:ok, user}` or `{:error, message}`.
 
-  ### Login
-
-  In the example below, verify is called within the create function
-  in the session controller.
-
-      def create(conn, %{"session" => params}) do
-        case Phauxth.Login.verify(params, MyApp.Accounts) do
-          {:ok, user} -> handle_successful_login
-          {:error, message} -> handle_error
-        end
-      end
-
-  Note that the `Phauxth.Login.verify` function does not add the user to
-  the session or send the user a token. You need to do that in the
-  handle_successful_login function.
-
   ### User confirmation
 
   `Phauxth.Confirm.verify` is used for user confirmation, using email
@@ -122,8 +106,8 @@ defmodule Phauxth do
 
   ## Customizing Phauxth
 
-  See the documentation for Phauxth.Authenticate.Base, Phauxth.Login.Base
-  and Phauxth.Confirm.Base for more information on extending these modules.
+  See the documentation for Phauxth.Authenticate.Base and Phauxth.Confirm.Base
+  for more information on extending these modules.
 
   You can find more information at the
   [Phauxth wiki](https://github.com/riverrun/phauxth/wiki).

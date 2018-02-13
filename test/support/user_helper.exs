@@ -7,7 +7,7 @@ defmodule Phauxth.TestAccounts do
       phone: "55555555555",
       reset_sent_at: nil,
       role: "user",
-      password_hash: Bcrypt.hash_pwd_salt("h4rd2gU3$$"),
+      password_hash: "password hash",
       confirmed_at: nil,
       sessions: %{
         "F25/1mZuBno+Pfu06" => System.system_time(:second),
@@ -19,7 +19,7 @@ defmodule Phauxth.TestAccounts do
       email: "ray@example.com",
       role: "user",
       reset_sent_at: nil,
-      password_hash: Bcrypt.hash_pwd_salt("h4rd2gU3$$"),
+      password_hash: "password hash",
       confirmed_at: DateTime.utc_now()
     },
     %{
@@ -28,25 +28,24 @@ defmodule Phauxth.TestAccounts do
       role: "user",
       confirmed_at: DateTime.utc_now(),
       reset_sent_at: DateTime.utc_now(),
-      password_hash: Bcrypt.hash_pwd_salt("h4rd2gU3$$")
+      password_hash: "password hash"
     },
     %{
       id: 4,
       email: "brian@example.com",
       role: "user",
-      password_hash: Bcrypt.hash_pwd_salt("h4rd2gU3$$"),
+      password_hash: "password hash",
       sessions: %{"FQcPdSYY9HlaRUKCc" => System.system_time(:second)}
     },
     %{id: 5, email: "igor@example.com", role: "user", reset_sent_at: nil},
-    %{id: 6, email: "frank@example.com", password_hash: Argon2.hash_pwd_salt("h4rd2gU3$$")},
-    %{id: 7, email: "eddie@example.com", encrypted_password: Argon2.hash_pwd_salt("h4rd2gU3$$")}
+    %{id: 6, email: "frank@example.com", password_hash: "password hash"}
   ]
   @chiefs [
     %{
       id: 1,
       email: "brian@example.com",
       role: "admin",
-      password_hash: Bcrypt.hash_pwd_salt("h4rd2gU3$$")
+      password_hash: "password hash"
     }
   ]
 
@@ -63,7 +62,6 @@ defmodule Phauxth.TestAccounts do
   def get_by(%{"email" => "froderick@example.com"}), do: Enum.at(@users, 2)
   def get_by(%{"email" => "igor@example.com"}), do: Enum.at(@users, 4)
   def get_by(%{"email" => "frank@example.com"}), do: Enum.at(@users, 5)
-  def get_by(%{"email" => "eddie@example.com"}), do: Enum.at(@users, 6)
   def get_by(%{"username" => "fred"}), do: Enum.at(@users, 0)
   def get_by(%{"phone" => "55555555555"}), do: Enum.at(@users, 0)
   def get_by(%{"email" => _, "role" => "user"}), do: Enum.at(@users, 3)

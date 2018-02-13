@@ -26,8 +26,8 @@ defmodule Phauxth.LogTest do
 
   test "logs to console for nil current_user" do
     assert capture_log(fn ->
-             Log.warn(%Log{user: "arrr@example.com", message: "failed login"})
-           end) =~ ~s(user=arrr@example.com message="failed login")
+             Log.warn(%Log{user: "arrr@example.com", message: "nil user"})
+           end) =~ ~s(user=arrr@example.com message="nil user")
   end
 
   test "quotes values containing '='" do
@@ -40,7 +40,7 @@ defmodule Phauxth.LogTest do
     Application.put_env(:phauxth, :log_level, false)
 
     assert capture_log(fn ->
-             Log.warn(%Log{user: "arrr@example.com", message: "failed login"})
+             Log.warn(%Log{user: "arrr@example.com", message: "nil user"})
            end) =~ ""
   after
     Application.put_env(:phauxth, :log_level, :info)
@@ -50,7 +50,7 @@ defmodule Phauxth.LogTest do
     Application.put_env(:phauxth, :log_level, :warn)
 
     assert capture_log(fn ->
-             Log.info(%Log{user: "arrr@example.com", message: "failed login"})
+             Log.info(%Log{user: "arrr@example.com", message: "nil user"})
            end) =~ ""
   after
     Application.put_env(:phauxth, :log_level, :info)
