@@ -58,8 +58,7 @@ defmodule Phauxth.Authenticate.Base do
 
   This function also calls the database to get user information.
   """
-  @callback get_user(conn :: Plug.Conn.t(), method :: :session | :token, opts :: tuple) ::
-              map | {:error, String.t()} | nil
+  @callback get_user(conn :: Plug.Conn.t(), opts :: tuple) :: map | {:error, String.t()} | nil
 
   @doc """
   Log the result of the authentication and return the user struct or nil.
@@ -83,29 +82,24 @@ defmodule Phauxth.Authenticate.Base do
 
       @impl Plug
       def init(opts) do
-        {
-          Keyword.get(opts, :method, :session),
-          {
-            Keyword.get(opts, :max_age, 4 * 60 * 60),
-            Keyword.get(opts, :user_context, Utils.default_user_context()),
-            opts
-          },
-          Keyword.get(opts, :log_meta, [])
-        }
+        {{Keyword.get(opts, :max_age, 4 * 60 * 60),
+          Keyword.get(opts, :user_context, Utils.default_user_context()), opts},
+         Keyword.get(opts, :log_meta, [])}
       end
 
       @impl Plug
-      def call(conn, {method, opts, log_meta}) do
-        get_user(conn, method, opts) |> report(log_meta) |> set_user(conn)
+      def call(conn, {opts, log_meta}) do
+        conn |> get_user(opts) |> report(log_meta) |> set_user(conn)
       end
 
       @impl Phauxth.Authenticate.Base
-      def get_user(conn, :session, opts) do
-        user_from_session(conn, opts, &Phauxth.Session.get_session_data/1)
-      end
-
-      def get_user(conn, :token, opts) do
-        user_from_token(conn, opts, &Phauxth.Token.verify/4)
+      def get_user(conn, {max_age, user_context, opts}) do
+        with {session_id, user_id} <- Phauxth.Session.get_session_data(conn),
+             %{sessions: sessions} = user <- user_context.get(user_id),
+             timestamp when is_integer(timestamp) <- sessions[session_id],
+             do:
+               (timestamp + max_age > System.system_time(:second) and user) ||
+                 {:error, "session expired"}
       end
 
       @impl Phauxth.Authenticate.Base
@@ -130,30 +124,5 @@ defmodule Phauxth.Authenticate.Base do
       defoverridable Plug
       defoverridable Phauxth.Authenticate.Base
     end
-  end
-
-  import Plug.Conn
-
-  @doc """
-  Get the user struct from the session data.
-  """
-  @spec user_from_session(Plug.Conn.t(), tuple, function) :: map | nil | {:error, String.t()}
-  def user_from_session(conn, {max_age, user_context, _}, check_func) do
-    with {session_id, user_id} <- check_func.(conn),
-         %{sessions: sessions} = user <- user_context.get(user_id),
-         timestamp when is_integer(timestamp) <- sessions[session_id],
-         do:
-           (timestamp + max_age > System.system_time(:second) and user) ||
-             {:error, "session expired"}
-  end
-
-  @doc """
-  Get the user struct using the token data.
-  """
-  @spec user_from_token(Plug.Conn.t(), tuple, function) :: map | nil | [] | {:error, String.t()}
-  def user_from_token(conn, {max_age, user_context, opts}, check_func) do
-    with [token | _] <- get_req_header(conn, "authorization"),
-         {:ok, user_id} <- check_func.(conn, token, max_age, opts),
-         do: user_context.get(user_id)
   end
 end

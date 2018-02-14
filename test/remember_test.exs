@@ -1,9 +1,10 @@
 defmodule Phauxth.RememberTest do
   use ExUnit.Case
   use Plug.Test
+
   import ExUnit.CaptureLog
 
-  alias Phauxth.{Authenticate, Remember, SessionHelper, TestAccounts}
+  alias Phauxth.{Remember, SessionAuth, SessionHelper, TestAccounts}
 
   @max_age 7 * 24 * 60 * 60
   @opts {{@max_age, TestAccounts, []}, []}
@@ -64,7 +65,7 @@ defmodule Phauxth.RememberTest do
     conn =
       SessionHelper.recycle_and_sign(conn)
       |> put_session(:phauxth_session_id, "FQcPdSYY9HlaRUKCc4")
-      |> Authenticate.call({:session, {@max_age, TestAccounts, []}, []})
+      |> SessionAuth.call({{@max_age, TestAccounts, []}, []})
       |> Remember.call(@opts)
 
     %{current_user: user} = conn.assigns

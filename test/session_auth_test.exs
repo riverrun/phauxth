@@ -1,15 +1,15 @@
-defmodule Phauxth.AuthenticateTest do
+defmodule Phauxth.SessionAuthTest do
   use ExUnit.Case
   use Plug.Test
 
-  alias Phauxth.{Authenticate, SessionHelper, TestAccounts}
+  alias Phauxth.{SessionAuth, SessionHelper, TestAccounts}
 
   @max_age 4 * 60 * 60
-  @session_opts {:session, {@max_age, TestAccounts, []}, []}
+  @session_opts {{@max_age, TestAccounts, []}, []}
 
   defp call(id, session_opts \\ @session_opts) do
     SessionHelper.add_session(id)
-    |> Authenticate.call(session_opts)
+    |> SessionAuth.call(session_opts)
   end
 
   test "current user in session" do
@@ -31,7 +31,7 @@ defmodule Phauxth.AuthenticateTest do
       conn(:get, "/")
       |> recycle_cookies(conn)
       |> SessionHelper.sign_conn()
-      |> Authenticate.call(@session_opts)
+      |> SessionAuth.call(@session_opts)
 
     assert newconn.assigns == %{current_user: nil}
   end
@@ -42,7 +42,7 @@ defmodule Phauxth.AuthenticateTest do
   end
 
   test "user not authenticated if session has expired" do
-    conn = call("F25/1mZuBno+Pfu061", {:session, {0, TestAccounts, []}, []})
+    conn = call("F25/1mZuBno+Pfu061", {{0, TestAccounts, []}, []})
     assert conn.assigns == %{current_user: nil}
   end
 
@@ -58,14 +58,5 @@ defmodule Phauxth.AuthenticateTest do
     conn = call("F25/1mZuBno+Pfu061")
     %{current_user: user} = conn.assigns
     refute Map.has_key?(user, :password_hash)
-  end
-
-  test "customized check_session - with custom session id" do
-    conn =
-      SessionHelper.add_session("Fc0k6ku4lm61uO7pnBKreWoHo1")
-      |> Phauxth.CustomSession.call(@session_opts)
-
-    %{current_user: user} = conn.assigns
-    assert user.email == "fred+1@example.com"
   end
 end
