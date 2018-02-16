@@ -8,7 +8,7 @@ defmodule Phauxth.SessionAuth do
 
   ## Phauxth session authentication
 
-  This module checks the current Plug session for a `phauxth_session_id`,
+  This module checks the current Plug session for a `session_id`,
   which contains a session id and user id. It then checks the user
   schema to see if the session id is valid. The sessions should be stored
   in a map with session ids as keys and timestamps as values.
@@ -36,5 +36,5 @@ defmodule Phauxth.SessionAuth do
 
   """
 
-  use Phauxth.Authenticate.Session
+  use Phauxth.Authenticate.Base
 end

@@ -49,14 +49,13 @@ defmodule Phauxth.TestAccounts do
     }
   ]
 
-  def get("4a43f849-d9fa-439e-b887-735378009c95"), do: get(4)
-
-  def get(id) when is_binary(id) do
-    String.to_integer(id) |> get
-  end
-
-  def get(id), do: Enum.at(@users, id - 1)
-
+  def get_by(%{"session_id" => "F25/1mZuBno+Pfu06"}), do: Enum.at(@users, 0)
+  def get_by(%{"session_id" => "Fc0k6ku4lm61uO7pnBKreWoHo"}), do: Enum.at(@users, 0)
+  def get_by(%{"session_id" => "FQcPdSYY9HlaRUKCc4"}), do: Enum.at(@users, 3)
+  def get_by(%{"user_id" => 1}), do: Enum.at(@users, 0)
+  def get_by(%{"user_id" => 3}), do: Enum.at(@users, 2)
+  def get_by(%{"user_id" => 4}), do: Enum.at(@users, 3)
+  def get_by(%{"user_id" => "4a43f849-d9fa-439e-b887-735378009c95"}), do: Enum.at(@users, 3)
   def get_by(%{"email" => "fred+1@example.com"}), do: Enum.at(@users, 0)
   def get_by(%{"email" => "ray@example.com"}), do: Enum.at(@users, 1)
   def get_by(%{"email" => "froderick@example.com"}), do: Enum.at(@users, 2)

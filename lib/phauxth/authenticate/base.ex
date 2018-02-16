@@ -21,17 +21,17 @@ defmodule Phauxth.Authenticate.Base do
 
   This function also calls the database to get user information.
   """
-  @callback get_user(conn :: Plug.Conn.t(), opts :: tuple) :: map | {:error, String.t()} | nil
+  @callback get_user(Plug.Conn.t(), tuple) :: map | {:error, String.t()} | nil
 
   @doc """
   Log the result of the authentication and return the user struct or nil.
   """
-  @callback report(result :: tuple, metadata :: keyword) :: map | nil
+  @callback report(tuple, keyword) :: map | nil
 
   @doc """
   Set the `current_user` variable.
   """
-  @callback set_user(user :: map | nil, conn :: Plug.Conn.t()) :: Plug.Conn.t()
+  @callback set_user(map | nil, Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc false
   defmacro __using__(_) do
@@ -56,9 +56,9 @@ defmodule Phauxth.Authenticate.Base do
       end
 
       @impl Phauxth.Authenticate.Base
-      def get_user(conn, {max_age, user_context, _}) do
-        with user_id when not is_nil(user_id) <- get_session(conn, :user_id),
-          do: user_context.get(user_id)
+      def get_user(conn, {_max_age, user_context, _opts}) do
+        with id when not is_nil(id) <- get_session(conn, :session_id),
+             do: user_context.get_by(%{"session_id" => id})
       end
 
       @impl Phauxth.Authenticate.Base

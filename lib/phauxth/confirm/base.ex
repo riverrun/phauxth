@@ -67,19 +67,18 @@ defmodule Phauxth.Confirm.Base do
   user to the next page or sends a json response. If unsuccessful, the
   `handle_password_reset` function handles the error.
   """
-  @callback verify(params :: map, user_context :: module, opts :: keyword) ::
-              {:ok, map} | {:error, String.t()}
+  @callback verify(map, module, keyword) :: {:ok, map} | {:error, String.t()}
 
   @doc """
   Get the user struct based on the supplied key.
   """
-  @callback get_user(key_source :: term, opts :: tuple) :: map | nil
+  @callback get_user(term, tuple) :: map | nil
 
   @doc """
   Print out a log message and then return {:ok, user} or
   {:error, message} to the calling function.
   """
-  @callback report(result :: map, meta :: keyword) :: {:ok, map} | {:error, String.t()}
+  @callback report(map, keyword) :: {:ok, map} | {:error, String.t()}
 
   @doc false
   defmacro __using__(_) do

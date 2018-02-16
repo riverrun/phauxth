@@ -66,7 +66,8 @@ defmodule Phauxth.Remember do
   """
   @spec get_user_data(Plug.Conn.t(), String.t(), tuple) :: map | nil
   def get_user_data(conn, token, {max_age, user_context, opts}) do
-    with {:ok, user_id} <- Token.verify(conn, token, max_age, opts), do: user_context.get(user_id)
+    with {:ok, user_id} <- Token.verify(conn, token, max_age, opts),
+         do: user_context.get_by(%{"user_id" => user_id})
   end
 
   @impl true
@@ -74,7 +75,7 @@ defmodule Phauxth.Remember do
 
   def set_user(%{sessions: sessions} = user, conn) do
     assign(conn, :current_user, user)
-    |> Session.add_session(Session.gen_session_id(sessions, "S"), user.id)
+    |> Session.add_session(Session.gen_session_id(sessions, "S"))
   end
 
   @doc """

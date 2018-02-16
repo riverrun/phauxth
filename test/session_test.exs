@@ -9,23 +9,23 @@ defmodule Phauxth.SessionTest do
     |> SessionAuth.call({{4 * 60 * 60, TestAccounts, []}, []})
   end
 
-  test "add_session adds phauxth_session_id to conn" do
+  test "add_session adds session_id to conn" do
     sessions = %{}
+
     session_id =
       conn(:get, "/")
       |> Phauxth.SessionHelper.sign_conn()
       |> assign(:current_user, %{id: 2})
-      |> Session.add_session(Session.gen_session_id(sessions, "F"), 2)
-      |> get_session(:phauxth_session_id)
+      |> Session.add_session(Session.gen_session_id(sessions, "F"))
+      |> get_session(:session_id)
 
-    <<"F", _session_id::binary-size(16), user_id::binary>> = session_id
-    assert user_id == "2"
+    assert <<"F", _session_id::binary-size(16)>> = session_id
   end
 
   test "fresh_session? can determine if session is fresh or not" do
-    conn = call("F25/1mZuBno+Pfu061")
+    conn = call("F25/1mZuBno+Pfu06")
     assert Session.fresh_session?(conn) == true
-    conn = call("S25/1mZuBno+Pfu061")
+    conn = call("S25/1mZuBno+Pfu06")
     assert Session.fresh_session?(conn) == false
     conn = call(nil)
     assert Session.fresh_session?(conn) == false

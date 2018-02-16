@@ -82,7 +82,7 @@ defmodule Phauxth.Token do
     |> handle_verify(max_age)
   end
 
-  def verify(_, _, _, _), do: {:error, "invalid token"}
+  def verify(_, _, nil, _), do: {:error, "missing token"}
 
   defp gen_secret(key_source, opts) do
     get_key_base(key_source) |> validate_secret |> run_kdf(opts)

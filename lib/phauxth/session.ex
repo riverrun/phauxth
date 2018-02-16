@@ -6,22 +6,16 @@ defmodule Phauxth.Session do
   import Plug.Conn
 
   @doc """
-  Get the session id and user id for the current user.
+  Add the session_id to the conn.
   """
-  @spec get_session_data(Plug.Conn.t()) :: tuple | nil
-  def get_session_data(conn) do
-    with <<session_id::binary-size(17), user_id::binary>> <-
-           get_session(conn, :phauxth_session_id),
-         do: {session_id, user_id}
+  @spec add_session(Plug.Conn.t(), binary) :: Plug.Conn.t()
+  def add_session(conn, session_id) do
+    put_session(conn, :session_id, session_id)
+    |> configure_session(renew: true)
   end
 
-  @doc """
-  Add the phauxth_session_id to the conn.
-  """
-  @spec add_session(Plug.Conn.t(), binary, binary) :: Plug.Conn.t()
-  def add_session(conn, session_id, user_id) do
-    put_session(conn, :phauxth_session_id, session_id <> to_string(user_id))
-    |> configure_session(renew: true)
+  def check_expiry(%{expires_at: expires_at} = session) do
+    expires_at > System.system_time(:second) and session || nil
   end
 
   @doc """
@@ -46,7 +40,7 @@ defmodule Phauxth.Session do
   """
   @spec fresh_session?(Plug.Conn.t()) :: boolean
   def fresh_session?(conn) do
-    get_session(conn, :phauxth_session_id) |> check_session_id
+    get_session(conn, :session_id) |> check_session_id
   end
 
   defp check_session_id("F" <> _), do: true

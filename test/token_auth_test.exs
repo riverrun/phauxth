@@ -11,7 +11,8 @@ defmodule Phauxth.TokenAuthTest do
 
   defp add_token(id, token \\ nil, key_opts \\ []) do
     conn = conn(:get, "/") |> SessionHelper.add_key()
-    put_req_header(conn, "authorization", token || Token.sign(conn, id, key_opts))
+    token = token || Token.sign(conn, %{"user_id" => id}, key_opts)
+    put_req_header(conn, "authorization", token)
   end
 
   defp call_api(id, token \\ nil, max_age \\ @max_age) do

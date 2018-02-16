@@ -72,12 +72,16 @@ defmodule Phauxth.Authenticate.Token do
       def get_token_user([], _, _), do: {:error, "no token found"}
 
       def get_token_user(["Bearer " <> token | _], conn, opts) do
-        get_token_user([token], conn, opts)
+        verify_token(token, conn, opts)
       end
 
-      def get_token_user([token | _], conn, {max_age, user_context, opts}) do
-        with {:ok, id} <- Phauxth.Token.verify(conn, token, max_age, opts),
-             do: user_context.get(id)
+      def get_token_user([token | _], conn, opts) do
+        verify_token(token, conn, opts)
+      end
+
+      defp verify_token(token, conn, {max_age, user_context, opts}) do
+        with {:ok, data} <- Phauxth.Token.verify(conn, token, max_age, opts),
+             do: user_context.get_by(data)
       end
 
       defoverridable Plug
