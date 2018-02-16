@@ -64,7 +64,7 @@ defmodule Phauxth.Token do
   @spec sign(key_source, token_data, list) :: String.t()
   def sign(key_source, data, opts \\ []) do
     %{"data" => data, "signed" => now()}
-    |> Poison.encode!()
+    |> Jason.encode!()
     |> MessageVerifier.sign(gen_secret(key_source, opts))
   end
 
@@ -117,7 +117,7 @@ defmodule Phauxth.Token do
     KeyGenerator.generate(secret_key_base, token_salt, key_opts)
   end
 
-  defp get_token_data({:ok, message}), do: Poison.decode(message)
+  defp get_token_data({:ok, message}), do: Jason.decode(message)
   defp get_token_data(:error), do: {:error, "invalid token"}
 
   defp handle_verify({:ok, %{"data" => data, "signed" => signed}}, max_age) do

@@ -17,8 +17,8 @@ defmodule Phauxth.SessionHelper do
     put_in(conn.secret_key_base, secret)
   end
 
-  def add_session(id) do
-    conn(:get, "/") |> sign_conn() |> put_session(:phauxth_session_id, id)
+  def add_session(id, id_type \\ :phauxth_session_id) do
+    conn(:get, "/") |> sign_conn() |> put_session(id_type, id)
   end
 
   def sign_conn(conn, secret \\ @secret) do

@@ -2,55 +2,18 @@ defmodule Phauxth.Authenticate.Base do
   @moduledoc """
   Base module for authentication.
 
-  This is used by Phauxth.Authenticate and Phauxth.Remember.
-  It can also be used to produce a custom authentication module,
-  as outlined below.
+  This is `use`-d by Phauxth.SessionAuth and Phauxth.Remember, and it is also
+  extended by Phauxth.Authenticate.Session and Phauxth.Authenticate.Token.
+  It can also be used to produce a custom authentication module, as outlined
+  below.
 
   ## Custom authentication modules
 
   The next sections give examples of extending this module to create
   custom authentication modules.
 
-  ### Graphql authentication
+  ADD EXAMPLES
 
-  The following module is another example of how this Base module can
-  be extended, this time to provide authentication for absinthe-elixir:
-
-      defmodule AbsintheAuthenticate do
-        use Phauxth.Authenticate.Base
-
-        def set_user(user, conn) do
-          put_private(conn, :absinthe, %{context: %{current_user: user}})
-        end
-      end
-
-  And in the `router.ex` file, call this plug in the pipeline you
-  want to authenticate.
-
-      pipeline :api do
-        plug :accepts, ["json"]
-        plug AbsintheAuthenticate, method: :token
-      end
-
-  ### Authentication for use with Phoenix channels
-
-  In this example, after adding the user struct to the current_user value,
-  a token is added (for use with Phoenix channels).
-
-      defmodule MyAppWeb.Authenticate do
-        use Phauxth.Authenticate.Base
-
-        def set_user(nil, conn), do: assign(conn, :current_user, nil)
-        def set_user(user, conn) do
-          token = Phauxth.Token.sign(conn, %{"user_id" => user.email})
-          assign(conn, :current_user, user)
-          |> assign(:user_token, token)
-        end
-      end
-
-  MyAppWeb.Authenticate is called in the same way as Phauxth.Authenticate.
-  You can then use Phauxth.Token.verify, in the `user_socket.ex` file, to
-  verify the token.
   """
 
   @doc """
@@ -93,13 +56,9 @@ defmodule Phauxth.Authenticate.Base do
       end
 
       @impl Phauxth.Authenticate.Base
-      def get_user(conn, {max_age, user_context, opts}) do
-        with {session_id, user_id} <- Phauxth.Session.get_session_data(conn),
-             %{sessions: sessions} = user <- user_context.get(user_id),
-             timestamp when is_integer(timestamp) <- sessions[session_id],
-             do:
-               (timestamp + max_age > System.system_time(:second) and user) ||
-                 {:error, "session expired"}
+      def get_user(conn, {max_age, user_context, _}) do
+        with user_id when not is_nil(user_id) <- get_session(conn, :user_id),
+          do: user_context.get(user_id)
       end
 
       @impl Phauxth.Authenticate.Base

@@ -1,11 +1,12 @@
 defmodule Phauxth.SessionAuth do
   @moduledoc """
-  Authenticate the current user, using sessions or api tokens.
+  Authenticates the current user, using Phauxth sessions and a session
+  id.
 
   For information about customizing this Plug, see the documentation
-  for Phauxth.Authenticate.Base.
+  for Phauxth.Authenticate.Base and Phauxth.Authenticate.Session.
 
-  ## Session authentication # change title - Plug session (cookie)?
+  ## Phauxth session authentication
 
   This module checks the current Plug session for a `phauxth_session_id`,
   which contains a session id and user id. It then checks the user
@@ -35,5 +36,5 @@ defmodule Phauxth.SessionAuth do
 
   """
 
-  use Phauxth.Authenticate.Base
+  use Phauxth.Authenticate.Session
 end

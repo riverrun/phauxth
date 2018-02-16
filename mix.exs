@@ -30,7 +30,8 @@ defmodule Phauxth.Mixfile do
   defp deps do
     [
       {:plug, "~> 1.4"},
-      {:poison, "~> 3.1"},
+      {:jason, "~> 1.0"},
+      {:benchee, "~> 0.12", only: :dev},
       {:ex_doc, "~> 0.18", only: :dev, runtime: false}
     ]
   end
