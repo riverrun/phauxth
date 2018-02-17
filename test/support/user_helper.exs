@@ -8,11 +8,7 @@ defmodule Phauxth.TestAccounts do
       reset_sent_at: nil,
       role: "user",
       password_hash: "password hash",
-      confirmed_at: nil,
-      sessions: %{
-        "F25/1mZuBno+Pfu06" => System.system_time(:second),
-        "Fc0k6ku4lm61uO7pnBKreWoHo" => System.system_time(:second)
-      }
+      confirmed_at: nil
     },
     %{
       id: 2,
@@ -34,8 +30,7 @@ defmodule Phauxth.TestAccounts do
       id: 4,
       email: "brian@example.com",
       role: "user",
-      password_hash: "password hash",
-      sessions: %{"FQcPdSYY9HlaRUKCc" => System.system_time(:second)}
+      password_hash: "password hash"
     },
     %{id: 5, email: "igor@example.com", role: "user", reset_sent_at: nil},
     %{id: 6, email: "frank@example.com", password_hash: "password hash"}

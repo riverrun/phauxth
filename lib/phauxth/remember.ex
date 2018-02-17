@@ -73,9 +73,9 @@ defmodule Phauxth.Remember do
   @impl true
   def set_user(nil, conn), do: assign(conn, :current_user, nil)
 
-  def set_user(%{sessions: sessions} = user, conn) do
+  def set_user(user, conn) do
     assign(conn, :current_user, user)
-    |> Session.add_session(Session.gen_session_id(sessions, "S"))
+    |> Session.add_session(Session.gen_session_id("S"))
   end
 
   @doc """

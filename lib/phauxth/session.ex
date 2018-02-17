@@ -14,10 +14,6 @@ defmodule Phauxth.Session do
     |> configure_session(renew: true)
   end
 
-  def check_expiry(%{expires_at: expires_at} = session) do
-    expires_at > System.system_time(:second) and session || nil
-  end
-
   @doc """
   Generate a session id.
 
@@ -25,13 +21,8 @@ defmodule Phauxth.Session do
   indicates if the session is fresh - if the user is newly logged in.
   The other 16 characters are randomly generated.
   """
-  @spec gen_session_id(map, binary) :: binary
-  def gen_session_id(sessions, fresh) do
-    id = gen_id(fresh)
-    (Map.has_key?(sessions, id) and gen_session_id(sessions, fresh)) || id
-  end
-
-  defp gen_id(fresh) do
+  @spec gen_session_id(binary) :: binary
+  def gen_session_id(fresh) do
     "#{fresh}#{:crypto.strong_rand_bytes(12) |> Base.encode64()}"
   end
 
