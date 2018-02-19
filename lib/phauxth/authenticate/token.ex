@@ -5,18 +5,19 @@ defmodule Phauxth.Authenticate.Token do
   This is `use`-d by Phauxth.TokenAuth, and it can also be used
   to produce a custom authentication module, as outlined below.
 
-  ## Custom authentication modules
+  ## Custom token authentication modules
 
   The next sections give examples of extending this module to create
   custom authentication modules.
 
   ### Graphql authentication
 
-  The following module is another example of how this Base module can
-  be extended, this time to provide authentication for absinthe-elixir:
+  The following module is an example of how Phauxth.Authenticate.Token
+  module can be extended, this time to provide authentication for
+  absinthe-elixir:
 
       defmodule AbsintheAuthenticate do
-        use Phauxth.Authenticate.Base
+        use Phauxth.Authenticate.Token
 
         def set_user(user, conn) do
           put_private(conn, :absinthe, %{context: %{current_user: user}})
@@ -28,28 +29,9 @@ defmodule Phauxth.Authenticate.Token do
 
       pipeline :api do
         plug :accepts, ["json"]
-        plug AbsintheAuthenticate, method: :token
+        plug AbsintheAuthenticat
       end
 
-  ### Authentication for use with Phoenix channels
-
-  In this example, after adding the user struct to the current_user value,
-  a token is added (for use with Phoenix channels).
-
-      defmodule MyAppWeb.Authenticate do
-        use Phauxth.Authenticate.Base
-
-        def set_user(nil, conn), do: assign(conn, :current_user, nil)
-        def set_user(user, conn) do
-          token = Phauxth.Token.sign(conn, %{"user_id" => user.email})
-          assign(conn, :current_user, user)
-          |> assign(:user_token, token)
-        end
-      end
-
-  MyAppWeb.Authenticate is called in the same way as Phauxth.Authenticate.
-  You can then use Phauxth.Token.verify, in the `user_socket.ex` file, to
-  verify the token.
   """
 
   @doc """

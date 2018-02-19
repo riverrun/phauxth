@@ -12,8 +12,27 @@ defmodule Phauxth.Authenticate.Base do
   The next sections give examples of extending this module to create
   custom authentication modules.
 
-  ADD EXAMPLES
+  ## Examples
 
+  ### Authentication for use with Phoenix channels
+
+  In this example, after adding the user struct to the current_user value,
+  a token is added (for use with Phoenix channels).
+
+      defmodule MyAppWeb.ChannelAuthenticate do
+        use Phauxth.Authenticate.Base
+
+        def set_user(nil, conn), do: assign(conn, :current_user, nil)
+        def set_user(user, conn) do
+          token = Phauxth.Token.sign(conn, %{"user_id" => user.email})
+          assign(conn, :current_user, user)
+          |> assign(:user_token, token)
+        end
+      end
+
+  MyAppWeb.ChannelAuthenticate is called in the same way as Phauxth.SessionAuth.
+  You can then use Phauxth.Token.verify, in the `user_socket.ex` file, to
+  verify the token.
   """
 
   @doc """

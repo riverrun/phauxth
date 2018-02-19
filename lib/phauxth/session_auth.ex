@@ -4,7 +4,7 @@ defmodule Phauxth.SessionAuth do
   id.
 
   For information about customizing this Plug, see the documentation
-  for Phauxth.Authenticate.Base and Phauxth.Authenticate.Session.
+  for Phauxth.Authenticate.Base.
 
   ## Phauxth session authentication
 
@@ -18,10 +18,8 @@ defmodule Phauxth.SessionAuth do
 
   ## Options
 
-  There are three options:
+  There are two options:
 
-    * `:max_age` - the length of the validity of the session / token
-      * the default is four hours
     * `:user_context` - the user context module to be used
       * the default is MyApp.Accounts
     * `:log_meta` - additional custom metadata for Phauxth.Log
