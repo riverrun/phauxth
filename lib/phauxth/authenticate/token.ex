@@ -63,6 +63,15 @@ defmodule Phauxth.Authenticate.Token do
 
       use Phauxth.Authenticate.Base
 
+      alias Phauxth.Utils
+
+      @impl Plug
+      def init(opts) do
+        {{Keyword.get(opts, :max_age, 4 * 60 * 60),
+          Keyword.get(opts, :user_context, Utils.default_user_context()), opts},
+         Keyword.get(opts, :log_meta, [])}
+      end
+
       @impl Phauxth.Authenticate.Base
       def get_user(conn, opts) do
         conn |> get_req_header("authorization") |> get_token_user(conn, opts)

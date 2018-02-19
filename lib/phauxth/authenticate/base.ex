@@ -40,13 +40,11 @@ defmodule Phauxth.Authenticate.Base do
       @behaviour Phauxth.Authenticate.Base
 
       import Plug.Conn
-      import Phauxth.Authenticate.Base
       alias Phauxth.{Config, Log, Utils}
 
       @impl Plug
       def init(opts) do
-        {{Keyword.get(opts, :max_age, 4 * 60 * 60),
-          Keyword.get(opts, :user_context, Utils.default_user_context()), opts},
+        {Keyword.get(opts, :user_context, Utils.default_user_context()),
          Keyword.get(opts, :log_meta, [])}
       end
 
@@ -56,7 +54,7 @@ defmodule Phauxth.Authenticate.Base do
       end
 
       @impl Phauxth.Authenticate.Base
-      def get_user(conn, {_max_age, user_context, _opts}) do
+      def get_user(conn, user_context) do
         with id when not is_nil(id) <- get_session(conn, :session_id),
              do: user_context.get_by(%{"session_id" => id})
       end

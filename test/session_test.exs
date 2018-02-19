@@ -6,7 +6,7 @@ defmodule Phauxth.SessionTest do
 
   defp call(id) do
     SessionHelper.add_session(id)
-    |> SessionAuth.call({{4 * 60 * 60, TestAccounts, []}, []})
+    |> SessionAuth.call({TestAccounts, []})
   end
 
   test "add_session adds session_id to conn" do

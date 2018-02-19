@@ -4,8 +4,7 @@ defmodule Phauxth.SessionAuthTest do
 
   alias Phauxth.{CustomSessionAuth, SessionAuth, SessionHelper, TestAccounts}
 
-  @max_age 4 * 60 * 60
-  @session_opts {{@max_age, TestAccounts, []}, []}
+  @session_opts {TestAccounts, []}
 
   defp call(id, opts \\ @session_opts) do
     SessionHelper.add_session(id)

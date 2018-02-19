@@ -2,7 +2,7 @@ defmodule Phauxth.CustomSessionAuth do
   use Phauxth.Authenticate.Base
 
   @impl true
-  def get_user(conn, {_max_age, user_context, _opts}) do
+  def get_user(conn, user_context) do
     with id when not is_nil(id) <- get_session(conn, :user_id),
          do: user_context.get_by(%{"user_id" => id})
   end
