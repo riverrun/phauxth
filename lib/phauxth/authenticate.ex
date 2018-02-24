@@ -1,7 +1,11 @@
-defmodule Phauxth.SessionAuth do
+defmodule Phauxth.Authenticate do
   @moduledoc """
   Authenticates the current user, using Phauxth sessions and a session
   id.
+
+  You need to define a `get_by(%{"session_id" => session_id})` function
+  in the user_context module you are using (which is MyApp.Accounts by
+  default).
 
   For information about customizing this Plug, see the documentation
   for Phauxth.Authenticate.Base.
@@ -30,8 +34,14 @@ defmodule Phauxth.SessionAuth do
   Add the following line to the pipeline you want to authenticate in
   the `web/router.ex` file:
 
-      plug Phauxth.SessionAuth
+      plug Phauxth.Authenticate
 
+  And if you are using a different user context module:
+
+      plug Phauxth.Authenticate, user_context: MyApp.Sessions
+
+  In the example above, you need to have the `get_by/1` function
+  defined in MyApp.Sessions.
   """
 
   use Phauxth.Authenticate.Base

@@ -1,10 +1,10 @@
-defmodule Phauxth.TokenAuthTest do
+defmodule Phauxth.AuthenticateTokenTest do
   use ExUnit.Case
   use Plug.Test
 
   import ExUnit.CaptureLog
 
-  alias Phauxth.{SessionHelper, TestAccounts, Token, TokenAuth}
+  alias Phauxth.{SessionHelper, TestAccounts, Token, AuthenticateToken}
 
   @max_age 4 * 60 * 60
   @token_opts {{@max_age, TestAccounts, []}, []}
@@ -19,7 +19,7 @@ defmodule Phauxth.TokenAuthTest do
     opts = {{max_age, TestAccounts, []}, []}
 
     add_token(id, token)
-    |> TokenAuth.call(opts)
+    |> AuthenticateToken.call(opts)
   end
 
   test "authenticate api sets the current_user" do
@@ -47,7 +47,7 @@ defmodule Phauxth.TokenAuthTest do
   end
 
   test "authenticate api with no token sets the current_user to nil" do
-    conn = conn(:get, "/") |> TokenAuth.call(@token_opts)
+    conn = conn(:get, "/") |> AuthenticateToken.call(@token_opts)
     assert conn.assigns == %{current_user: nil}
   end
 
@@ -62,10 +62,10 @@ defmodule Phauxth.TokenAuthTest do
     conn = add_token(3, nil, key_length: 20)
     opts_1 = {{@max_age, TestAccounts, [key_length: 20]}, []}
     opts_2 = {{@max_age, TestAccounts, []}, []}
-    conn = TokenAuth.call(conn, opts_1)
+    conn = AuthenticateToken.call(conn, opts_1)
     %{current_user: user} = conn.assigns
     assert user.email == "froderick@example.com"
-    conn = TokenAuth.call(conn, opts_2)
+    conn = AuthenticateToken.call(conn, opts_2)
     assert conn.assigns == %{current_user: nil}
   end
 end

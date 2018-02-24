@@ -14,8 +14,8 @@ defmodule Phauxth do
 
   ### Authenticate
 
-  `Phauxth.Authenticate` checks to see if there is a valid cookie or token
-  for the user and sets the current_user value accordingly.
+  `Phauxth.Authenticate` checks to see if there is a session_id / user_id
+  in the current session and sets the current_user value accordingly.
 
   This is usually added to the pipeline you want to authenticate in the
   router.ex file, as in the following example.
@@ -24,10 +24,12 @@ defmodule Phauxth do
         plug Phauxth.Authenticate
       end
 
-  To authenticate using api tokens, you need to add the `method: :token`
-  option.
+  ### AuthenticateToken
 
-      plug Phauxth.Authenticate, method: :token
+  `Phauxth.AuthenticateToken` checks to see if there is an authorization token
+  in the headers, verifies it, and sets the current_user value accordingly.
+
+      plug Phauxth.AuthenticateToken
 
   ### Remember
 
@@ -95,10 +97,12 @@ defmodule Phauxth do
     * `--backups` - create backup files, with `.bak` extension, before writing new files
 
   Phauxth uses the user context module (normally MyApp.Accounts) to communicate
-  with the underlying database. This module needs to have the `get(id)` and
-  `get_by(attrs)` functions defined (see the examples below).
+  with the underlying database. This module needs to have a `get_by(attrs)`
+  function defined (see the examples below).
 
-      def get(id), do: Repo.get(User, id)
+      def get_by(%{"user_id" => user_id}) do
+        Repo.get(User, user_id)
+      end
 
       def get_by(%{"email" => email}) do
         Repo.get_by(User, email: email)

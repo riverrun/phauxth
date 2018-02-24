@@ -12,7 +12,7 @@ In version 1, you needed to define the functions `get/1` and `get_by/1`.
 In version 2, you only need to define a `get_by/1` function.
 
 The following is an example `get_by/1` function if you are using
-Phauxth.SessionAuth or Phauxth.TokenAuth:
+Phauxth.Authenticate or Phauxth.AuthenticateToken:
 
 ```elixir
 def get_by(%{"session_id" => session_id}) do
@@ -22,10 +22,9 @@ end
 
 ### Session and token authentication
 
-* Phauxth.Authenticate for sessions has been renamed to Phauxth.SessionAuth
-  * this function does not check the session expiry value
-    * the session expiry value can be checked in the `get_by/1` function in the user context
-* Phauxth.Authenticate for tokens (Phauxth.Authenticate, method: :token) is now Phauxth.TokenAuth
+* Phauxth.Authenticate does not check the session expiry value
+  * the session expiry value can be checked in the `get_by/1` function in the user context
+* Phauxth.Authenticate for tokens (Phauxth.Authenticate, method: :token) is now Phauxth.AuthenticateToken
 
 ### Login
 

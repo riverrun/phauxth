@@ -1,6 +1,9 @@
-defmodule Phauxth.TokenAuth do
+defmodule Phauxth.AuthenticateToken do
   @moduledoc """
   Authenticates the user by verifying a Phauxth token.
+
+  You need to define a `get_by(attrs)` function in the user_context
+  module you are using (which is MyApp.Accounts by default).
 
   ## Token authentication
 
@@ -27,8 +30,14 @@ defmodule Phauxth.TokenAuth do
   Add the following line to the pipeline you want to authenticate in
   the `web/router.ex` file:
 
-      plug Phauxth.TokenAuth
+      plug Phauxth.AuthenticateToken
 
+  And if you are using a different user context module:
+
+      plug Phauxth.AuthenticateToken, user_context: MyApp.Sessions
+
+  In the example above, you need to have the `get_by/1` function
+  defined in MyApp.Sessions.
   """
 
   use Phauxth.Authenticate.Token

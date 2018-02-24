@@ -2,11 +2,11 @@ defmodule Phauxth.SessionTest do
   use ExUnit.Case
   use Plug.Test
 
-  alias Phauxth.{Session, SessionAuth, SessionHelper, TestAccounts}
+  alias Phauxth.{Session, Authenticate, SessionHelper, TestAccounts}
 
   defp call(id) do
     SessionHelper.add_session(id)
-    |> SessionAuth.call({TestAccounts, []})
+    |> Authenticate.call({TestAccounts, []})
   end
 
   test "add_session adds session_id to conn" do

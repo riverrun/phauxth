@@ -27,10 +27,10 @@ defmodule Phauxth.Remember do
   Add the following line to the pipeline you want to authenticate in
   the `web/router.ex` file:
 
-      plug Phauxth.SessionAuth
+      plug Phauxth.Authenticate
       plug Phauxth.Remember
 
-  Make sure you add the Phauxth.Remember Plug after Phauxth.SessionAuth.
+  Make sure you add the Phauxth.Remember Plug after Phauxth.Authenticate.
   """
 
   use Phauxth.Authenticate.Base

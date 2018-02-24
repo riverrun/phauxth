@@ -1,19 +1,19 @@
-defmodule Phauxth.SessionAuthTest do
+defmodule Phauxth.AuthenticateTest do
   use ExUnit.Case
   use Plug.Test
 
-  alias Phauxth.{CustomSessionAuth, SessionAuth, SessionHelper, TestAccounts}
+  alias Phauxth.{CustomAuthenticate, Authenticate, SessionHelper, TestAccounts}
 
   @session_opts {TestAccounts, []}
 
   defp call(id, opts \\ @session_opts) do
     SessionHelper.add_session(id)
-    |> SessionAuth.call(opts)
+    |> Authenticate.call(opts)
   end
 
   defp custom_call(id) do
     SessionHelper.add_session(id, :user_id)
-    |> CustomSessionAuth.call(@session_opts)
+    |> CustomAuthenticate.call(@session_opts)
   end
 
   test "current user in session" do
@@ -35,7 +35,7 @@ defmodule Phauxth.SessionAuthTest do
       conn(:get, "/")
       |> recycle_cookies(conn)
       |> SessionHelper.sign_conn()
-      |> SessionAuth.call(@session_opts)
+      |> Authenticate.call(@session_opts)
 
     assert newconn.assigns == %{current_user: nil}
   end

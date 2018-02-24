@@ -2,7 +2,7 @@ defmodule Phauxth.Authenticate.Token do
   @moduledoc """
   Base module for token authentication.
 
-  This is `use`-d by Phauxth.TokenAuth, and it can also be used
+  This is `use`-d by Phauxth.AuthenticateToken, and it can also be used
   to produce a custom authentication module, as outlined below.
 
   ## Custom token authentication modules
@@ -29,7 +29,7 @@ defmodule Phauxth.Authenticate.Token do
 
       pipeline :api do
         plug :accepts, ["json"]
-        plug AbsintheAuthenticat
+        plug AbsintheAuthenticate
       end
 
   """

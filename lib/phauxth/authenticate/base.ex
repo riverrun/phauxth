@@ -2,7 +2,7 @@ defmodule Phauxth.Authenticate.Base do
   @moduledoc """
   Base module for authentication.
 
-  This is `use`-d by Phauxth.SessionAuth and Phauxth.Remember, and it is also
+  This is `use`-d by Phauxth.Authenticate and Phauxth.Remember, and it is also
   extended by Phauxth.Authenticate.Session and Phauxth.Authenticate.Token.
   It can also be used to produce a custom authentication module, as outlined
   below.
@@ -30,7 +30,7 @@ defmodule Phauxth.Authenticate.Base do
         end
       end
 
-  MyAppWeb.ChannelAuthenticate is called in the same way as Phauxth.SessionAuth.
+  MyAppWeb.ChannelAuthenticate is called in the same way as Phauxth.Authenticate.
   You can then use Phauxth.Token.verify, in the `user_socket.ex` file, to
   verify the token.
   """

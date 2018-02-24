@@ -1,4 +1,4 @@
-defmodule Phauxth.CustomSessionAuth do
+defmodule Phauxth.CustomAuthenticate do
   use Phauxth.Authenticate.Base
 
   @impl true
