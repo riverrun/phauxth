@@ -3,13 +3,13 @@ defmodule Phauxth.Authenticate.Base do
   Base module for authentication.
 
   This is `use`-d by Phauxth.Authenticate and Phauxth.Remember, and it is also
-  extended by Phauxth.Authenticate.Session and Phauxth.Authenticate.Token.
+  extended by Phauxth.Authenticate.Token.
   It can also be used to produce a custom authentication module, as outlined
   below.
 
   ## Custom authentication modules
 
-  The next sections give examples of extending this module to create
+  The next section gives examples of extending this module to create
   custom authentication modules.
 
   ## Examples

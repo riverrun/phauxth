@@ -25,6 +25,10 @@ end
 * Phauxth.Authenticate does not check the session expiry value
   * the session expiry value can be checked in the `get_by/1` function in the user context
 * Phauxth.Authenticate for tokens (Phauxth.Authenticate, method: :token) is now Phauxth.AuthenticateToken
+  * tokens are now signed with an expiry value
+    * there is now a `max_age` option when calling Token.sign
+      * the default `max_age` is 4 hours
+    * the `max_age` value has been removed from Token.verify
 
 ### Login
 

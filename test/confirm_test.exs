@@ -7,7 +7,7 @@ defmodule Phauxth.ConfirmTest do
 
   setup do
     conn = conn(:get, "/") |> Phauxth.SessionHelper.add_key()
-    valid_email = Token.sign(conn, %{"email" => "fred+1@example.com"})
+    valid_email = Token.sign(conn, %{"email" => "fred+1@example.com"}, max_age: 1200)
     {:ok, %{conn: conn, valid_email: valid_email}}
   end
 
@@ -23,21 +23,22 @@ defmodule Phauxth.ConfirmTest do
     assert message =~ "Invalid credentials"
   end
 
-  test "confirmation fails for expired token", %{valid_email: valid_email} do
-    %{params: params} = conn(:get, "/confirm?key=" <> valid_email) |> fetch_query_params
-    {:error, message} = Confirm.verify(params, TestAccounts, max_age: -1)
+  test "confirmation fails for expired token", %{conn: conn} do
+    expired_email = Token.sign(conn, %{"email" => "ray@example.com"}, max_age: -1)
+    %{params: params} = conn(:get, "/confirm?key=" <> expired_email) |> fetch_query_params
+    {:error, message} = Confirm.verify(params, TestAccounts)
     assert message =~ "Invalid credentials"
   end
 
   test "confirmation fails for already confirmed account", %{conn: conn} do
-    confirmed_email = Token.sign(conn, %{"email" => "ray@example.com"})
+    confirmed_email = Token.sign(conn, %{"email" => "ray@example.com"}, max_age: 1200)
     %{params: params} = conn(:get, "/confirm?key=" <> confirmed_email) |> fetch_query_params
     {:error, message} = Confirm.verify(params, TestAccounts)
     assert message =~ "Your account has already been confirmed"
   end
 
   test "confirmation succeeds with different identifier", %{conn: conn} do
-    valid_phone = Token.sign(conn, %{"phone" => "55555555555"})
+    valid_phone = Token.sign(conn, %{"phone" => "55555555555"}, max_age: 1200)
     %{params: params} = conn(:get, "/confirm?key=" <> valid_phone) |> fetch_query_params
     {:ok, user} = Confirm.verify(params, TestAccounts)
     assert user.email == "fred+1@example.com"
@@ -57,7 +58,7 @@ defmodule Phauxth.ConfirmTest do
   end
 
   test "key options passed on to the Token module", %{conn: conn} do
-    valid_phone = Token.sign(conn, %{"phone" => "55555555555"}, key_iterations: 10)
+    valid_phone = Token.sign(conn, %{"phone" => "55555555555"}, max_age: 1200, key_iterations: 10)
     %{params: params} = conn(:get, "/confirm?key=" <> valid_phone) |> fetch_query_params
     {:ok, user} = Confirm.verify(params, TestAccounts, key_iterations: 10)
     assert user.email == "fred+1@example.com"

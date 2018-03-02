@@ -49,8 +49,7 @@ defmodule Phauxth.Authenticate.Token do
 
       @impl Plug
       def init(opts) do
-        {{Keyword.get(opts, :max_age, 4 * 60 * 60),
-          Keyword.get(opts, :user_context, Utils.default_user_context()), opts},
+        {{Keyword.get(opts, :user_context, Utils.default_user_context()), opts},
          Keyword.get(opts, :log_meta, [])}
       end
 
@@ -70,8 +69,8 @@ defmodule Phauxth.Authenticate.Token do
         verify_token(token, conn, opts)
       end
 
-      defp verify_token(token, conn, {max_age, user_context, opts}) do
-        with {:ok, data} <- Phauxth.Token.verify(conn, token, max_age, opts),
+      defp verify_token(token, conn, {user_context, opts}) do
+        with {:ok, data} <- Phauxth.Token.verify(conn, token, opts),
              do: user_context.get_by(data)
       end
 

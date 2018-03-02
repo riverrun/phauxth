@@ -7,7 +7,7 @@ defmodule Phauxth.Confirm.PassResetTest do
 
   setup do
     conn = conn(:get, "/") |> Phauxth.SessionHelper.add_key()
-    valid_email = Token.sign(conn, %{"email" => "froderick@example.com"})
+    valid_email = Token.sign(conn, %{"email" => "froderick@example.com"}, max_age: 1200)
     {:ok, %{conn: conn, valid_email: valid_email}}
   end
 
@@ -17,9 +17,10 @@ defmodule Phauxth.Confirm.PassResetTest do
     assert user
   end
 
-  test "reset password fails with expired token", %{valid_email: valid_email} do
-    params = %{"key" => valid_email, "password" => "password"}
-    {:error, message} = PassReset.verify(params, TestAccounts, max_age: -1)
+  test "reset password fails with expired token", %{conn: conn} do
+    expired_email = Token.sign(conn, %{"email" => "froderick@example.com"}, max_age: -1)
+    params = %{"key" => expired_email, "password" => "password"}
+    {:error, message} = PassReset.verify(params, TestAccounts)
     assert message =~ "Invalid credentials"
   end
 

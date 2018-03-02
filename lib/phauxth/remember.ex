@@ -65,8 +65,8 @@ defmodule Phauxth.Remember do
   Gets the user data from the token.
   """
   @spec get_user_data(Plug.Conn.t(), String.t(), tuple) :: map | nil
-  def get_user_data(conn, token, {max_age, user_context, opts}) do
-    with {:ok, user_id} <- Token.verify(conn, token, max_age, opts),
+  def get_user_data(conn, token, {_, user_context, opts}) do
+    with {:ok, user_id} <- Token.verify(conn, token, opts),
          do: user_context.get_by(%{"user_id" => user_id})
   end
 
@@ -83,7 +83,7 @@ defmodule Phauxth.Remember do
   """
   @spec add_rem_cookie(Plug.Conn.t(), integer, integer) :: Plug.Conn.t()
   def add_rem_cookie(conn, user_id, max_age \\ @max_age) do
-    cookie = Token.sign(conn, user_id)
+    cookie = Token.sign(conn, user_id, max_age: max_age)
     put_resp_cookie(conn, "remember_me", cookie, http_only: true, max_age: max_age)
   end
 

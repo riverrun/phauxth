@@ -13,10 +13,8 @@ defmodule Phauxth.AuthenticateToken do
 
   ## Options
 
-  There are three options:
+  There are two options:
 
-    * `:max_age` - the length the token is valid for
-      * the default is 4 hours
     * `:user_context` - the user context module to be used
       * the default is MyApp.Accounts
     * `:log_meta` - additional custom metadata for Phauxth.Log

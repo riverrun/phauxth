@@ -6,8 +6,7 @@ defmodule Phauxth.AuthenticateTokenTest do
 
   alias Phauxth.{SessionHelper, TestAccounts, Token, AuthenticateToken}
 
-  @max_age 4 * 60 * 60
-  @token_opts {{@max_age, TestAccounts, []}, []}
+  @token_opts {{TestAccounts, []}, []}
 
   defp add_token(id, token \\ nil, key_opts \\ []) do
     conn = conn(:get, "/") |> SessionHelper.add_key()
@@ -15,10 +14,10 @@ defmodule Phauxth.AuthenticateTokenTest do
     put_req_header(conn, "authorization", token)
   end
 
-  defp call_api(id, token \\ nil, max_age \\ @max_age) do
-    opts = {{max_age, TestAccounts, []}, []}
+  defp call_api(id, token \\ nil, key_opts \\ []) do
+    opts = {{TestAccounts, []}, []}
 
-    add_token(id, token)
+    add_token(id, token, key_opts)
     |> AuthenticateToken.call(opts)
   end
 
@@ -42,7 +41,7 @@ defmodule Phauxth.AuthenticateTokenTest do
 
   test "log reports error message for expired token" do
     assert capture_log(fn ->
-             call_api(1, nil, -1000)
+             call_api(1, nil, max_age: -1)
            end) =~ ~s(user=nil message="expired token")
   end
 
@@ -60,8 +59,8 @@ defmodule Phauxth.AuthenticateTokenTest do
 
   test "key options passed on to the Token module" do
     conn = add_token(3, nil, key_length: 20)
-    opts_1 = {{@max_age, TestAccounts, [key_length: 20]}, []}
-    opts_2 = {{@max_age, TestAccounts, []}, []}
+    opts_1 = {{TestAccounts, [key_length: 20]}, []}
+    opts_2 = {{TestAccounts, []}, []}
     conn = AuthenticateToken.call(conn, opts_1)
     %{current_user: user} = conn.assigns
     assert user.email == "froderick@example.com"

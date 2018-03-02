@@ -59,11 +59,14 @@ defmodule Phauxth.Token do
   @doc """
   Sign the token.
 
+  ADD DOCS ABOUT MAX_AGE
+
   See the module documentation for more information.
   """
-  @spec sign(key_source, token_data, list) :: String.t()
+  @spec sign(key_source, token_data, keyword) :: String.t()
   def sign(key_source, data, opts \\ []) do
-    %{"data" => data, "signed" => now()}
+    age = opts[:max_age] || 14400
+    %{"data" => data, "exp" => System.system_time(:second) + age}
     |> Jason.encode!()
     |> MessageVerifier.sign(gen_secret(key_source, opts))
   end
@@ -73,21 +76,22 @@ defmodule Phauxth.Token do
 
   See the module documentation for more information.
   """
-  @spec verify(key_source, String.t(), integer, list) :: result
-  def verify(key_source, token, max_age, opts \\ [])
+  @spec verify(key_source, String.t(), keyword) :: result
+  def verify(key_source, token, opts \\ [])
 
-  def verify(key_source, token, max_age, opts) when is_binary(token) do
+  def verify(key_source, token, opts) when is_binary(token) do
     MessageVerifier.verify(token, gen_secret(key_source, opts))
     |> get_token_data
-    |> handle_verify(max_age)
+    |> handle_verify()
   end
 
-  def verify(_, _, nil, _), do: {:error, "missing token"}
+  def verify(_, _, _), do: {:error, "invalid token"}
 
   defp gen_secret(key_source, opts) do
     get_key_base(key_source) |> validate_secret |> run_kdf(opts)
   end
 
+  # for endpoint and socket, pattern match on the __meta__ key
   defp get_key_base(%Plug.Conn{secret_key_base: key}), do: key
   defp get_key_base(%{endpoint: endpoint}), do: get_endpoint_key_base(endpoint)
 
@@ -120,11 +124,11 @@ defmodule Phauxth.Token do
   defp get_token_data({:ok, message}), do: Jason.decode(message)
   defp get_token_data(:error), do: {:error, "invalid token"}
 
-  defp handle_verify({:ok, %{"data" => data, "signed" => signed}}, max_age) do
-    (signed + max_age < now() and {:error, "expired token"}) || {:ok, data}
+  defp handle_verify({:ok, %{"data" => data, "exp" => exp}}) do
+    if exp < now(), do: {:error, "expired token"}, else: {:ok, data}
   end
 
-  defp handle_verify(_, _), do: {:error, "invalid token"}
+  defp handle_verify(_), do: {:error, "invalid token"}
 
   defp now, do: System.system_time(:second)
 

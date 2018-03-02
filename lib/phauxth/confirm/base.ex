@@ -14,12 +14,10 @@ defmodule Phauxth.Confirm.Base do
 
   ## Options
 
-  There are three options for the verify function:
+  There are two options for the verify function:
 
     * `:endpoint` - the name of the endpoint of your app
       * this can also be set in the config
-    * `:max_age` - the maximum age of the token, in seconds
-      * the default is 1200 seconds (20 minutes)
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
@@ -93,18 +91,17 @@ defmodule Phauxth.Confirm.Base do
 
       def verify(%{"key" => key}, user_context, opts) do
         endpoint = Keyword.get(opts, :endpoint, Config.endpoint())
-        max_age = Keyword.get(opts, :max_age, 1200)
         log_meta = Keyword.get(opts, :log_meta, [])
 
-        get_user(endpoint, {key, max_age, user_context, opts})
+        get_user(endpoint, {key, user_context, opts})
         |> report(log_meta)
       end
 
       def verify(_, _, _), do: raise(ArgumentError, "No key found in the params")
 
       @impl true
-      def get_user(key_source, {key, max_age, user_context, opts}) do
-        with {:ok, params} <- Token.verify(key_source, key, max_age, opts),
+      def get_user(key_source, {key, user_context, opts}) do
+        with {:ok, params} <- Token.verify(key_source, key, opts),
              do: user_context.get_by(params)
       end
 
