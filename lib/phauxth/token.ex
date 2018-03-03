@@ -4,12 +4,12 @@ defmodule Phauxth.Token do
 
   The data stored in the token is signed to prevent tampering
   but not encrypted. This means it is safe to store identification
-  information (such as user IDs) but should not be used to store
+  information (such as user IDs), but it should not be used to store
   confidential information (such as credit card numbers).
 
-  ## Arguments to sign/3 and verify/4
+  ## Arguments to sign/3 and verify/3
 
-  The first argument to both `sign/3` and `verify/4` is the `key_source`,
+  The first argument to both `sign/3` and `verify/3` is the `key_source`,
   from which the function can extract the secret key base. This can be one of:
 
     * the module name of a Phoenix endpoint
@@ -22,16 +22,13 @@ defmodule Phauxth.Token do
   an integer or string identifying the user, or a map with the user
   parameters.
 
-  The second argument to verify/4 is the token to be verified.
+  The second argument to verify/3 is the token to be verified.
 
-  The third argument to verify/4 is the `max_age` (maximum age), in seconds,
-  of the token. The recommended maximum age depends on how the token is used.
-  For example, the Phauxth.Confirm module sets the maximum age to 1200, which
-  is 20 minutes, but the Phauxth.Authenticate module sets the maximum age to
-  14_400, which is 4 hours.
+  The third argument to sign/3, or verify/3, is the `opts`, the `max_age`
+  and key generator options.
 
-  The third argument to sign/3, or the fourth argument to verify/4, is
-  the `opts`, the key generator options.
+  The `max_age` option is used when signing the token, and it is the number
+  of seconds which the token is valid for. The default value is 14400 (4 hours).
 
   The key generator has three options:
 
@@ -58,8 +55,6 @@ defmodule Phauxth.Token do
 
   @doc """
   Sign the token.
-
-  ADD DOCS ABOUT MAX_AGE
 
   See the module documentation for more information.
   """
@@ -91,7 +86,6 @@ defmodule Phauxth.Token do
     get_key_base(key_source) |> validate_secret |> run_kdf(opts)
   end
 
-  # for endpoint and socket, pattern match on the __meta__ key
   defp get_key_base(%Plug.Conn{secret_key_base: key}), do: key
   defp get_key_base(%{endpoint: endpoint}), do: get_endpoint_key_base(endpoint)
 
