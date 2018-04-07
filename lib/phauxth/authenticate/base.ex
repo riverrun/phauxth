@@ -88,7 +88,7 @@ defmodule Phauxth.Authenticate.Base do
         Log.info(%Log{message: message, meta: meta}) && nil
       end
 
-      def report(none, meta) when none in [nil, []] do
+      def report(nil, meta) do
         Log.info(%Log{message: "anonymous user", meta: meta}) && nil
       end
 
