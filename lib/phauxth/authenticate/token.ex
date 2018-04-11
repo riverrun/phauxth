@@ -74,8 +74,6 @@ defmodule Phauxth.Authenticate.Token do
              do: user_context.get_by(data)
       end
 
-      defoverridable Plug
-      defoverridable Phauxth.Authenticate.Base
       defoverridable Phauxth.Authenticate.Token
     end
   end
