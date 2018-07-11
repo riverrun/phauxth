@@ -15,7 +15,7 @@ defmodule Phauxth.Config do
 
   ## Umbrella apps
 
-  Due to how the configuration is handled in umbrella apps, you will
+  Due to how the configuration is handled in umbrella apps, you might
   need to override the `token_salt` and `endpoint` values when using
   them in the sub-apps.
 
@@ -109,7 +109,7 @@ defmodule Phauxth.Config do
   end
 
   @doc """
-  Generate a random salt for use with token authentication.
+  Generates a random salt for use with token authentication.
   """
   def gen_token_salt(length \\ 8)
 

@@ -7,7 +7,7 @@ defmodule Phauxth.Confirm.Base do
   """
 
   @doc """
-  Verify the confirmation key and get the user data from the database.
+  Verifies the confirmation key and get the user data from the database.
 
   `Phauxth.Confirm.verify` is used to confirm an email for new users
   and `Phauxth.Confirm.PassReset.verify` is used for password resetting.
@@ -68,12 +68,12 @@ defmodule Phauxth.Confirm.Base do
   @callback verify(map, module, keyword) :: {:ok, map} | {:error, String.t()}
 
   @doc """
-  Get the user struct based on the supplied key.
+  Gets the user struct based on the supplied key.
   """
   @callback get_user(term, tuple) :: map | nil
 
   @doc """
-  Print out a log message and then return {:ok, user} or
+  Prints out a log message and then return {:ok, user} or
   {:error, message} to the calling function.
   """
   @callback report(map, keyword) :: {:ok, map} | {:error, String.t()}
@@ -120,7 +120,7 @@ defmodule Phauxth.Confirm.Base do
   alias Phauxth.{Config, Log}
 
   @doc """
-  Check if the user has been confirmed.
+  Checks if the user has been confirmed.
   """
   @spec check_user_confirmed(map, list) :: {:ok, map} | {:error, String.t()}
   def check_user_confirmed(%{confirmed_at: nil} = user, meta) do
@@ -134,7 +134,7 @@ defmodule Phauxth.Confirm.Base do
   end
 
   @doc """
-  Check if a reset token has been sent to the user.
+  Checks if a reset token has been sent to the user.
   """
   @spec check_reset_sent_at(map, list) :: {:ok, map} | {:error, String.t()}
   def check_reset_sent_at(%{reset_sent_at: nil}, meta) do

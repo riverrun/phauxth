@@ -18,3 +18,13 @@ defmodule Phauxth.AbsintheAuthenticate do
     |> assign(:current_user, user)
   end
 end
+
+defmodule Phauxth.CustomCall do
+  use Phauxth.Authenticate.Base
+
+  @impl true
+  def call(conn, {opts, log_meta}) do
+    meta = log_meta ++ [path: conn.request_path]
+    super(conn, {opts, meta})
+  end
+end

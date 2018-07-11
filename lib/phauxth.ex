@@ -45,7 +45,7 @@ defmodule Phauxth do
   ## Phauxth verify/3
 
   The `verify/3` function takes a map (usually Phoenix params), a context
-  module (usually MyApp.Accounts) and opts (an empty list by default)
+  module (MyApp.Accounts by default) and opts (an empty list by default)
   and returns `{:ok, user}` or `{:error, message}`.
 
   ### User confirmation

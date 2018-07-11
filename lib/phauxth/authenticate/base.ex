@@ -36,19 +36,19 @@ defmodule Phauxth.Authenticate.Base do
   """
 
   @doc """
-  Get the user based on the session or token data.
+  Gets the user based on the session or token data.
 
   This function also calls the database to get user information.
   """
   @callback get_user(Plug.Conn.t(), tuple) :: map | {:error, String.t()} | nil
 
   @doc """
-  Log the result of the authentication and return the user struct or nil.
+  Logs the result of the authentication and return the user struct or nil.
   """
   @callback report(tuple, keyword) :: map | nil
 
   @doc """
-  Set the `current_user` variable.
+  Sets the `current_user` variable.
   """
   @callback set_user(map | nil, Plug.Conn.t()) :: Plug.Conn.t()
 

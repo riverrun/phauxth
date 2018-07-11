@@ -1,6 +1,6 @@
 defmodule Phauxth.Token do
   @moduledoc """
-  Create api tokens.
+  Creates api tokens.
 
   The data stored in the token is signed to prevent tampering
   but not encrypted. This means it is safe to store identification
@@ -54,20 +54,21 @@ defmodule Phauxth.Token do
   alias Phauxth.Config
 
   @doc """
-  Sign the token.
+  Signs the token.
 
   See the module documentation for more information.
   """
   @spec sign(key_source, token_data, keyword) :: String.t()
   def sign(key_source, data, opts \\ []) do
     age = opts[:max_age] || 14400
+
     %{"data" => data, "exp" => System.system_time(:second) + age}
     |> Jason.encode!()
     |> MessageVerifier.sign(gen_secret(key_source, opts))
   end
 
   @doc """
-  Verify the token.
+  Verifies the token.
 
   See the module documentation for more information.
   """

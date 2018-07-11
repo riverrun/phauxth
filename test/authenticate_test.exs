@@ -2,18 +2,22 @@ defmodule Phauxth.AuthenticateTest do
   use ExUnit.Case
   use Plug.Test
 
-  alias Phauxth.{CustomAuthenticate, Authenticate, SessionHelper, TestAccounts}
+  import ExUnit.CaptureLog
+
+  alias Phauxth.{Authenticate, CustomAuthenticate, CustomCall, SessionHelper, TestAccounts}
 
   @session_opts {TestAccounts, []}
 
   defp call(id, opts \\ @session_opts) do
-    SessionHelper.add_session(id)
-    |> Authenticate.call(opts)
+    SessionHelper.add_session(id) |> Authenticate.call(opts)
+  end
+
+  defp custom_authenticate(id) do
+    SessionHelper.add_session(id, :user_id) |> CustomAuthenticate.call(@session_opts)
   end
 
   defp custom_call(id) do
-    SessionHelper.add_session(id, :user_id)
-    |> CustomAuthenticate.call(@session_opts)
+    SessionHelper.add_session(id) |> CustomCall.call(@session_opts)
   end
 
   test "current user in session" do
@@ -52,7 +56,7 @@ defmodule Phauxth.AuthenticateTest do
   end
 
   test "current user in session - using user_id" do
-    conn = custom_call(1)
+    conn = custom_authenticate(1)
     %{current_user: user} = conn.assigns
     assert user.email == "fred+1@example.com"
     assert user.role == "user"
@@ -60,9 +64,15 @@ defmodule Phauxth.AuthenticateTest do
 
   test "user_id can be uuid" do
     uuid = "4a43f849-d9fa-439e-b887-735378009c95"
-    conn = custom_call(uuid)
+    conn = custom_authenticate(uuid)
     %{current_user: user} = conn.assigns
     assert user.email == "brian@example.com"
     assert user.role == "user"
+  end
+
+  test "custom call" do
+    assert capture_log(fn ->
+             custom_call("F25/1mZuBno+Pfu06")
+           end) =~ ~s(user=1 message="user authenticated" path=/)
   end
 end
