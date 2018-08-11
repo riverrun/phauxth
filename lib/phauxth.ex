@@ -50,8 +50,7 @@ defmodule Phauxth do
 
   ### User confirmation
 
-  `Phauxth.Confirm.verify` is used for user confirmation, using email
-  or phone.
+  `Phauxth.Confirm.verify` is used for email confirmation.
 
   The function below is an example of how you would call verify to
   confirm a user's account.

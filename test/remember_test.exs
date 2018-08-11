@@ -4,7 +4,7 @@ defmodule Phauxth.RememberTest do
 
   import ExUnit.CaptureLog
 
-  alias Phauxth.{Remember, Authenticate, SessionHelper, TestAccounts}
+  alias Phauxth.{Authenticate, Remember, SessionHelper, TestAccounts}
 
   @max_age 7 * 24 * 60 * 60
   @opts {{@max_age, TestAccounts, []}, []}
@@ -31,8 +31,6 @@ defmodule Phauxth.RememberTest do
     %{current_user: user} = conn.assigns
     assert user.username == "fred"
     assert user.role == "user"
-
-    assert <<"S", _session_id::binary-size(16)>> = get_session(conn, :session_id)
   end
 
   test "error log when the cookie is invalid", %{conn: conn} do

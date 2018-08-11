@@ -45,4 +45,15 @@ defmodule Phauxth.Authenticate do
   """
 
   use Phauxth.Authenticate.Base
+
+  import Plug.Conn
+
+  @doc """
+  Adds the session_id to the conn.
+  """
+  @spec add_session(Plug.Conn.t(), binary) :: Plug.Conn.t()
+  def add_session(conn, session_id) do
+    put_session(conn, :session_id, session_id)
+    |> configure_session(renew: true)
+  end
 end

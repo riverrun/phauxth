@@ -34,11 +34,12 @@ defmodule Phauxth.Remember do
   """
 
   use Phauxth.Authenticate.Base
-  alias Phauxth.{Session, Token}
+  alias Phauxth.{Authenticate, Token}
 
   @max_age 7 * 24 * 60 * 60
 
   @impl true
+  # add session_id opt as well
   def init(opts) do
     {
       {
@@ -57,6 +58,7 @@ defmodule Phauxth.Remember do
     get_user_data(conn, token, opts)
     |> report(log_meta)
     |> set_user(conn)
+    |> Authenticate.add_session("1234")
   end
 
   def call(conn, _), do: conn
@@ -68,14 +70,6 @@ defmodule Phauxth.Remember do
   def get_user_data(conn, token, {_, user_context, opts}) do
     with {:ok, user_id} <- Token.verify(conn, token, opts),
          do: user_context.get_by(%{"user_id" => user_id})
-  end
-
-  @impl true
-  def set_user(nil, conn), do: assign(conn, :current_user, nil)
-
-  def set_user(user, conn) do
-    assign(conn, :current_user, user)
-    |> Session.add_session(Session.gen_session_id("S"))
   end
 
   @doc """

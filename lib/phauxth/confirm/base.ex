@@ -61,7 +61,7 @@ defmodule Phauxth.Confirm.Base do
 
   The `Accounts.update_password` function tries to add the new password
   to the database. If the password reset is successful, the `handle_password_reset`
-  function sends a message (email or phone) to the user and redirects the
+  function sends a message by email to the user and redirects the
   user to the next page or sends a json response. If unsuccessful, the
   `handle_password_reset` function handles the error.
   """

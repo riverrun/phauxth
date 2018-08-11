@@ -37,9 +37,8 @@ defmodule Phauxth.ConfirmTest do
     assert message =~ "Your account has already been confirmed"
   end
 
-  test "confirmation succeeds with different identifier", %{conn: conn} do
-    valid_phone = Token.sign(conn, %{"phone" => "55555555555"}, max_age: 1200)
-    %{params: params} = conn(:get, "/confirm?key=" <> valid_phone) |> fetch_query_params
+  test "confirmation succeeds with different identifier", %{valid_email: valid_email} do
+    %{params: params} = conn(:get, "/confirm?key=" <> valid_email) |> fetch_query_params
     {:ok, user} = Confirm.verify(params, TestAccounts)
     assert user.email == "fred+1@example.com"
   end
@@ -58,8 +57,8 @@ defmodule Phauxth.ConfirmTest do
   end
 
   test "key options passed on to the Token module", %{conn: conn} do
-    valid_phone = Token.sign(conn, %{"phone" => "55555555555"}, max_age: 1200, key_iterations: 10)
-    %{params: params} = conn(:get, "/confirm?key=" <> valid_phone) |> fetch_query_params
+    valid_email = Token.sign(conn, %{"email" => "fred+1@example.com"}, key_iterations: 10)
+    %{params: params} = conn(:get, "/confirm?key=" <> valid_email) |> fetch_query_params
     {:ok, user} = Confirm.verify(params, TestAccounts, key_iterations: 10)
     assert user.email == "fred+1@example.com"
     {:error, message} = Confirm.verify(params, TestAccounts)
