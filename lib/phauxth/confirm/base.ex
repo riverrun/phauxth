@@ -7,7 +7,7 @@ defmodule Phauxth.Confirm.Base do
   """
 
   @doc """
-  Verifies the confirmation key and get the user data from the database.
+  Verifies the confirmation key and gets the user data from the database.
 
   `Phauxth.Confirm.verify` is used to confirm an email for new users
   and `Phauxth.Confirm.PassReset.verify` is used for password resetting.
@@ -21,8 +21,8 @@ defmodule Phauxth.Confirm.Base do
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
+  # add a specific key_opts value?
   In addition, there are also options for verifying the token.
-  See the documentation for the Phauxth.Token module for details.
 
   ## Examples
 
@@ -73,7 +73,7 @@ defmodule Phauxth.Confirm.Base do
   @callback get_user(term, tuple) :: map | nil
 
   @doc """
-  Prints out a log message and then return {:ok, user} or
+  Prints out a log message and then returns {:ok, user} or
   {:error, message} to the calling function.
   """
   @callback report(map, keyword) :: {:ok, map} | {:error, String.t()}
@@ -89,25 +89,29 @@ defmodule Phauxth.Confirm.Base do
       @impl true
       def verify(params, user_context, opts \\ [])
 
-      def verify(%{"key" => key}, user_context, opts) do
-        # add to opts - as well as part of config
-        # endpoint = Keyword.get(opts, :endpoint, Config.endpoint())
+      def verify(%{"key" => token}, user_context, opts) do
+        endpoint = Keyword.get(opts, :endpoint, Config.endpoint())
         log_meta = Keyword.get(opts, :log_meta, [])
         token_mod = Config.token_module()
 
-        get_user(token_mod, {key, user_context, opts})
+        get_user(token_mod, {token, user_context, opts})
         |> report(log_meta)
       end
 
       def verify(_, _, _), do: raise(ArgumentError, "No key found in the params")
 
       @impl true
-      def get_user(token_mod, {key, user_context, opts}) do
-        with {:ok, params} <- token_mod.verify(key, opts),
+      def get_user(token_mod, {token, user_context, opts}) do
+        with {:ok, params} <- token_mod.verify(token, opts),
              do: user_context.get_by(params)
       end
 
       @impl true
+      def report(%{} = user, meta) do
+        Log.info(%Log{user: user.id, message: "user confirmed", meta: meta})
+        {:ok, Map.drop(user, Config.drop_user_keys())}
+      end
+
       def report({:error, message}, meta) do
         Log.warn(%Log{message: message, meta: meta})
         {:error, Config.user_messages().default_error()}

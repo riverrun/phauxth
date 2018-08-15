@@ -4,7 +4,7 @@ defmodule Phauxth.Authenticate do
   id.
 
   You need to define a `get_by(%{"session_id" => session_id})` function
-  in the user_context module you are using (which is MyApp.Accounts by
+  in the user_context / session_context module you are using (which is MyApp.Accounts by
   default).
 
   For information about customizing this Plug, see the documentation
@@ -12,10 +12,8 @@ defmodule Phauxth.Authenticate do
 
   ## Phauxth session authentication
 
-  This module checks the current Plug session for a `session_id`,
-  which contains a session id and user id. It then checks the user
-  schema to see if the session id is valid. The sessions should be stored
-  in a map with session ids as keys and timestamps as values.
+  This module checks the current Plug session for a `session_id`. It then
+  checks to see if the session id is valid.
 
   This process can be customized by overriding the `get_user` function
   in Phauxth.Authenticate.Base.

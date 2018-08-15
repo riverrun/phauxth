@@ -20,7 +20,6 @@ defmodule Phauxth.Remember do
       * this should be a keyword list
 
   In addition, there are also options for generating the token.
-  See the documentation for the Phauxth.Token module for details.
 
   ## Examples
 
@@ -56,6 +55,7 @@ defmodule Phauxth.Remember do
 
   def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn, {opts, log_meta}) do
     token_mod = Config.token_module()
+
     get_user_data(token_mod, token, opts)
     |> report(log_meta)
     |> set_user(conn)
@@ -77,10 +77,10 @@ defmodule Phauxth.Remember do
   Adds a remember me cookie to the conn.
   """
   @spec add_rem_cookie(Plug.Conn.t(), integer, integer) :: Plug.Conn.t()
-  def add_rem_cookie(conn, user_id, max_age \\ @max_age) do
-    token_mod = Config.token_module()
-    cookie = token_mod.sign(user_id, max_age: max_age)
-    put_resp_cookie(conn, "remember_me", cookie, http_only: true, max_age: max_age)
+  def add_rem_cookie(conn, token, max_age \\ @max_age) do
+    # token_mod = Config.token_module()
+    # cookie = token_mod.sign(user_id, max_age: max_age)
+    put_resp_cookie(conn, "remember_me", token, http_only: true, max_age: max_age)
   end
 
   @doc """

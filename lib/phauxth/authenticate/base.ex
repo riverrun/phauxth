@@ -24,14 +24,14 @@ defmodule Phauxth.Authenticate.Base do
 
         def set_user(nil, conn), do: assign(conn, :current_user, nil)
         def set_user(user, conn) do
-          token = Phauxth.Token.sign(conn, %{"user_id" => user.email})
+          token = Phoenix.Token.sign(conn, "user salt", %{"user_id" => user.email})
           assign(conn, :current_user, user)
           |> assign(:user_token, token)
         end
       end
 
   MyAppWeb.ChannelAuthenticate is called in the same way as Phauxth.Authenticate.
-  You can then use Phauxth.Token.verify, in the `user_socket.ex` file, to
+  You can then use Phoenix.Token.verify, in the `user_socket.ex` file, to
   verify the token.
   """
 

@@ -47,6 +47,7 @@ defmodule Phauxth.TestAccounts do
   def get_by(%{"session_id" => "F25/1mZuBno+Pfu06"}), do: Enum.at(@users, 0)
   def get_by(%{"session_id" => "Fc0k6ku4lm61uO7pnBKreWoHo"}), do: Enum.at(@users, 0)
   def get_by(%{"session_id" => "FQcPdSYY9HlaRUKCc4"}), do: Enum.at(@users, 3)
+  def get_by(%{user_id: 1}), do: Enum.at(@users, 0)
   def get_by(%{"user_id" => 1}), do: Enum.at(@users, 0)
   def get_by(%{"user_id" => 3}), do: Enum.at(@users, 2)
   def get_by(%{"user_id" => 4}), do: Enum.at(@users, 3)
