@@ -44,7 +44,7 @@ defmodule Phauxth.RememberTest do
              |> recycle_cookies(conn)
              |> SessionHelper.sign_conn()
              |> Remember.call(@opts)
-           end) =~ ~s(user=nil message="invalid token")
+           end) =~ ~s(user=nil message=invalid)
   end
 
   test "call remember with no remember cookie" do

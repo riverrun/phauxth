@@ -4,20 +4,20 @@ defmodule Phauxth.AuthenticateTokenTest do
 
   import ExUnit.CaptureLog
 
-  alias Phauxth.{SessionHelper, TestAccounts, Token, AuthenticateToken}
+  alias Phauxth.{SessionHelper, TestAccounts, PhxToken, AuthenticateToken}
 
   @token_opts {{TestAccounts, []}, []}
 
   defp add_token(id, token \\ nil, key_opts \\ []) do
     conn = conn(:get, "/") |> SessionHelper.add_key()
-    token = token || Token.sign(conn, %{"user_id" => id}, key_opts)
+    token = token || PhxToken.sign(%{"user_id" => id}, key_opts)
     put_req_header(conn, "authorization", token)
   end
 
-  defp call_api(id, token \\ nil, key_opts \\ []) do
-    opts = {{TestAccounts, []}, []}
+  defp call_api(id, token \\ nil, verify_opts \\ []) do
+    opts = {{TestAccounts, verify_opts}, []}
 
-    add_token(id, token, key_opts)
+    add_token(id, token, [])
     |> AuthenticateToken.call(opts)
   end
 
@@ -36,13 +36,13 @@ defmodule Phauxth.AuthenticateTokenTest do
   test "log reports error message for invalid token" do
     assert capture_log(fn ->
              call_api(1, "garbage")
-           end) =~ ~s(user=nil message="invalid token")
+           end) =~ ~s(user=nil message=invalid)
   end
 
   test "log reports error message for expired token" do
     assert capture_log(fn ->
              call_api(1, nil, max_age: -1)
-           end) =~ ~s(user=nil message="expired token")
+           end) =~ ~s(user=nil message=expired)
   end
 
   test "authenticate api with no token sets the current_user to nil" do
@@ -57,7 +57,7 @@ defmodule Phauxth.AuthenticateTokenTest do
     assert user.role == "user"
   end
 
-  test "key options passed on to the Token module" do
+  test "key options passed on to the token module" do
     conn = add_token(3, nil, key_length: 20)
     opts_1 = {{TestAccounts, [key_length: 20]}, []}
     opts_2 = {{TestAccounts, []}, []}

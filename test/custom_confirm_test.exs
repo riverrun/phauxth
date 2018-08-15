@@ -2,11 +2,11 @@ defmodule Phauxth.CustomConfirmTest do
   use ExUnit.Case
   use Plug.Test
 
-  alias Phauxth.{CustomConfirm, TestAccounts, Token}
+  alias Phauxth.{CustomConfirm, TestAccounts, PhxToken}
 
   setup do
     conn = conn(:get, "/") |> Phauxth.SessionHelper.add_key()
-    email = Token.sign(conn, %{"email" => "ray@example.com"})
+    email = PhxToken.sign(%{"email" => "ray@example.com"}, [])
     {:ok, %{conn: conn, email: email}}
   end
 

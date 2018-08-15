@@ -3,11 +3,11 @@ defmodule Phauxth.ConfirmTest do
   use Plug.Test
   import ExUnit.CaptureLog
 
-  alias Phauxth.{Confirm, TestAccounts, Token}
+  alias Phauxth.{Confirm, PhxToken, TestAccounts}
 
   setup do
     conn = conn(:get, "/") |> Phauxth.SessionHelper.add_key()
-    valid_email = Token.sign(conn, %{"email" => "fred+1@example.com"}, max_age: 1200)
+    valid_email = PhxToken.sign(%{"email" => "fred+1@example.com"}, [])
     {:ok, %{conn: conn, valid_email: valid_email}}
   end
 
@@ -23,15 +23,15 @@ defmodule Phauxth.ConfirmTest do
     assert message =~ "Invalid credentials"
   end
 
-  test "confirmation fails for expired token", %{conn: conn} do
-    expired_email = Token.sign(conn, %{"email" => "ray@example.com"}, max_age: -1)
+  test "confirmation fails for expired token" do
+    expired_email = PhxToken.sign(%{"email" => "ray@example.com"}, [])
     %{params: params} = conn(:get, "/confirm?key=" <> expired_email) |> fetch_query_params
-    {:error, message} = Confirm.verify(params, TestAccounts)
+    {:error, message} = Confirm.verify(params, TestAccounts, max_age: -1)
     assert message =~ "Invalid credentials"
   end
 
-  test "confirmation fails for already confirmed account", %{conn: conn} do
-    confirmed_email = Token.sign(conn, %{"email" => "ray@example.com"}, max_age: 1200)
+  test "confirmation fails for already confirmed account" do
+    confirmed_email = PhxToken.sign(%{"email" => "ray@example.com"}, [])
     %{params: params} = conn(:get, "/confirm?key=" <> confirmed_email) |> fetch_query_params
     {:error, message} = Confirm.verify(params, TestAccounts)
     assert message =~ "Your account has already been confirmed"
@@ -56,8 +56,8 @@ defmodule Phauxth.ConfirmTest do
     end
   end
 
-  test "key options passed on to the Token module", %{conn: conn} do
-    valid_email = Token.sign(conn, %{"email" => "fred+1@example.com"}, key_iterations: 10)
+  test "key options passed on to the token module" do
+    valid_email = PhxToken.sign(%{"email" => "fred+1@example.com"}, key_iterations: 10)
     %{params: params} = conn(:get, "/confirm?key=" <> valid_email) |> fetch_query_params
     {:ok, user} = Confirm.verify(params, TestAccounts, key_iterations: 10)
     assert user.email == "fred+1@example.com"

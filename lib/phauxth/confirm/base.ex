@@ -84,24 +84,26 @@ defmodule Phauxth.Confirm.Base do
       @behaviour Phauxth.Confirm.Base
 
       import Phauxth.Confirm.Base
-      alias Phauxth.{Config, Log, Token}
+      alias Phauxth.{Config, Log}
 
       @impl true
       def verify(params, user_context, opts \\ [])
 
       def verify(%{"key" => key}, user_context, opts) do
-        endpoint = Keyword.get(opts, :endpoint, Config.endpoint())
+        # add to opts - as well as part of config
+        # endpoint = Keyword.get(opts, :endpoint, Config.endpoint())
         log_meta = Keyword.get(opts, :log_meta, [])
+        token_mod = Config.token_module()
 
-        get_user(endpoint, {key, user_context, opts})
+        get_user(token_mod, {key, user_context, opts})
         |> report(log_meta)
       end
 
       def verify(_, _, _), do: raise(ArgumentError, "No key found in the params")
 
       @impl true
-      def get_user(key_source, {key, user_context, opts}) do
-        with {:ok, params} <- Token.verify(key_source, key, opts),
+      def get_user(token_mod, {key, user_context, opts}) do
+        with {:ok, params} <- token_mod.verify(key, opts),
              do: user_context.get_by(params)
       end
 

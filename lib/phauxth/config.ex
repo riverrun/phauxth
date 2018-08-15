@@ -11,6 +11,7 @@ defmodule Phauxth.Config do
   | drop_user_keys     | list of atoms | []               |
   | user_messages      | module        | Phauxth.UserMessages |
   | endpoint           | module        | N/A              |
+  | token_module       | module        | N/A              |
   | token_salt         | string        | N/A              |
 
   ## Umbrella apps
@@ -52,6 +53,13 @@ defmodule Phauxth.Config do
   """
   def log_level do
     Application.get_env(:phauxth, :log_level, :info)
+  end
+
+  @doc """
+  The module used to sign and verify tokens.
+  """
+  def token_module do
+    Application.get_env(:phauxth, :token_module)
   end
 
   @doc """

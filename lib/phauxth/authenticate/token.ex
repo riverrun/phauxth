@@ -46,7 +46,7 @@ defmodule Phauxth.Authenticate.Token do
 
       use Phauxth.Authenticate.Base
 
-      alias Phauxth.Utils
+      alias Phauxth.{Config, Utils}
 
       @impl Plug
       def init(opts) do
@@ -56,22 +56,23 @@ defmodule Phauxth.Authenticate.Token do
 
       @impl Phauxth.Authenticate.Base
       def get_user(conn, opts) do
-        conn |> get_req_header("authorization") |> get_token_user(conn, opts)
+        token_mod = Config.token_module()
+        conn |> get_req_header("authorization") |> get_token_user(token_mod, opts)
       end
 
       @impl Phauxth.Authenticate.Token
       def get_token_user([], _, _), do: {:error, "no token found"}
 
-      def get_token_user(["Bearer " <> token | _], conn, opts) do
-        verify_token(token, conn, opts)
+      def get_token_user(["Bearer " <> token | _], token_mod, opts) do
+        verify_token(token, token_mod, opts)
       end
 
-      def get_token_user([token | _], conn, opts) do
-        verify_token(token, conn, opts)
+      def get_token_user([token | _], token_mod, opts) do
+        verify_token(token, token_mod, opts)
       end
 
-      defp verify_token(token, conn, {user_context, opts}) do
-        with {:ok, data} <- Phauxth.Token.verify(conn, token, opts),
+      defp verify_token(token, token_mod, {user_context, opts}) do
+        with {:ok, data} <- token_mod.verify(token, opts),
              do: user_context.get_by(data)
       end
 

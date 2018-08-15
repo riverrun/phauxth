@@ -1,15 +1,17 @@
 defmodule Phauxth.CustomConfirm do
   use Phauxth.Confirm.Base
 
+  # change this example into something more useful
   @impl true
   def verify(%{"key" => key}, user_context, opts) do
-    get_user(opts[:conn], {key, user_context, opts})
+    token_mod = Phauxth.PhxToken
+    get_user(token_mod, {key, user_context, opts})
     |> report([])
   end
 
   @impl true
-  def get_user(key_source, {key, user_context, opts}) do
-    with {:ok, params} <- Token.verify(key_source, key, opts) do
+  def get_user(token_mod, {key, user_context, opts}) do
+    with {:ok, params} <- token_mod.verify(key, opts) do
       user = user_context.get_by(params)
       %{user | confirmed_at: nil}
     end

@@ -19,7 +19,6 @@ defmodule Phauxth.UserMessages.Base do
 
   """
 
-  @callback need_confirm() :: String.t()
   @callback already_confirmed() :: String.t()
   @callback default_error() :: String.t()
 
@@ -27,7 +26,6 @@ defmodule Phauxth.UserMessages.Base do
     quote do
       @behaviour Phauxth.UserMessages.Base
 
-      def need_confirm, do: "Your account needs to be confirmed"
       def already_confirmed, do: "Your account has already been confirmed"
       def default_error, do: "Invalid credentials"
 

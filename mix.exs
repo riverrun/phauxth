@@ -11,7 +11,7 @@ defmodule Phauxth.Mixfile do
     [
       app: :phauxth,
       version: @version,
-      elixir: "~> 1.5",
+      elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       name: "Phauxth",
       description: @description,
@@ -29,9 +29,11 @@ defmodule Phauxth.Mixfile do
 
   defp deps do
     [
-      {:plug, "~> 1.5"},
+      {:plug, "~> 1.6"},
       {:jason, "~> 1.0"},
-      {:ex_doc, "~> 0.18", only: :dev, runtime: false}
+      {:json_web_token, "~> 0.2"},
+      {:phoenix, "~> 1.3.0", optional: true},
+      {:ex_doc, "~> 0.19", only: :dev, runtime: false}
     ]
   end
 
