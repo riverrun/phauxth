@@ -16,7 +16,7 @@ defmodule Phauxth.Remember do
     * `:max_age` - the length of the validity of the cookie / token
       * the default is one week
     * `:user_context` - the user context module to be used
-      * the default is MyApp.Accounts
+      * the default is given by Phauxth.Config.user_context()
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
@@ -45,7 +45,7 @@ defmodule Phauxth.Remember do
     {
       {
         Keyword.get(opts, :max_age, @max_age),
-        Keyword.get(opts, :user_context, Utils.default_user_context()),
+        Keyword.get(opts, :user_context, Phauxth.Config.user_context()),
         opts
       },
       Keyword.get(opts, :log_meta, [])
