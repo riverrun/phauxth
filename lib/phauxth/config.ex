@@ -9,6 +9,7 @@ defmodule Phauxth.Config do
   | :----------------- | :-----------  | ---------------: |
   | log_level          | atom          | :info            |
   | drop_user_keys     | list of atoms | []               |
+  | user_context       | module        | MyApp.Accounts   |
   | user_messages      | module        | Phauxth.UserMessages |
   | endpoint           | module        | N/A              |
   | token_salt         | string        | N/A              |
@@ -65,6 +66,16 @@ defmodule Phauxth.Config do
   """
   def drop_user_keys do
     Application.get_env(:phauxth, :drop_user_keys, []) ++ [:password_hash, :password, :otp_secret]
+  end
+
+  @doc """
+  The user context module to be used.
+
+  If no user_config config is set, the default is MyApp.Accounts. See
+  Phauxth.Utils for more default user_context info.
+  """
+  def user_context do
+    Application.get_env(:phauxth, :user_context, Phauxth.Utils.default_user_context())
   end
 
   @doc """

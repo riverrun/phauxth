@@ -74,7 +74,7 @@ defmodule Phauxth.Authenticate.Base do
           {
             Keyword.get(opts, :method, :session),
             Keyword.get(opts, :max_age, 4 * 60 * 60),
-            Keyword.get(opts, :user_context, Utils.default_user_context()),
+            Keyword.get(opts, :user_context, Phauxth.Config.user_context()),
             opts
           },
           Keyword.get(opts, :log_meta, [])
