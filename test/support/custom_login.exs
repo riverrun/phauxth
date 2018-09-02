@@ -1,7 +1,11 @@
 defmodule Phauxth.CustomLogin do
   use Phauxth.Login.Base
 
-  def verify(%{"pass" => password} = params, user_context, opts) do
+  alias Phauxth.Config
+
+  def verify(%{"pass" => password} = params, opts) do
+    user_context = Keyword.get(opts, :user_context, Config.user_context())
+
     user_context.get_by(params)
     |> check_pass(password, Comeonin.Bcrypt, opts)
     |> report("Hi, how's it going?", [])

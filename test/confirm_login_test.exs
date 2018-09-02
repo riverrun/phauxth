@@ -4,7 +4,7 @@ defmodule Phauxth.Confirm.LoginTest do
 
   defp login(name, password, user_params \\ "email") do
     params = %{user_params => name, "password" => password}
-    Phauxth.Confirm.Login.verify(params, Phauxth.TestAccounts)
+    Phauxth.Confirm.Login.verify(params)
   end
 
   test "login succeeds if account has been confirmed" do
