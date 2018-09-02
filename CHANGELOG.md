@@ -1,5 +1,10 @@
 # Phauxth Changelog
 
+## Version 1.2.4
+
+* Enhancements
+  * Added default `user_context` to config
+
 ## Version 1.2.2
 
 * Enhancements
