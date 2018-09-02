@@ -5,7 +5,7 @@ defmodule Phauxth do
   Phauxth is designed to be secure, extensible and well-documented.
 
   Phauxth offers two types of functions: Plugs, which are called with plug,
-  and verify/3 functions, which are called inside the function bodies.
+  and verify/2 functions, which are called inside the function bodies.
 
   ## Plugs
 
@@ -40,11 +40,10 @@ defmodule Phauxth do
 
   This needs to be called after `plug Phauxth.Authenticate`.
 
-  ## Phauxth verify/3
+  ## Phauxth verify/2
 
-  The verify/3 function takes a map (usually Phoenix params), a context
-  module (usually MyApp.Accounts) and opts (an empty list by default)
-  and returns {:ok, user} or {:error, message}.
+  The verify/2 function takes a map (usually Phoenix params) and opts (an empty
+  list by default) and returns {:ok, user} or {:error, message}.
 
   ### Login
 
@@ -52,7 +51,7 @@ defmodule Phauxth do
   in the session controller.
 
       def create(conn, %{"session" => params}) do
-        case Phauxth.Login.verify(params, MyApp.Accounts) do
+        case Phauxth.Login.verify(params) do
           {:ok, user} -> handle_successful_login
           {:error, message} -> handle_error
         end
@@ -71,7 +70,7 @@ defmodule Phauxth do
   confirm a user's account.
 
       def new(conn, params) do
-        case Phauxth.Confirm.verify(params, MyApp.Accounts) do
+        case Phauxth.Confirm.verify(params) do
           {:ok, user} ->
             Accounts.confirm_user(user)
             message = "Your account has been confirmed"
@@ -88,7 +87,7 @@ defmodule Phauxth do
   To use Phauxth.Confirm for password resetting add the `mode: :pass_reset`
   option to the verify function:
 
-      Phauxth.Confirm.verify(params, MyApp.Accounts, mode: :pass_reset)
+      Phauxth.Confirm.verify(params, mode: :pass_reset)
 
   This function just verifies the confirmation key. It does not reset
   the password or send an email to the user.
@@ -106,9 +105,10 @@ defmodule Phauxth do
     * `--api` - create files for an api
     * `--confirm` - add files for email confirmation
 
-  Phauxth uses the user context module (normally MyApp.Accounts) to communicate
-  with the underlying database. This module needs to have the `get(id)` and
-  `get_by(attrs)` functions defined (see the examples below).
+  Phauxth uses the user context module (normally MyApp.Accounts or config
+  user_context if given) to communicate with the underlying database. This
+  module needs to have the `get(id)` and `get_by(attrs)` functions defined
+  (see the examples below).
 
       def get(id), do: Repo.get(User, id)
 
@@ -126,6 +126,6 @@ defmodule Phauxth do
 
   """
 
-  @callback verify(params :: map, context :: atom, opts :: keyword | tuple) ::
+  @callback verify(params :: map, opts :: keyword | tuple) ::
               {:ok, user :: map} | {:error, message :: String.t()}
 end

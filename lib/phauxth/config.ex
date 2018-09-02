@@ -27,8 +27,11 @@ defmodule Phauxth.Config do
   And this example shows how the Confirm.verify function needs to be
   called:
 
-      Phauxth.Confirm.verify(params, MyApp.Accounts,
-        endpoint: MyAppWeb.Endpoint, token_salt: "somesalt")
+      Phauxth.Confirm.verify(params, [
+        user_context: MyApp.Accounts,
+        endpoint:     MyAppWeb.Endpoint,
+        token_salt:   "somesalt"
+      ])
 
   ## Examples
 
@@ -38,6 +41,7 @@ defmodule Phauxth.Config do
       config :phauxth,
         token_salt: "YkLmt7+f",
         endpoint: MyAppWeb.Endpoint,
+        user_context: MyApp.Accounts,
         log_level: :warn,
         drop_user_keys: [:shoe_size]
 

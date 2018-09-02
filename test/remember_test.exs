@@ -18,8 +18,8 @@ defmodule Phauxth.RememberTest do
   end
 
   test "init function" do
-    assert Remember.init([]) == {{604_800, Phauxth.Accounts, []}, []}
-    assert Remember.init(max_age: 100) == {{100, Phauxth.Accounts, [max_age: 100]}, []}
+    assert Remember.init([]) == {{604_800, TestAccounts, []}, []}
+    assert Remember.init(max_age: 100) == {{100, TestAccounts, [max_age: 100]}, []}
   end
 
   test "call remember with default options", %{conn: conn} do

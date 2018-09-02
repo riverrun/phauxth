@@ -32,6 +32,8 @@ defmodule Phauxth.Confirm.Base do
           * set this to :pass_reset to use this function for password resetting
         * `:log_meta` - additional custom metadata for Phauxth.Log
           * this should be a keyword list
+        * `:user_context` - overridable user_context
+          * the default is Phauxth.Config.user_context()
 
       In addition, there are also options for generating the token.
       See the documentation for the Phauxth.Token module for details.
@@ -42,7 +44,7 @@ defmodule Phauxth.Confirm.Base do
       controller.
 
           def index(conn, params) do
-            case Phauxth.Confirm.verify(params, Accounts) do
+            case Phauxth.Confirm.verify(params) do
               {:ok, user} ->
                 Accounts.confirm_user(user)
                 message = "Your account has been confirmed"
@@ -62,7 +64,7 @@ defmodule Phauxth.Confirm.Base do
       following example:
 
           def update(conn, %{"password_reset" => params}) do
-            case Phauxth.Confirm.verify(params, Accounts, mode: :pass_reset) do
+            case Phauxth.Confirm.verify(params, mode: :pass_reset) do
               {:ok, user} ->
                 Accounts.update_password(user, params)
                 |> handle_password_reset(conn, params)
@@ -77,25 +79,26 @@ defmodule Phauxth.Confirm.Base do
       user to the next page or sends a json response. If unsuccessful, the
       `handle_password_reset` function handles the error.
       """
-      def verify(params, user_context, opts \\ [])
+      def verify(params, opts \\ [])
 
-      def verify(%{"key" => key}, user_context, opts) do
+      def verify(%{"key" => key}, opts) do
         endpoint = Keyword.get(opts, :endpoint, Config.endpoint())
         max_age = Keyword.get(opts, :max_age, 1200)
         log_meta = Keyword.get(opts, :log_meta, [])
+        user_context = Keyword.get(opts, :user_context, Config.user_context())
 
         get_user(endpoint, {key, max_age, user_context, opts})
         |> report(opts[:mode], log_meta)
       end
 
-      def verify(_, _, _), do: raise(ArgumentError, "No key found in the params")
+      def verify(_, _), do: raise(ArgumentError, "No key found in the params")
 
       def get_user(key_source, {key, max_age, user_context, opts}) do
         with {:ok, params} <- Token.verify(key_source, key, max_age, opts),
              do: user_context.get_by(params)
       end
 
-      defoverridable verify: 2, verify: 3, get_user: 2
+      defoverridable verify: 1, verify: 2, get_user: 2
     end
   end
 end

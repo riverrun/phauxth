@@ -51,6 +51,8 @@ defmodule Phauxth.Login.Base do
           * the default is Comeonin.Bcrypt
         * `:log_meta` - additional custom metadata for Phauxth.Log
           * this should be a keyword list
+        * `:user_context` - override default user_context
+          * check Phauxth.Config.user_context() for default
 
       The check_pass function also has options. See the documentation for
       the password hashing module you are using for details.
@@ -61,7 +63,7 @@ defmodule Phauxth.Login.Base do
       controller.
 
           def create(conn, %{"session" => params}) do
-            case Phauxth.Login.verify(params, MyApp.Accounts) do
+            case Phauxth.Login.verify(params) do
               {:ok, user} ->
                 put_session(conn, :user_id, user.id)
                 |> configure_session(renew: true)
@@ -75,18 +77,19 @@ defmodule Phauxth.Login.Base do
       the session, which is then renewed, and then is redirected
       to the /users page.
       """
-      def verify(params, user_context, opts \\ [])
+      def verify(params, opts \\ [])
 
-      def verify(%{"password" => password} = params, user_context, opts) do
+      def verify(%{"password" => password} = params, opts) do
         crypto = Keyword.get(opts, :crypto, Comeonin.Bcrypt)
         log_meta = Keyword.get(opts, :log_meta, [])
+        user_context = Keyword.get(opts, :user_context, Config.user_context())
 
         user_context.get_by(params)
         |> check_pass(password, crypto, opts)
         |> report("successful login", log_meta)
       end
 
-      def verify(_, _, _), do: raise(ArgumentError, "No password found in the params")
+      def verify(_, _), do: raise(ArgumentError, "No password found in the params")
 
       @doc """
       Check the password by comparing it with a stored hash.
@@ -126,7 +129,7 @@ defmodule Phauxth.Login.Base do
         "#{fresh}#{:crypto.strong_rand_bytes(12) |> Base.encode64()}"
       end
 
-      defoverridable verify: 2, verify: 3, check_pass: 4, report: 3
+      defoverridable verify: 1, verify: 2, check_pass: 4, report: 3
     end
   end
 end
