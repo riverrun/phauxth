@@ -77,7 +77,7 @@ defmodule Phauxth.Confirm.Base do
       user to the next page or sends a json response. If unsuccessful, the
       `handle_password_reset` function handles the error.
       """
-      def verify(params, user_context, opts \\ [])
+      def verify(params, user_context \\ Config.user_context(), opts \\ [])
 
       def verify(%{"key" => key}, user_context, opts) do
         endpoint = Keyword.get(opts, :endpoint, Config.endpoint())
@@ -95,7 +95,7 @@ defmodule Phauxth.Confirm.Base do
              do: user_context.get_by(params)
       end
 
-      defoverridable verify: 2, verify: 3, get_user: 2
+      defoverridable verify: 1, verify: 2, verify: 3, get_user: 2
     end
   end
 end

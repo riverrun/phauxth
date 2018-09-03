@@ -75,7 +75,7 @@ defmodule Phauxth.Login.Base do
       the session, which is then renewed, and then is redirected
       to the /users page.
       """
-      def verify(params, user_context, opts \\ [])
+      def verify(params, user_context \\ Config.user_context(), opts \\ [])
 
       def verify(%{"password" => password} = params, user_context, opts) do
         crypto = Keyword.get(opts, :crypto, Comeonin.Bcrypt)
@@ -126,7 +126,7 @@ defmodule Phauxth.Login.Base do
         "#{fresh}#{:crypto.strong_rand_bytes(12) |> Base.encode64()}"
       end
 
-      defoverridable verify: 2, verify: 3, check_pass: 4, report: 3
+      defoverridable verify: 1, verify: 2, verify: 3, check_pass: 4, report: 3
     end
   end
 end
