@@ -77,9 +77,9 @@ defmodule Phauxth.Remember do
   @doc """
   Add a remember me cookie to the conn.
   """
-  def add_rem_cookie(conn, user_id, max_age \\ @max_age) do
+  def add_rem_cookie(conn, user_id, max_age \\ @max_age, extra \\ "") do
     cookie = Token.sign(conn, user_id)
-    put_resp_cookie(conn, "remember_me", cookie, http_only: true, max_age: max_age)
+    put_resp_cookie(conn, "remember_me", cookie, http_only: true, max_age: max_age, extra: extra)
   end
 
   @doc """
