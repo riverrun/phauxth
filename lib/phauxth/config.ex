@@ -7,6 +7,7 @@ defmodule Phauxth.Config do
 
   | name               | type          | default          |
   | :----------------- | :-----------  | ---------------: |
+  | session_module     | module        | N/A              |
   | log_level          | atom          | :info            |
   | drop_user_keys     | list of atoms | []               |
   | user_messages      | module        | Phauxth.UserMessages |
@@ -22,13 +23,16 @@ defmodule Phauxth.Config do
 
   The example below shows how the token can be generated this way:
 
-      Phauxth.Token.sign(conn, data, token_salt: "somesalt")
+      Phauxth.Token.sign(data, endpoint: MyAppWeb.Endpoint, token_salt: "somesalt")
 
   And this example shows how the Phauxth.Confirm.verify function needs
   to be called:
 
-      Phauxth.Confirm.verify(params, MyApp.Accounts,
-        endpoint: MyAppWeb.Endpoint, token_salt: "somesalt")
+      Phauxth.Confirm.verify(params, [
+        session_module: MyApp.Sessions,
+        endpoint: MyAppWeb.Endpoint,
+        token_salt: "somesalt"
+      ])
 
   ## Examples
 
@@ -36,12 +40,23 @@ defmodule Phauxth.Config do
   as in the following example.
 
       config :phauxth,
+        session_module: MyApp.Sessions,
         token_salt: "YkLmt7+f",
         endpoint: MyAppWeb.Endpoint,
         log_level: :warn,
         drop_user_keys: [:shoe_size]
 
   """
+
+  @doc """
+  The sessions module to be used when querying the database.
+
+  This module needs to have a `get_by(attrs)` function defined, which
+  is the used to fetch the relevant data.
+  """
+  def session_module do
+    Application.get_env(:phauxth, :session_module)
+  end
 
   @doc """
   The log level for Phauxth logs.
@@ -57,6 +72,9 @@ defmodule Phauxth.Config do
 
   @doc """
   The module used to sign and verify tokens.
+
+  This module must implement the Phauxth.Token behaviour. See
+  Phauxth.PhxToken for an example token module.
   """
   def token_module do
     Application.get_env(:phauxth, :token_module)
@@ -68,11 +86,12 @@ defmodule Phauxth.Config do
 
   This should be a list of atoms.
 
-  By default, :password_hash, :password and :otp_secret are removed,
-  and this option allows you to add to this list.
+  By default, :password_hash, :encrypted_password, :password and
+  :otp_secret are removed, and this option allows you to add to this list.
   """
   def drop_user_keys do
-    Application.get_env(:phauxth, :drop_user_keys, []) ++ [:password_hash, :password, :otp_secret]
+    remove_keys = [:password_hash, :encrypted_password, :password, :otp_secret]
+    Application.get_env(:phauxth, :drop_user_keys, []) ++ remove_keys
   end
 
   @doc """

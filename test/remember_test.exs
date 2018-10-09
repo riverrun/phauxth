@@ -4,11 +4,11 @@ defmodule Phauxth.RememberTest do
 
   import ExUnit.CaptureLog
 
-  alias Phauxth.{Authenticate, Config, Remember, SessionHelper, TestAccounts}
+  alias Phauxth.{Authenticate, Config, Remember, SessionHelper, TestSessions}
   alias Phoenix.Token
 
   @max_age 7 * 24 * 60 * 60
-  @opts {{@max_age, TestAccounts, []}, []}
+  @opts {{@max_age, TestSessions, []}, []}
   @endpoint Config.endpoint()
   @user_salt Config.token_salt()
 
@@ -24,8 +24,8 @@ defmodule Phauxth.RememberTest do
   end
 
   test "init function" do
-    assert Remember.init([]) == {{604_800, Phauxth.Accounts, []}, []}
-    assert Remember.init(max_age: 100) == {{100, Phauxth.Accounts, [max_age: 100]}, []}
+    assert Remember.init([]) == {{604_800, Phauxth.TestSessions, []}, []}
+    assert Remember.init(max_age: 100) == {{100, Phauxth.TestSessions, [max_age: 100]}, []}
   end
 
   test "call remember with default options", %{conn: conn} do
@@ -65,7 +65,7 @@ defmodule Phauxth.RememberTest do
     conn =
       SessionHelper.recycle_and_sign(conn)
       |> put_session(:session_id, "FQcPdSYY9HlaRUKCc4")
-      |> Authenticate.call({TestAccounts, []})
+      |> Authenticate.call({TestSessions, []})
       |> Remember.call(@opts)
 
     %{current_user: user} = conn.assigns

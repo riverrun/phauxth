@@ -4,23 +4,18 @@ defmodule Phauxth.AuthenticateTokenTest do
 
   import ExUnit.CaptureLog
 
-  alias Phauxth.{AuthenticateToken, Config, SessionHelper, TestAccounts, Token.Utils}
-  alias Phoenix.Token
+  alias Phauxth.{AuthenticateToken, PhxToken, SessionHelper, TestSessions}
 
-  @token_opts {{TestAccounts, []}, []}
-  @endpoint Config.endpoint()
-  @user_salt Config.token_salt()
+  @token_opts {{TestSessions, []}, []}
 
   defp add_token(id, token \\ nil, key_opts \\ []) do
     conn = conn(:get, "/") |> SessionHelper.add_key()
-    # decide which type of map we are going to use
-    token = token || Token.sign(@endpoint, @user_salt, %{"user_id" => id}, key_opts)
-    #token = token || Token.sign(@endpoint, @user_salt, %{user_id: id}, key_opts)
+    token = token || PhxToken.sign(%{"user_id" => id}, key_opts)
     put_req_header(conn, "authorization", token)
   end
 
   defp call_api(id, token \\ nil, verify_opts \\ []) do
-    opts = {{TestAccounts, verify_opts}, []}
+    opts = {{TestSessions, verify_opts}, []}
 
     add_token(id, token, [])
     |> AuthenticateToken.call(opts)
@@ -64,8 +59,8 @@ defmodule Phauxth.AuthenticateTokenTest do
 
   test "key options passed on to the token module" do
     conn = add_token(3, nil, key_length: 20)
-    opts_1 = {{TestAccounts, [key_length: 20]}, []}
-    opts_2 = {{TestAccounts, []}, []}
+    opts_1 = {{TestSessions, [key_length: 20]}, []}
+    opts_2 = {{TestSessions, []}, []}
     conn = AuthenticateToken.call(conn, opts_1)
     %{current_user: user} = conn.assigns
     assert user.email == "froderick@example.com"
@@ -73,22 +68,16 @@ defmodule Phauxth.AuthenticateTokenTest do
     assert conn.assigns == %{current_user: nil}
   end
 
-  test "json web token" do
-    Application.put_env(:phauxth, :token_module, Phauxth.JsonWebToken)
-    key = Utils.get_key(@endpoint, [])
-    token = JsonWebToken.sign(%{"user_id" => 1}, %{key: key})
+  test "" do
+    token = PhxToken.sign(%{"user_id" => 1}, [])
 
     conn =
-      :get
-      |> conn("/")
-      |> SessionHelper.add_key()
-      |> put_req_header("authorization", token)
-      |> AuthenticateToken.call({{TestAccounts, []}, []})
+      conn(:get, "/")
+      |> put_req_cookie("access_token", token)
+      |> fetch_cookies
+      |> Phauxth.AuthenticateTokenCookie.call(@token_opts)
 
     %{current_user: user} = conn.assigns
     assert user.email == "fred+1@example.com"
-    assert user.role == "user"
-  after
-    Application.put_env(:phauxth, :token_module, Phauxth.PhxToken)
   end
 end

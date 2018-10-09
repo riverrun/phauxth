@@ -12,10 +12,10 @@ defmodule Phauxth.Remember do
 
   There are three options:
 
+    * `:session_module` - the sessions module to be used
+      * the default is Phauxth.Config.session_module()
     * `:max_age` - the length of the validity of the cookie / token
       * the default is one week
-    * `:user_context` - the user context module to be used
-      * the default is MyApp.Accounts
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
@@ -43,7 +43,7 @@ defmodule Phauxth.Remember do
     {
       {
         Keyword.get(opts, :max_age, @max_age),
-        Keyword.get(opts, :user_context, Utils.default_user_context()),
+        Keyword.get(opts, :session_module, Config.session_module()),
         opts
       },
       Keyword.get(opts, :log_meta, [])
@@ -68,9 +68,9 @@ defmodule Phauxth.Remember do
   Gets the user data from the token.
   """
   @spec get_user_data(Plug.Conn.t(), String.t(), tuple) :: map | nil
-  def get_user_data(token_mod, token, {_, user_context, opts}) do
+  def get_user_data(token_mod, token, {_, session_module, opts}) do
     with {:ok, user_id} <- token_mod.verify(token, opts),
-         do: user_context.get_by(%{"user_id" => user_id})
+         do: session_module.get_by(%{"user_id" => user_id})
   end
 
   @doc """

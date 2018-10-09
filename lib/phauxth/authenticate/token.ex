@@ -3,14 +3,37 @@ defmodule Phauxth.Authenticate.Token do
   Base module for token authentication.
 
   This is `use`-d by Phauxth.AuthenticateToken, and it can also be used
-  to produce a custom authentication module, as outlined below.
+  to produce a custom token authentication module, as outlined below.
 
   ## Custom token authentication modules
 
   The next sections give examples of extending this module to create
   custom authentication modules.
 
-  ### Graphql authentication
+  ### Token authentication with token stored in a cookie
+
+  This module will retrieve the token from a cookie, instead of from
+  the headers:
+
+      defmodule Phauxth.AuthenticateTokenCookie do
+        use Phauxth.Authenticate.Token
+
+        @impl true
+        def get_user(%Plug.Conn{req_cookies: %{"access_token" => token}}, opts) do
+          token_mod = Config.token_module()
+          verify_token(token, token_mod, opts)
+        end
+      end
+
+  And in the `router.ex` file, call this plug in the pipeline you
+  want to authenticate.
+
+      pipeline :api do
+        plug :accepts, ["json"]
+        plug AuthenticateTokenCookie
+      end
+
+  ### GraphQL authentication
 
   The following module is an example of how Phauxth.Authenticate.Token
   module can be extended, this time to provide authentication for
@@ -21,18 +44,12 @@ defmodule Phauxth.Authenticate.Token do
 
         @impl true
         def set_user(user, conn) do
-          put_private(conn, :absinthe, %{context: %{current_user: user}})
+          Absinthe.Plug.put_options(conn, context: %{current_user: user})
         end
       end
 
-  And in the `router.ex` file, call this plug in the pipeline you
-  want to authenticate.
-
-      pipeline :api do
-        plug :accepts, ["json"]
-        plug AbsintheAuthenticate
-      end
-
+  As in the above example, in the `router.ex` file, call this plug
+  in the pipeline you want to authenticate.
   """
 
   @doc """
@@ -46,11 +63,11 @@ defmodule Phauxth.Authenticate.Token do
 
       use Phauxth.Authenticate.Base
 
-      alias Phauxth.{Config, Utils}
+      alias Phauxth.Config
 
       @impl Plug
       def init(opts) do
-        {{Keyword.get(opts, :user_context, Utils.default_user_context()), opts},
+        {{Keyword.get(opts, :session_module, Config.session_module()), opts},
          Keyword.get(opts, :log_meta, [])}
       end
 
@@ -71,11 +88,13 @@ defmodule Phauxth.Authenticate.Token do
         verify_token(token, token_mod, opts)
       end
 
-      defp verify_token(token, token_mod, {user_context, opts}) do
+      defp verify_token(token, token_mod, {session_module, opts}) do
         with {:ok, data} <- token_mod.verify(token, opts),
-             do: user_context.get_by(data)
+             do: session_module.get_by(data)
       end
 
+      defoverridable Plug
+      defoverridable Phauxth.Authenticate.Base
       defoverridable Phauxth.Authenticate.Token
     end
   end

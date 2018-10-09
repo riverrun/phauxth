@@ -4,8 +4,9 @@ defmodule Phauxth.Authenticate.Base do
 
   This is `use`-d by Phauxth.Authenticate and Phauxth.Remember, and it is also
   extended by Phauxth.Authenticate.Token.
-  It can also be used to produce a custom authentication module, as outlined
-  below.
+
+  This module can also be used to produce a custom authentication module,
+  as outlined below.
 
   ## Custom authentication modules
 
@@ -59,11 +60,11 @@ defmodule Phauxth.Authenticate.Base do
       @behaviour Phauxth.Authenticate.Base
 
       import Plug.Conn
-      alias Phauxth.{Config, Log, Utils}
+      alias Phauxth.{Config, Log}
 
       @impl Plug
       def init(opts) do
-        {Keyword.get(opts, :user_context, Utils.default_user_context()),
+        {Keyword.get(opts, :session_module, Config.session_module()),
          Keyword.get(opts, :log_meta, [])}
       end
 
@@ -73,9 +74,9 @@ defmodule Phauxth.Authenticate.Base do
       end
 
       @impl Phauxth.Authenticate.Base
-      def get_user(conn, user_context) do
+      def get_user(conn, session_module) do
         with id when not is_nil(id) <- get_session(conn, :session_id),
-             do: user_context.get_by(%{"session_id" => id})
+             do: session_module.get_by(%{"session_id" => id})
       end
 
       @impl Phauxth.Authenticate.Base

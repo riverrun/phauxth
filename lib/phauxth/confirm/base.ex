@@ -2,8 +2,8 @@ defmodule Phauxth.Confirm.Base do
   @moduledoc """
   Base module for handling user confirmation.
 
-  This is used by Phauxth.Confirm and can also be used to create
-  custom user confirmation modules.
+  This is used by Phauxth.Confirm and Phauxth.Confirm.PassReset,
+  and it can also be used to create custom user confirmation modules.
   """
 
   @doc """
@@ -14,14 +14,15 @@ defmodule Phauxth.Confirm.Base do
 
   ## Options
 
-  There are two options for the verify function:
+  There are three options for the verify function:
 
+    * `:session_module` - the sessions module
+      * the default is Phauxth.Config.session_module()
     * `:endpoint` - the name of the endpoint of your app
       * this can also be set in the config
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
-  # add a specific key_opts value?
   In addition, there are also options for verifying the token.
 
   ## Examples
@@ -30,18 +31,18 @@ defmodule Phauxth.Confirm.Base do
   in a Phoenix controller.
 
       def index(conn, params) do
-        case Phauxth.Confirm.verify(params, Accounts) do
+        case Phauxth.Confirm.verify(params) do
           {:ok, user} ->
-            Accounts.confirm_user(user)
+            Users.confirm_user(user)
             message = "Your account has been confirmed"
-            Accounts.Message.confirm_success(user.email)
+            Users.Message.confirm_success(user.email)
             handle_success() # redirect or send json
           {:error, message} ->
             handle_error()
         end
       end
 
-  In this example, the `Accounts.confirm_user` function updates the
+  In this example, the `Users.confirm_user` function updates the
   database, setting the `confirmed_at` value to the current time.
 
   ### Password resetting
@@ -50,22 +51,22 @@ defmodule Phauxth.Confirm.Base do
   in the following example:
 
       def update(conn, %{"password_reset" => params}) do
-        case Phauxth.Confirm.PassReset.verify(params, Accounts) do
+        case Phauxth.Confirm.PassReset.verify(params) do
           {:ok, user} ->
-            Accounts.update_password(user, params)
+            Users.update_password(user, params)
             |> handle_password_reset(conn, params)
           {:error, message} ->
             handle_error()
         end
       end
 
-  The `Accounts.update_password` function tries to add the new password
+  The `Users.update_password` function tries to add the new password
   to the database. If the password reset is successful, the `handle_password_reset`
   function sends a message by email to the user and redirects the
   user to the next page or sends a json response. If unsuccessful, the
   `handle_password_reset` function handles the error.
   """
-  @callback verify(map, module, keyword) :: {:ok, map} | {:error, String.t()}
+  @callback verify(map, keyword) :: {:ok, map} | {:error, String.t()}
 
   @doc """
   Gets the user struct based on the supplied key.
@@ -87,23 +88,23 @@ defmodule Phauxth.Confirm.Base do
       alias Phauxth.{Config, Log}
 
       @impl true
-      def verify(params, user_context, opts \\ [])
+      def verify(params, opts \\ [])
 
-      def verify(%{"key" => token}, user_context, opts) do
+      def verify(%{"key" => token}, opts) do
+        session_module = Keyword.get(opts, :session_module, Config.session_module())
         endpoint = Keyword.get(opts, :endpoint, Config.endpoint())
         log_meta = Keyword.get(opts, :log_meta, [])
         token_mod = Config.token_module()
 
-        get_user(token_mod, {token, user_context, opts})
-        |> report(log_meta)
+        token_mod |> get_user({token, session_module, opts}) |> report(log_meta)
       end
 
-      def verify(_, _, _), do: raise(ArgumentError, "No key found in the params")
+      def verify(_, _), do: raise(ArgumentError, "No key found in the params")
 
       @impl true
-      def get_user(token_mod, {token, user_context, opts}) do
+      def get_user(token_mod, {token, session_module, opts}) do
         with {:ok, params} <- token_mod.verify(token, opts),
-             do: user_context.get_by(params)
+             do: session_module.get_by(params)
       end
 
       @impl true

@@ -5,7 +5,7 @@ defmodule Phauxth do
   Phauxth is designed to be secure, extensible and well-documented.
 
   Phauxth offers two types of functions: Plugs, which are called with plug,
-  and `verify/3` functions.
+  and `verify/2` functions.
 
   ## Plugs
 
@@ -14,7 +14,7 @@ defmodule Phauxth do
 
   ### Authenticate
 
-  `Phauxth.Authenticate` checks to see if there is a session_id / user_id
+  `Phauxth.Authenticate` checks to see if there is a session_id
   in the current session and sets the current_user value accordingly.
 
   This is usually added to the pipeline you want to authenticate in the
@@ -42,11 +42,10 @@ defmodule Phauxth do
 
   This needs to be called after `plug Phauxth.Authenticate`.
 
-  ## Phauxth verify/3
+  ## Phauxth verify/2
 
-  The `verify/3` function takes a map (usually Phoenix params), a context
-  module (MyApp.Accounts by default) and opts (an empty list by default)
-  and returns `{:ok, user}` or `{:error, message}`.
+  The `verify/2` function takes a map (usually Phoenix params) and opts
+  (an empty list by default) and returns `{:ok, user}` or `{:error, message}`.
 
   ### User confirmation
 
@@ -56,9 +55,9 @@ defmodule Phauxth do
   confirm a user's account.
 
       def new(conn, params) do
-        case Phauxth.Confirm.verify(params, MyApp.Accounts) do
+        case Phauxth.Confirm.verify(params) do
           {:ok, user} ->
-            Accounts.confirm_user(user)
+            Users.confirm_user(user)
             message = "Your account has been confirmed"
             Message.confirm_success(user.email)
             handle_success(conn, message, session_path(conn, :new))
@@ -75,7 +74,7 @@ defmodule Phauxth do
   `Phauxth.Confirm.PassReset.verify` is used for password resetting, as
   in the example below:
 
-      Phauxth.Confirm.PassReset.verify(params, MyApp.Accounts)
+      Phauxth.Confirm.PassReset.verify(params)
 
   This function just verifies the confirmation key. It does not reset
   the password or send an email to the user.
@@ -95,9 +94,12 @@ defmodule Phauxth do
     * `--remember` - add `remember_me` functionality
     * `--backups` - create backup files, with `.bak` extension, before writing new files
 
-  Phauxth uses the user context module (normally MyApp.Accounts) to communicate
-  with the underlying database. This module needs to have a `get_by(attrs)`
-  function defined (see the examples below).
+  Phauxth uses the `session_module` module to communicate with the
+  underlying database. This value can be set in the config - see the documentation
+  for `Phauxth.Config.session_module` for details.
+
+  The `session_module` module needs to have a `get_by(attrs)` function
+  defined (see the examples below).
 
       def get_by(%{"user_id" => user_id}) do
         Repo.get(User, user_id)
@@ -109,11 +111,10 @@ defmodule Phauxth do
 
   ## Customizing Phauxth
 
-  See the documentation for Phauxth.Authenticate.Base and Phauxth.Confirm.Base
-  for more information on extending these modules.
+  See the documentation for Phauxth.Authenticate.Base, Phauxth.Authenticate.Token
+  and Phauxth.Confirm.Base for more information on extending these modules.
 
-  You can find more information at the
+  You can also find more information at the
   [Phauxth wiki](https://github.com/riverrun/phauxth/wiki).
-
   """
 end

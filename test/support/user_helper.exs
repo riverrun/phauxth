@@ -1,4 +1,4 @@
-defmodule Phauxth.TestAccounts do
+defmodule Phauxth.TestSessions do
   @users [
     %{
       id: 1,

@@ -3,7 +3,13 @@ defmodule Phauxth.Token do
   Behaviour for signing and verifying tokens.
   """
 
+  @type data :: map | keyword | binary | integer
   @type opts :: map | keyword
+
+  @doc """
+  Signs a token.
+  """
+  @callback sign(data, opts) :: binary
 
   @doc """
   Verifies a token.

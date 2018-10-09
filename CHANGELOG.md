@@ -1,5 +1,11 @@
 # Phauxth Changelog
 
+## Version 1.2.5
+
+* Enhancements
+  * Added default `user_context` to config
+    * this makes the second argument to verify optional
+
 ## Version 1.2.2
 
 * Enhancements

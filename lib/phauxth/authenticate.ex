@@ -4,8 +4,8 @@ defmodule Phauxth.Authenticate do
   id.
 
   You need to define a `get_by(%{"session_id" => session_id})` function
-  in the user_context / session_context module you are using (which is MyApp.Accounts by
-  default).
+  in the `session_module` module you are using - see the documentation
+  for Phauxth.Config for more information about the `session_module`.
 
   For information about customizing this Plug, see the documentation
   for Phauxth.Authenticate.Base.
@@ -15,15 +15,12 @@ defmodule Phauxth.Authenticate do
   This module checks the current Plug session for a `session_id`. It then
   checks to see if the session id is valid.
 
-  This process can be customized by overriding the `get_user` function
-  in Phauxth.Authenticate.Base.
-
   ## Options
 
   There are two options:
 
-    * `:user_context` - the user context module to be used
-      * the default is MyApp.Accounts
+    * `:session_module` - the sessions module to be used
+      * the default is Phauxth.Config.session_module()
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
@@ -34,9 +31,9 @@ defmodule Phauxth.Authenticate do
 
       plug Phauxth.Authenticate
 
-  And if you are using a different user context module:
+  And if you are using a different sessions module:
 
-      plug Phauxth.Authenticate, user_context: MyApp.Sessions
+      plug Phauxth.Authenticate, session_module: MyApp.Sessions
 
   In the example above, you need to have the `get_by/1` function
   defined in MyApp.Sessions.

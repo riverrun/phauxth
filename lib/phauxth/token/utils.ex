@@ -11,6 +11,7 @@ defmodule Phauxth.Token.Utils do
 
   defp get_key_base(endpoint) when is_atom(endpoint),
     do: endpoint.config(:secret_key_base)
+
   defp get_key_base(string) when is_binary(string) and byte_size(string) >= 20,
     do: string
 
@@ -18,10 +19,7 @@ defmodule Phauxth.Token.Utils do
     iterations = Keyword.get(opts, :key_iterations, 1000)
     length = Keyword.get(opts, :key_length, 32)
     digest = Keyword.get(opts, :key_digest, :sha256)
-    key_opts = [iterations: iterations,
-                length: length,
-                digest: digest,
-                cache: Plug.Keys]
+    key_opts = [iterations: iterations, length: length, digest: digest, cache: Plug.Keys]
     KeyGenerator.generate(secret_key_base, salt, key_opts)
   end
 end
