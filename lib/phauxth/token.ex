@@ -4,7 +4,7 @@ defmodule Phauxth.Token do
   """
 
   @type data :: map | keyword | binary | integer
-  @type opts :: map | keyword
+  @type opts :: keyword
 
   @doc """
   Signs a token.
