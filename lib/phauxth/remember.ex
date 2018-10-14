@@ -38,7 +38,6 @@ defmodule Phauxth.Remember do
   @max_age 7 * 24 * 60 * 60
 
   @impl true
-  # add session_id opt as well
   def init(opts) do
     {
       {
@@ -55,11 +54,12 @@ defmodule Phauxth.Remember do
 
   def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn, {opts, log_meta}) do
     token_mod = Config.token_module()
+    session_id_func = &UUID.uuid4/0
 
     get_user_data(token_mod, token, opts)
     |> report(log_meta)
     |> set_user(conn)
-    |> Authenticate.add_session("1234")
+    |> Authenticate.add_session(session_id_func.())
   end
 
   def call(conn, _), do: conn
@@ -77,10 +77,10 @@ defmodule Phauxth.Remember do
   Adds a remember me cookie to the conn.
   """
   @spec add_rem_cookie(Plug.Conn.t(), integer, integer) :: Plug.Conn.t()
-  def add_rem_cookie(conn, token, max_age \\ @max_age) do
-    # token_mod = Config.token_module()
-    # cookie = token_mod.sign(user_id, max_age: max_age)
-    put_resp_cookie(conn, "remember_me", token, http_only: true, max_age: max_age)
+  def add_rem_cookie(conn, user_id, max_age \\ @max_age) do
+    token_mod = Config.token_module()
+    cookie = token_mod.sign(user_id, max_age: max_age)
+    put_resp_cookie(conn, "remember_me", cookie, http_only: true, max_age: max_age)
   end
 
   @doc """

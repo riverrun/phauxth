@@ -48,7 +48,8 @@ defmodule Phauxth.Authenticate do
   """
   @spec add_session(Plug.Conn.t(), binary) :: Plug.Conn.t()
   def add_session(conn, session_id) do
-    put_session(conn, :session_id, session_id)
+    conn
+    |> put_session(:session_id, session_id)
     |> configure_session(renew: true)
   end
 end

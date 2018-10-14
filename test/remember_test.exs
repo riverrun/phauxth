@@ -4,21 +4,16 @@ defmodule Phauxth.RememberTest do
 
   import ExUnit.CaptureLog
 
-  alias Phauxth.{Authenticate, Config, Remember, SessionHelper, TestSessions}
-  alias Phoenix.Token
+  alias Phauxth.{Authenticate, Remember, SessionHelper, TestSessions}
 
   @max_age 7 * 24 * 60 * 60
   @opts {{@max_age, TestSessions, []}, []}
-  @endpoint Config.endpoint()
-  @user_salt Config.token_salt()
 
   setup do
-    token = Token.sign(@endpoint, @user_salt, 1)
-
     conn =
       conn(:get, "/")
       |> SessionHelper.sign_conn()
-      |> Remember.add_rem_cookie(token)
+      |> Remember.add_rem_cookie(1)
 
     {:ok, %{conn: conn}}
   end
