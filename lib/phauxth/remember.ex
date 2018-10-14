@@ -14,6 +14,8 @@ defmodule Phauxth.Remember do
 
     * `:session_module` - the sessions module to be used
       * the default is Phauxth.Config.session_module()
+    * `:session_id_func` - the function used to set the session id
+      * the default is `&UUID.uuid4/0`
     * `:max_age` - the length of the validity of the cookie / token
       * the default is one week
     * `:log_meta` - additional custom metadata for Phauxth.Log
@@ -45,6 +47,7 @@ defmodule Phauxth.Remember do
         Keyword.get(opts, :session_module, Config.session_module()),
         opts
       },
+      Keyword.get(opts, :session_id_func, &UUID.uuid4/0),
       Keyword.get(opts, :log_meta, [])
     }
   end
@@ -52,11 +55,12 @@ defmodule Phauxth.Remember do
   @impl true
   def call(%Plug.Conn{assigns: %{current_user: %{}}} = conn, _), do: conn
 
-  def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn, {opts, log_meta}) do
-    token_mod = Config.token_module()
-    session_id_func = &UUID.uuid4/0
-
-    get_user_data(token_mod, token, opts)
+  def call(
+        %Plug.Conn{req_cookies: %{"remember_me" => token}} = conn,
+        {opts, session_id_func, log_meta}
+      ) do
+    Config.token_module()
+    |> get_user_data(token, opts)
     |> report(log_meta)
     |> set_user(conn)
     |> Authenticate.add_session(session_id_func.())

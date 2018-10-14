@@ -7,25 +7,28 @@ defmodule Phauxth.RememberTest do
   alias Phauxth.{Authenticate, Remember, SessionHelper, TestSessions}
 
   @max_age 7 * 24 * 60 * 60
-  @opts {{@max_age, TestSessions, []}, []}
+  @opts {{@max_age, TestSessions, []}, &UUID.uuid4/0, []}
 
   setup do
     conn =
       conn(:get, "/")
       |> SessionHelper.sign_conn()
-      |> Remember.add_rem_cookie(1)
+      |> Remember.add_rem_cookie("1")
 
     {:ok, %{conn: conn}}
   end
 
   test "init function" do
-    assert Remember.init([]) == {{604_800, Phauxth.TestSessions, []}, []}
-    assert Remember.init(max_age: 100) == {{100, Phauxth.TestSessions, [max_age: 100]}, []}
+    assert Remember.init([]) == {{604_800, Phauxth.TestSessions, []}, &UUID.uuid4/0, []}
+
+    assert Remember.init(max_age: 100) ==
+             {{100, Phauxth.TestSessions, [max_age: 100]}, &UUID.uuid4/0, []}
   end
 
   test "call remember with default options", %{conn: conn} do
     conn =
-      SessionHelper.recycle_and_sign(conn)
+      conn
+      |> SessionHelper.recycle_and_sign()
       |> Remember.call(@opts)
 
     %{current_user: user} = conn.assigns
@@ -58,13 +61,14 @@ defmodule Phauxth.RememberTest do
 
   test "call remember with current_user already set", %{conn: conn} do
     conn =
-      SessionHelper.recycle_and_sign(conn)
-      |> put_session(:session_id, "FQcPdSYY9HlaRUKCc4")
+      conn
+      |> SessionHelper.recycle_and_sign()
+      |> put_session(:session_id, "5555")
       |> Authenticate.call({TestSessions, []})
       |> Remember.call(@opts)
 
     %{current_user: user} = conn.assigns
-    assert user.id == 4
+    assert user.id == "4a43f849-d9fa-439e-b887-735378009c95"
     assert user.email == "brian@example.com"
   end
 

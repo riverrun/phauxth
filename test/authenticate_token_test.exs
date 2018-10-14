@@ -10,38 +10,36 @@ defmodule Phauxth.AuthenticateTokenTest do
 
   defp add_token(id, token \\ nil, key_opts \\ []) do
     conn = conn(:get, "/") |> SessionHelper.add_key()
-    token = token || PhxToken.sign(%{"user_id" => id}, key_opts)
+    token = token || PhxToken.sign(%{"session_id" => id}, key_opts)
     put_req_header(conn, "authorization", token)
   end
 
   defp call_api(id, token \\ nil, verify_opts \\ []) do
     opts = {{TestSessions, verify_opts}, []}
-
-    add_token(id, token, [])
-    |> AuthenticateToken.call(opts)
+    id |> add_token(token, []) |> AuthenticateToken.call(opts)
   end
 
   test "authenticate api sets the current_user" do
-    conn = call_api(1)
+    conn = call_api("1111")
     %{current_user: user} = conn.assigns
     assert user.email == "fred+1@example.com"
     assert user.role == "user"
   end
 
   test "authenticate api with invalid token sets the current_user to nil" do
-    conn = call_api(1, "garbage")
+    conn = call_api("1111", "garbage")
     assert conn.assigns == %{current_user: nil}
   end
 
   test "log reports error message for invalid token" do
     assert capture_log(fn ->
-             call_api(1, "garbage")
+             call_api("1111", "garbage")
            end) =~ ~s(user=nil message=invalid)
   end
 
   test "log reports error message for expired token" do
     assert capture_log(fn ->
-             call_api(1, nil, max_age: -1)
+             call_api("1111", nil, max_age: -1)
            end) =~ ~s(user=nil message=expired)
   end
 
@@ -51,14 +49,14 @@ defmodule Phauxth.AuthenticateTokenTest do
   end
 
   test "customized set_user - absinthe example" do
-    conn = add_token(1) |> Phauxth.AbsintheAuthenticate.call(@token_opts)
+    conn = "1111" |> add_token() |> Phauxth.AbsintheAuthenticate.call(@token_opts)
     %{context: %{current_user: user}} = conn.private.absinthe
     assert user.email == "fred+1@example.com"
     assert user.role == "user"
   end
 
   test "key options passed on to the token module" do
-    conn = add_token(3, nil, key_length: 20)
+    conn = add_token("3333", nil, key_length: 20)
     opts_1 = {{TestSessions, [key_length: 20]}, []}
     opts_2 = {{TestSessions, []}, []}
     conn = AuthenticateToken.call(conn, opts_1)
@@ -68,8 +66,8 @@ defmodule Phauxth.AuthenticateTokenTest do
     assert conn.assigns == %{current_user: nil}
   end
 
-  test "" do
-    token = PhxToken.sign(%{"user_id" => 1}, [])
+  test "token stored in a cookie" do
+    token = PhxToken.sign(%{"session_id" => "1111"}, [])
 
     conn =
       conn(:get, "/")

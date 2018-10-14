@@ -23,7 +23,8 @@ defmodule Phauxth.Confirm.Base do
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
-  In addition, there are also options for verifying the token.
+  In addition, there are also options for verifying the token, including
+  a `max_age` option, which defaults to 1200 seconds (20 minutes).
 
   ## Examples
 
@@ -91,19 +92,22 @@ defmodule Phauxth.Confirm.Base do
       def verify(params, opts \\ [])
 
       def verify(%{"key" => token}, opts) do
-        session_module = Keyword.get(opts, :session_module, Config.session_module())
-        endpoint = Keyword.get(opts, :endpoint, Config.endpoint())
-        log_meta = Keyword.get(opts, :log_meta, [])
-        token_mod = Config.token_module()
-
+        {session_module, endpoint, log_meta, token_mod} = parse_opts(opts)
         token_mod |> get_user({token, session_module, opts}) |> report(log_meta)
       end
 
       def verify(_, _), do: raise(ArgumentError, "No key found in the params")
 
+      defp parse_opts(opts) do
+        {Keyword.get(opts, :session_module, Config.session_module()),
+        Keyword.get(opts, :endpoint, Config.endpoint()),
+        Keyword.get(opts, :log_meta, []),
+        Config.token_module()}
+      end
+
       @impl true
       def get_user(token_mod, {token, session_module, opts}) do
-        with {:ok, params} <- token_mod.verify(token, opts),
+        with {:ok, params} <- token_mod.verify(token, opts ++ [max_age: 1200]),
              do: session_module.get_by(params)
       end
 
