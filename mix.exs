@@ -30,7 +30,6 @@ defmodule Phauxth.Mixfile do
   defp deps do
     [
       {:plug, "~> 1.6"},
-      {:uuid, "~> 1.1"},
       {:phoenix, "~> 1.3.0", optional: true},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false}
     ]

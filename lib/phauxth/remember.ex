@@ -15,7 +15,7 @@ defmodule Phauxth.Remember do
     * `:session_module` - the sessions module to be used
       * the default is Phauxth.Config.session_module()
     * `:session_id_func` - the function used to set the session id
-      * the default is `&UUID.uuid4/0`
+      * the default is `&Phauxth.Utils.uuid4/0`
     * `:max_age` - the length of the validity of the cookie / token
       * the default is one week
     * `:log_meta` - additional custom metadata for Phauxth.Log
@@ -47,7 +47,7 @@ defmodule Phauxth.Remember do
         Keyword.get(opts, :session_module, Config.session_module()),
         opts
       },
-      Keyword.get(opts, :session_id_func, &UUID.uuid4/0),
+      Keyword.get(opts, :session_id_func, &Phauxth.Utils.uuid4/0),
       Keyword.get(opts, :log_meta, [])
     }
   end

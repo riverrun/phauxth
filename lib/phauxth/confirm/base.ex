@@ -100,9 +100,8 @@ defmodule Phauxth.Confirm.Base do
 
       defp parse_opts(opts) do
         {Keyword.get(opts, :session_module, Config.session_module()),
-        Keyword.get(opts, :endpoint, Config.endpoint()),
-        Keyword.get(opts, :log_meta, []),
-        Config.token_module()}
+         Keyword.get(opts, :endpoint, Config.endpoint()), Keyword.get(opts, :log_meta, []),
+         Config.token_module()}
       end
 
       @impl true
