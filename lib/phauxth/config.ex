@@ -7,7 +7,7 @@ defmodule Phauxth.Config do
 
   | name               | type          | default          |
   | :----------------- | :-----------  | ---------------: |
-  | session_module     | module        | N/A              |
+  | user_context       | module        | N/A              |
   | log_level          | atom          | :info            |
   | drop_user_keys     | list of atoms | []               |
   | user_messages      | module        | Phauxth.UserMessages |
@@ -29,7 +29,7 @@ defmodule Phauxth.Config do
   to be called:
 
       Phauxth.Confirm.verify(params, [
-        session_module: MyApp.Sessions,
+        user_context: MyApp.Users,
         endpoint: MyAppWeb.Endpoint,
         token_salt: "somesalt"
       ])
@@ -40,7 +40,7 @@ defmodule Phauxth.Config do
   as in the following example.
 
       config :phauxth,
-        session_module: MyApp.Sessions,
+        user_context: MyApp.Users,
         token_salt: "YkLmt7+f",
         endpoint: MyAppWeb.Endpoint,
         log_level: :warn,
@@ -49,13 +49,13 @@ defmodule Phauxth.Config do
   """
 
   @doc """
-  The sessions module to be used when querying the database.
+  The users module to be used when querying the database.
 
   This module needs to have a `get_by(attrs)` function defined, which
-  is the used to fetch the relevant data.
+  is used to fetch the relevant data.
   """
-  def session_module do
-    Application.get_env(:phauxth, :session_module)
+  def user_context do
+    Application.get_env(:phauxth, :user_context)
   end
 
   @doc """

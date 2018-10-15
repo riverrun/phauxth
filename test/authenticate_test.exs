@@ -4,9 +4,9 @@ defmodule Phauxth.AuthenticateTest do
 
   import ExUnit.CaptureLog
 
-  alias Phauxth.{Authenticate, CustomAuthenticate, CustomCall, SessionHelper, TestSessions}
+  alias Phauxth.{Authenticate, CustomAuthenticate, CustomCall, SessionHelper, TestUsers}
 
-  @session_opts {TestSessions, []}
+  @session_opts {TestUsers, []}
 
   defp call(id, opts \\ @session_opts) do
     id |> SessionHelper.add_session() |> Authenticate.call(opts)

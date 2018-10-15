@@ -12,8 +12,8 @@ defmodule Phauxth.Remember do
 
   There are three options:
 
-    * `:session_module` - the sessions module to be used
-      * the default is Phauxth.Config.session_module()
+    * `:user_context` - the users module to be used when querying the database
+      * the default is Phauxth.Config.user_context()
     * `:session_id_func` - the function used to set the session id
       * the default is `&Phauxth.Utils.uuid4/0`
     * `:max_age` - the length of the validity of the cookie / token
@@ -44,7 +44,7 @@ defmodule Phauxth.Remember do
     {
       {
         Keyword.get(opts, :max_age, @max_age),
-        Keyword.get(opts, :session_module, Config.session_module()),
+        Keyword.get(opts, :user_context, Config.user_context()),
         opts
       },
       Keyword.get(opts, :session_id_func, &Phauxth.Utils.uuid4/0),
@@ -72,9 +72,9 @@ defmodule Phauxth.Remember do
   Gets the user data from the token.
   """
   @spec get_user_data(Plug.Conn.t(), String.t(), tuple) :: map | nil
-  def get_user_data(token_mod, token, {_, session_module, opts}) do
+  def get_user_data(token_mod, token, {_, user_context, opts}) do
     with {:ok, user_id} <- token_mod.verify(token, opts),
-         do: session_module.get_by(%{"user_id" => user_id})
+         do: user_context.get_by(%{"user_id" => user_id})
   end
 
   @doc """

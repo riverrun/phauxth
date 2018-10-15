@@ -16,8 +16,8 @@ defmodule Phauxth.Confirm.Base do
 
   There are three options for the verify function:
 
-    * `:session_module` - the sessions module
-      * the default is Phauxth.Config.session_module()
+    * `:user_context` - the users module to be used when querying the database
+      * the default is Phauxth.Config.user_context()
     * `:endpoint` - the name of the endpoint of your app
       * this can also be set in the config
     * `:log_meta` - additional custom metadata for Phauxth.Log
@@ -92,22 +92,22 @@ defmodule Phauxth.Confirm.Base do
       def verify(params, opts \\ [])
 
       def verify(%{"key" => token}, opts) do
-        {session_module, endpoint, log_meta, token_mod} = parse_opts(opts)
-        token_mod |> get_user({token, session_module, opts}) |> report(log_meta)
+        {user_context, endpoint, log_meta, token_mod} = parse_opts(opts)
+        token_mod |> get_user({token, user_context, opts}) |> report(log_meta)
       end
 
       def verify(_, _), do: raise(ArgumentError, "No key found in the params")
 
       defp parse_opts(opts) do
-        {Keyword.get(opts, :session_module, Config.session_module()),
+        {Keyword.get(opts, :user_context, Config.user_context()),
          Keyword.get(opts, :endpoint, Config.endpoint()), Keyword.get(opts, :log_meta, []),
          Config.token_module()}
       end
 
       @impl true
-      def get_user(token_mod, {token, session_module, opts}) do
+      def get_user(token_mod, {token, user_context, opts}) do
         with {:ok, params} <- token_mod.verify(token, opts ++ [max_age: 1200]),
-             do: session_module.get_by(params)
+             do: user_context.get_by(params)
       end
 
       @impl true

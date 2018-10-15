@@ -2,9 +2,9 @@ defmodule Phauxth.AuthenticateToken do
   @moduledoc """
   Authenticates the user by verifying a Phauxth token.
 
-  You need to define a `get_by(attrs)` function in the `session_module`
+  You need to define a `get_by(attrs)` function in the `user_context`
   module you are using - see the documentation for Phauxth.Config
-  for more information about the `session_module`.
+  for more information about the `user_context`.
 
   ## Token authentication
 
@@ -20,8 +20,8 @@ defmodule Phauxth.AuthenticateToken do
 
   There are two options:
 
-    * `:session_module` - the sessions module to be used
-      * the default is Phauxth.Config.session_module()
+    * `:user_context` - the users module to be used
+      * the default is Phauxth.Config.user_context()
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
@@ -35,12 +35,12 @@ defmodule Phauxth.AuthenticateToken do
 
       plug Phauxth.AuthenticateToken
 
-  And if you are using a different sessions module:
+  And if you are using a different users module:
 
-      plug Phauxth.AuthenticateToken, session_module: MyApp.Sessions
+      plug Phauxth.AuthenticateToken, user_context: MyApp.Users
 
   In the example above, you need to have the `get_by/1` function
-  defined in MyApp.Sessions.
+  defined in MyApp.Users.
   """
 
   use Phauxth.Authenticate.Token

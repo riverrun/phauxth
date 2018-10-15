@@ -4,10 +4,10 @@ defmodule Phauxth.RememberTest do
 
   import ExUnit.CaptureLog
 
-  alias Phauxth.{Authenticate, Remember, SessionHelper, TestSessions}
+  alias Phauxth.{Authenticate, Remember, SessionHelper, TestUsers}
 
   @max_age 7 * 24 * 60 * 60
-  @opts {{@max_age, TestSessions, []}, &Phauxth.Utils.uuid4/0, []}
+  @opts {{@max_age, TestUsers, []}, &Phauxth.Utils.uuid4/0, []}
 
   setup do
     conn =
@@ -19,10 +19,10 @@ defmodule Phauxth.RememberTest do
   end
 
   test "init function" do
-    assert Remember.init([]) == {{604_800, Phauxth.TestSessions, []}, &Phauxth.Utils.uuid4/0, []}
+    assert Remember.init([]) == {{604_800, Phauxth.TestUsers, []}, &Phauxth.Utils.uuid4/0, []}
 
     assert Remember.init(max_age: 100) ==
-             {{100, Phauxth.TestSessions, [max_age: 100]}, &Phauxth.Utils.uuid4/0, []}
+             {{100, Phauxth.TestUsers, [max_age: 100]}, &Phauxth.Utils.uuid4/0, []}
   end
 
   test "call remember with default options", %{conn: conn} do
@@ -64,7 +64,7 @@ defmodule Phauxth.RememberTest do
       conn
       |> SessionHelper.recycle_and_sign()
       |> put_session(:session_id, "5555")
-      |> Authenticate.call({TestSessions, []})
+      |> Authenticate.call({TestUsers, []})
       |> Remember.call(@opts)
 
     %{current_user: user} = conn.assigns

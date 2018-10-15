@@ -6,16 +6,10 @@ You need to use Elixir version 1.7 or above.
 
 ## Changes
 
-### User context (Accounts) module -> session module
+### User context module
 
-The `user_context` module, which was used to find user information from
-the database, is now the `session_module`, and it can be set in the config,
-or overridden in the `opts` (see the section about changes to the `verify`
-function for examples).
-
-In addition, in version 1, you needed to define the functions `get/1`
-and `get_by/1`. Now, in version 2, you only need to define a `get_by/1`
-function.
+In version 1, you needed to define the functions `get/1` and `get_by/1`.
+Now, in version 2, you only need to define a `get_by/1` function.
 
 The following is an example `get_by/1` function if you are using
 Phauxth.Authenticate or Phauxth.AuthenticateToken:
@@ -32,19 +26,19 @@ Previously, the second argument to the verify function was the user_context
 module. Now, this is set in the config, or the opts.
 
 ```elixir
-Phauxth.Confirm.verify(params, MyApp.Accounts)
+Phauxth.Confirm.verify(params, MyApp.Users)
 ```
 
 is now:
 
 ```elixir
-Phauxth.Confirm.verify(params) # with session_module set in the config
+Phauxth.Confirm.verify(params) # with user_context set in the config
 ```
 
 or:
 
 ```elixir
-Phauxth.Confirm.verify(params, session_module: MyApp.Sessions)
+Phauxth.Confirm.verify(params, user_context: MyApp.Users)
 ```
 
 ### Session and token authentication

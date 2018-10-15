@@ -94,11 +94,11 @@ defmodule Phauxth do
     * `--remember` - add `remember_me` functionality
     * `--backups` - create backup files, with `.bak` extension, before writing new files
 
-  Phauxth uses the `session_module` module to communicate with the
+  Phauxth uses the `user_context` module to communicate with the
   underlying database. This value can be set in the config - see the documentation
-  for `Phauxth.Config.session_module` for details.
+  for `Phauxth.Config.user_context` for details.
 
-  The `session_module` module needs to have a `get_by(attrs)` function
+  The `user_context` module needs to have a `get_by(attrs)` function
   defined (see the examples below).
 
       def get_by(%{"user_id" => user_id}) do

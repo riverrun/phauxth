@@ -3,8 +3,6 @@ defmodule Phauxth.TestSessions do
     defstruct [:id, :user_id]
   end
 
-  alias Phauxth.TestUsers
-
   def sessions do
     %{
       "1111" => %TestSession{id: "1111", user_id: "1"},
@@ -13,19 +11,6 @@ defmodule Phauxth.TestSessions do
       "4444" => %TestSession{id: "4444", user_id: "4"},
       "5555" => %TestSession{id: "5555", user_id: "4a43f849-d9fa-439e-b887-735378009c95"}
     }
-  end
-
-  def get_by(%{"session_id" => id}) do
-    with %TestSession{user_id: user_id} <- Map.get(sessions(), id),
-         do: TestUsers.users()[user_id]
-  end
-
-  def get_by(%{"email" => email}) do
-    TestUsers.users() |> Map.values() |> Enum.find(&(&1.email == email))
-  end
-
-  def get_by(%{"user_id" => user_id}) do
-    TestUsers.users() |> Map.values() |> Enum.find(&(&1.id == user_id))
   end
 end
 
@@ -41,6 +26,8 @@ defmodule Phauxth.TestUsers do
       password_hash: "password hash"
     ]
   end
+
+  alias Phauxth.TestSessions
 
   def users do
     %{
@@ -69,5 +56,18 @@ defmodule Phauxth.TestUsers do
         email: "brian@example.com"
       }
     }
+  end
+
+  def get_by(%{"session_id" => id}) do
+    with %{user_id: user_id} <- Map.get(TestSessions.sessions(), id),
+         do: users()[user_id]
+  end
+
+  def get_by(%{"email" => email}) do
+    users() |> Map.values() |> Enum.find(&(&1.email == email))
+  end
+
+  def get_by(%{"user_id" => user_id}) do
+    users() |> Map.values() |> Enum.find(&(&1.id == user_id))
   end
 end

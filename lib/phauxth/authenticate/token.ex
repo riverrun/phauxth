@@ -67,7 +67,7 @@ defmodule Phauxth.Authenticate.Token do
 
       @impl Plug
       def init(opts) do
-        {{Keyword.get(opts, :session_module, Config.session_module()), opts},
+        {{Keyword.get(opts, :user_context, Config.user_context()), opts},
          Keyword.get(opts, :log_meta, [])}
       end
 
@@ -88,9 +88,9 @@ defmodule Phauxth.Authenticate.Token do
         verify_token(token, token_mod, opts)
       end
 
-      defp verify_token(token, token_mod, {session_module, opts}) do
+      defp verify_token(token, token_mod, {user_context, opts}) do
         with {:ok, data} <- token_mod.verify(token, opts),
-             do: session_module.get_by(data)
+             do: user_context.get_by(data)
       end
 
       defoverridable Plug
