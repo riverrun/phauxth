@@ -8,9 +8,10 @@ defmodule Phauxth.AuthenticateToken do
 
   ## Token authentication
 
-  This module looks for a token in the request headers. It then uses
-  Phauxth.Token to check that it is valid. If it is valid, user information
-  is retrieved from the database.
+  This module looks for a token in the request headers. It then uses the
+  `token_module` (which you need to set in the config) to check if
+  it is valid. If it is valid, the `get_by` function in the `user_context`
+  module is called, to get user information from the database.
 
   If you want to store the token in a cookie, see the documentation for
   Phauxth.Authenticate.Token, which has an example of how you can create

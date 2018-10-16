@@ -1,4 +1,4 @@
-defmodule Phauxth.AuthenticateTokenTest do
+defmodule Phauxth.Authenticate.TokenTest do
   use ExUnit.Case
   use Plug.Test
 

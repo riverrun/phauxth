@@ -21,10 +21,6 @@ defmodule Phauxth.Config do
   need to override the `token_salt` and `endpoint` values when using
   them in the sub-apps.
 
-  The example below shows how the token can be generated this way:
-
-      Phauxth.Token.sign(data, endpoint: MyAppWeb.Endpoint, token_salt: "somesalt")
-
   And this example shows how the Phauxth.Confirm.verify function needs
   to be called:
 
