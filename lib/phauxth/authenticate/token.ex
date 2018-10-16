@@ -89,8 +89,16 @@ defmodule Phauxth.Authenticate.Token do
       end
 
       defp verify_token(token, token_mod, {user_context, opts}) do
-        with {:ok, data} <- token_mod.verify(token, opts),
-             do: user_context.get_by(data)
+        try do
+          with {:ok, data} <- token_mod.verify(token, opts),
+               do: user_context.get_by(data)
+        rescue
+          _error in ArgumentError ->
+            nil
+
+          error ->
+            reraise error, __STACKTRACE__
+        end
       end
 
       defoverridable Plug
