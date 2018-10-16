@@ -18,21 +18,21 @@ defmodule Phauxth.Authenticate.Base do
   ### Authentication for use with Phoenix channels
 
   In this example, after adding the user struct to the current_user value,
-  a token is added (for use with Phoenix channels).
+  a Phoenix token (using Phauxth.PhxToken) is added to the conn.
 
       defmodule MyAppWeb.ChannelAuthenticate do
         use Phauxth.Authenticate.Base
 
         def set_user(nil, conn), do: assign(conn, :current_user, nil)
+
         def set_user(user, conn) do
-          token = Phoenix.Token.sign(conn, "user salt", %{"user_id" => user.email})
-          assign(conn, :current_user, user)
-          |> assign(:user_token, token)
+          token = Phauxth.PhxToken.sign(%{"user_id" => user.email}, [])
+          user |> super(conn) |> assign(:user_token, token)
         end
       end
 
   MyAppWeb.ChannelAuthenticate is called in the same way as Phauxth.Authenticate.
-  You can then use Phoenix.Token.verify, in the `user_socket.ex` file, to
+  You can then use Phauxth.PhxToken.verify, in the `user_socket.ex` file, to
   verify the token.
   """
 

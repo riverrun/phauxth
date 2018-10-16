@@ -10,7 +10,7 @@ defmodule Phauxth.Remember do
 
   ## Options
 
-  There are three options:
+  There are four options:
 
     * `:user_context` - the users module to be used when querying the database
       * the default is Phauxth.Config.user_context()
@@ -63,7 +63,7 @@ defmodule Phauxth.Remember do
     |> get_user_data(token, opts)
     |> report(log_meta)
     |> set_user(conn)
-    |> Authenticate.add_session(session_id_func.())
+    |> set_session_id(session_id_func.())
   end
 
   def call(conn, _), do: conn
@@ -76,6 +76,9 @@ defmodule Phauxth.Remember do
     with {:ok, user_id} <- token_mod.verify(token, opts),
          do: user_context.get_by(%{"user_id" => user_id})
   end
+
+  defp set_session_id(%Plug.Conn{assigns: %{current_user: nil}} = conn, _), do: conn
+  defp set_session_id(conn, session_id), do: Authenticate.add_session(conn, session_id)
 
   @doc """
   Adds a remember me cookie to the conn.

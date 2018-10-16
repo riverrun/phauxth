@@ -43,13 +43,12 @@ Phauxth.Confirm.verify(params, user_context: MyApp.Users)
 
 ### Session and token authentication
 
-* Phauxth.Authenticate does not check the session expiry value
-  * the session expiry value can be checked in the `get_by/1` function in the user context
+* Phauxth.Token module now defines a behaviour which you can use to define your own token implementation
+  * the Phauxth.PhxToken module provides an example of using this behaviour with Phoenix tokens
 * Phauxth.Authenticate for tokens (Phauxth.Authenticate, method: :token)
 is now Phauxth.AuthenticateToken
-  * there is no token implementation
-    * the Phauxth.Token module defines a behaviour which you can use to define your own token implementation
-      * the Phauxth.PhxToken module provides an example of using this behaviour
+* Phauxth.Authenticate does not check the session expiry value
+  * the session expiry value can be checked in the `get_by/1` function in the user context
 
 ### Login
 
