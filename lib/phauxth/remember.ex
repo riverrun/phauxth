@@ -37,34 +37,24 @@ defmodule Phauxth.Remember do
 
   @max_age 7 * 24 * 60 * 60
 
-  @impl true
-  def init(opts) do
-    {
-      {
-        Keyword.get(opts, :max_age, @max_age),
-        Keyword.get(opts, :user_context, Config.user_context()),
-        opts
-      },
-      Keyword.get(opts, :log_meta, [])
-    }
-  end
-
-  @impl true
+  @impl Plug
   def call(%Plug.Conn{assigns: %{current_user: %{}}} = conn, _), do: conn
 
-  def call(
-        %Plug.Conn{req_cookies: %{"remember_me" => token}} = conn,
-        {opts, log_meta}
-      ) do
-    Config.token_module()
-    |> get_user_data(token, opts)
-    |> report(log_meta)
-    |> set_user(conn)
+  def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn, options) do
+    super(conn, Map.put(options, :token, token))
   end
 
   def call(conn, _), do: conn
 
-  @impl true
+  @impl Phauxth.Authenticate.Base
+  def get_user(_conn, %{user_context: user_context, token: token, opts: opts}) do
+    token_mod = Config.token_module()
+
+    with {:ok, user_id} <- token_mod.verify(token, opts),
+         do: user_context.get_by(%{"user_id" => user_id})
+  end
+
+  @impl Phauxth.Authenticate.Base
   def set_user(nil, conn), do: super(nil, conn)
 
   def set_user(user, conn) do
@@ -72,15 +62,6 @@ defmodule Phauxth.Remember do
     user = Map.put(user, :session_id, session_id)
     conn = Authenticate.add_session(conn, session_id)
     super(user, conn)
-  end
-
-  @doc """
-  Gets the user data from the token.
-  """
-  @spec get_user_data(Plug.Conn.t(), String.t(), tuple) :: map | nil
-  def get_user_data(token_mod, token, {_, user_context, opts}) do
-    with {:ok, user_id} <- token_mod.verify(token, opts),
-         do: user_context.get_by(%{"user_id" => user_id})
   end
 
   @doc """

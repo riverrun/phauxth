@@ -36,17 +36,19 @@ defmodule Phauxth.Authenticate.Base do
   verify the token.
   """
 
+  @type error_message :: {:error, String.t()}
+
   @doc """
   Gets the user based on the session or token data.
 
   This function also calls the database to get user information.
   """
-  @callback get_user(Plug.Conn.t(), tuple) :: map | {:error, String.t()} | nil
+  @callback get_user(Plug.Conn.t(), map) :: map | error_message | nil
 
   @doc """
   Logs the result of the authentication and return the user struct or nil.
   """
-  @callback report(tuple, keyword) :: map | nil
+  @callback report(map | error_message | nil, keyword) :: map | nil
 
   @doc """
   Sets the `current_user` variable.
@@ -64,17 +66,18 @@ defmodule Phauxth.Authenticate.Base do
 
       @impl Plug
       def init(opts) do
-        {Keyword.get(opts, :user_context, Config.user_context()),
-         Keyword.get(opts, :log_meta, [])}
+        {user_context, opts} = Keyword.pop(opts, :user_context, Config.user_context())
+        {log_meta, opts} = Keyword.pop(opts, :log_meta, [])
+        %{user_context: user_context, log_meta: log_meta, opts: opts}
       end
 
       @impl Plug
-      def call(conn, {opts, log_meta}) do
-        conn |> get_user(opts) |> report(log_meta) |> set_user(conn)
+      def call(conn, %{log_meta: log_meta} = options) do
+        conn |> get_user(options) |> report(log_meta) |> set_user(conn)
       end
 
       @impl Phauxth.Authenticate.Base
-      def get_user(conn, user_context) do
+      def get_user(conn, %{user_context: user_context}) do
         with id when not is_nil(id) <- get_session(conn, :session_id),
              do: user_context.get_by(%{"session_id" => id})
       end
