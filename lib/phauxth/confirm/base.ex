@@ -6,6 +6,8 @@ defmodule Phauxth.Confirm.Base do
   and it can also be used to create custom user confirmation modules.
   """
 
+  @type error_message :: {:error, String.t()}
+
   @doc """
   Verifies the confirmation key and gets the user data from the database.
 
@@ -67,18 +69,18 @@ defmodule Phauxth.Confirm.Base do
   user to the next page or sends a json response. If unsuccessful, the
   `handle_password_reset` function handles the error.
   """
-  @callback verify(map, keyword) :: {:ok, map} | {:error, String.t()}
+  @callback verify(map, keyword) :: {:ok, map} | error_message
 
   @doc """
   Gets the user struct based on the supplied key.
   """
-  @callback get_user(term, tuple) :: map | nil
+  @callback get_user(binary, map) :: map | nil
 
   @doc """
   Prints out a log message and then returns {:ok, user} or
   {:error, message} to the calling function.
   """
-  @callback report(map, keyword) :: {:ok, map} | {:error, String.t()}
+  @callback report(map, keyword) :: {:ok, map} | error_message
 
   @doc false
   defmacro __using__(_) do
@@ -92,20 +94,18 @@ defmodule Phauxth.Confirm.Base do
       def verify(params, opts \\ [])
 
       def verify(%{"key" => token}, opts) do
-        {user_context, endpoint, log_meta, token_mod} = parse_opts(opts)
-        token_mod |> get_user({token, user_context, opts}) |> report(log_meta)
+        {user_context, opts} = Keyword.pop(opts, :user_context, Config.user_context())
+        {log_meta, opts} = Keyword.pop(opts, :log_meta, [])
+        options = %{user_context: user_context, log_meta: log_meta, opts: opts}
+        token |> get_user(options) |> report(log_meta)
       end
 
       def verify(_, _), do: raise(ArgumentError, "No key found in the params")
 
-      defp parse_opts(opts) do
-        {Keyword.get(opts, :user_context, Config.user_context()),
-         Keyword.get(opts, :endpoint, Config.endpoint()), Keyword.get(opts, :log_meta, []),
-         Config.token_module()}
-      end
-
       @impl true
-      def get_user(token_mod, {token, user_context, opts}) do
+      def get_user(token, %{user_context: user_context, opts: opts}) do
+        token_mod = Config.token_module()
+
         with {:ok, params} <- token_mod.verify(token, opts ++ [max_age: 1200]),
              do: user_context.get_by(params)
       end

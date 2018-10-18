@@ -10,16 +10,15 @@ defmodule Phauxth.Remember do
 
   ## Options
 
-  There are three options:
+  There are two options:
 
     * `:user_context` - the users module to be used when querying the database
       * the default is Phauxth.Config.user_context()
-    * `:max_age` - the length of the validity of the cookie / token
-      * the default is one week
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
-  In addition, there are also options for generating the token.
+  There are also options for signing / verifying the token.
+  See the documentation for the Phauxth.Token module for details.
 
   ## Examples
 
