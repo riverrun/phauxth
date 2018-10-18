@@ -10,12 +10,10 @@ defmodule Phauxth.Remember do
 
   ## Options
 
-  There are four options:
+  There are three options:
 
     * `:user_context` - the users module to be used when querying the database
       * the default is Phauxth.Config.user_context()
-    * `:session_id_func` - the function used to set the session id
-      * the default is `&Phauxth.Utils.uuid4/0`
     * `:max_age` - the length of the validity of the cookie / token
       * the default is one week
     * `:log_meta` - additional custom metadata for Phauxth.Log
@@ -47,7 +45,6 @@ defmodule Phauxth.Remember do
         Keyword.get(opts, :user_context, Config.user_context()),
         opts
       },
-      Keyword.get(opts, :session_id_func, &Phauxth.Utils.uuid4/0),
       Keyword.get(opts, :log_meta, [])
     }
   end
@@ -57,16 +54,25 @@ defmodule Phauxth.Remember do
 
   def call(
         %Plug.Conn{req_cookies: %{"remember_me" => token}} = conn,
-        {opts, session_id_func, log_meta}
+        {opts, log_meta}
       ) do
     Config.token_module()
     |> get_user_data(token, opts)
     |> report(log_meta)
     |> set_user(conn)
-    |> set_session_id(session_id_func.())
   end
 
   def call(conn, _), do: conn
+
+  @impl true
+  def set_user(nil, conn), do: super(nil, conn)
+
+  def set_user(user, conn) do
+    session_id = Phauxth.Utils.uuid4()
+    user = Map.put(user, :session_id, session_id)
+    conn = Authenticate.add_session(conn, session_id)
+    super(user, conn)
+  end
 
   @doc """
   Gets the user data from the token.
@@ -76,9 +82,6 @@ defmodule Phauxth.Remember do
     with {:ok, user_id} <- token_mod.verify(token, opts),
          do: user_context.get_by(%{"user_id" => user_id})
   end
-
-  defp set_session_id(%Plug.Conn{assigns: %{current_user: nil}} = conn, _), do: conn
-  defp set_session_id(conn, session_id), do: Authenticate.add_session(conn, session_id)
 
   @doc """
   Adds a remember me cookie to the conn.

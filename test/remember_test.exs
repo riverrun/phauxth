@@ -7,7 +7,7 @@ defmodule Phauxth.RememberTest do
   alias Phauxth.{Authenticate, Remember, SessionHelper, TestUsers}
 
   @max_age 7 * 24 * 60 * 60
-  @opts {{@max_age, TestUsers, []}, &Phauxth.Utils.uuid4/0, []}
+  @opts {{@max_age, TestUsers, []}, []}
 
   setup do
     conn =
@@ -19,10 +19,8 @@ defmodule Phauxth.RememberTest do
   end
 
   test "init function" do
-    assert Remember.init([]) == {{604_800, Phauxth.TestUsers, []}, &Phauxth.Utils.uuid4/0, []}
-
-    assert Remember.init(max_age: 100) ==
-             {{100, Phauxth.TestUsers, [max_age: 100]}, &Phauxth.Utils.uuid4/0, []}
+    assert Remember.init([]) == {{604_800, Phauxth.TestUsers, []}, []}
+    assert Remember.init(max_age: 100) == {{100, Phauxth.TestUsers, [max_age: 100]}, []}
   end
 
   test "call remember with default options", %{conn: conn} do

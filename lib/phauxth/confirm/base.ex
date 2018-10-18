@@ -126,34 +126,4 @@ defmodule Phauxth.Confirm.Base do
       defoverridable Phauxth.Confirm.Base
     end
   end
-
-  alias Phauxth.{Config, Log}
-
-  @doc """
-  Checks if the user has been confirmed.
-  """
-  @spec check_user_confirmed(map, list) :: {:ok, map} | {:error, String.t()}
-  def check_user_confirmed(%{confirmed_at: nil} = user, meta) do
-    Log.info(%Log{user: user.id, message: "user confirmed", meta: meta})
-    {:ok, Map.drop(user, Config.drop_user_keys())}
-  end
-
-  def check_user_confirmed(%{} = user, meta) do
-    Log.warn(%Log{user: user.id, message: "user already confirmed", meta: meta})
-    {:error, Config.user_messages().already_confirmed()}
-  end
-
-  @doc """
-  Checks if a reset token has been sent to the user.
-  """
-  @spec check_reset_sent_at(map, list) :: {:ok, map} | {:error, String.t()}
-  def check_reset_sent_at(%{reset_sent_at: nil}, meta) do
-    Log.warn(%Log{message: "no reset token found", meta: meta})
-    {:error, Config.user_messages().default_error()}
-  end
-
-  def check_reset_sent_at(%{reset_sent_at: _time} = user, meta) do
-    Log.info(%Log{user: user.id, message: "user confirmed for password reset", meta: meta})
-    {:ok, Map.drop(user, Config.drop_user_keys())}
-  end
 end
