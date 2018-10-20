@@ -1,5 +1,20 @@
 # Phauxth Changelog
 
+## Version 2.0.0-alpha
+
+* Enhancements
+  * updated to use Elixir 1.7
+    * Elixir versions 1.5 - 1.7 include various improvements to how behaviours are handled
+  * you now only have to define a `get_by(attrs)` function in the user_context module (`get/1` is no longer needed)
+
+* Changes
+  * Removed Phauxth.Login and Phauxth.Confirm.Login (their functionality can be handled by Comeonin)
+  * Phauxth.Confirm.verify/3 is now Phauxth.Confirm.verify/2
+    * the user_context is now set in the config
+  * Phauxth.Confirm.verify with the `:pass_reset mode` is now Phauxth.Confirm.PassReset.verify
+  * Phauxth.Token is now a behaviour, which you can use to define your own token implementation
+    * the Phauxth.PhxToken module provides an example of using this behaviour with Phoenix tokens
+
 ## Version 1.2.5
 
 * Enhancements

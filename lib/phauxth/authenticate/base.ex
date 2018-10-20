@@ -41,7 +41,9 @@ defmodule Phauxth.Authenticate.Base do
   @doc """
   Gets the user based on the session or token data.
 
-  This function also calls the database to get user information.
+  In the default implementation, this function also retrieves user
+  information using the `get_by` function defined in the `user_context`
+  module.
   """
   @callback get_user(Plug.Conn.t(), map) :: map | error_message | nil
 

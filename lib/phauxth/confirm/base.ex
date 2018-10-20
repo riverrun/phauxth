@@ -16,12 +16,10 @@ defmodule Phauxth.Confirm.Base do
 
   ## Options
 
-  There are three options for the verify function:
+  There are two options for the verify function:
 
     * `:user_context` - the users module to be used when querying the database
       * the default is Phauxth.Config.user_context()
-    * `:endpoint` - the name of the endpoint of your app
-      * this can also be set in the config
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
@@ -72,7 +70,10 @@ defmodule Phauxth.Confirm.Base do
   @callback verify(map, keyword) :: {:ok, map} | error_message
 
   @doc """
-  Gets the user struct based on the supplied key.
+  Gets the user data using the key in the params.
+
+  In the default implementation, this function retrieves user information
+  using the `get_by` function defined in the `user_context` module.
   """
   @callback get_user(binary, map) :: map | nil
 

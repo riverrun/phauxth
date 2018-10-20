@@ -60,3 +60,12 @@ is now Phauxth.AuthenticateToken
 
 * Phauxth.Confirm.verify with the `:pass_reset mode` has been renamed to Phauxth.Confirm.PassReset.verify
 
+### Customizing Phauxth
+
+This section is only relevant if you were customizing any of the Phauxth plugs or
+verify functions.
+
+* the `init` function for Authenticate.Base now returns a map instead of a tuple
+* the `get_user` function in Authenticate.Base now takes a conn and map as input
+* the `get_user` function in Confirm.Base now takes a token and map as input
+
