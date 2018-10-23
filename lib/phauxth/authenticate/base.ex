@@ -45,7 +45,7 @@ defmodule Phauxth.Authenticate.Base do
   information using the `get_by` function defined in the `user_context`
   module.
   """
-  @callback get_user(Plug.Conn.t(), map) :: map | error_message | nil
+  @callback get_user(Plug.Conn.t(), keyword) :: map | error_message | nil
 
   @doc """
   Logs the result of the authentication and return the user struct or nil.
@@ -68,20 +68,18 @@ defmodule Phauxth.Authenticate.Base do
 
       @impl Plug
       def init(opts) do
-        {user_context, opts} = Keyword.pop(opts, :user_context, Config.user_context())
-        {log_meta, opts} = Keyword.pop(opts, :log_meta, [])
-        %{user_context: user_context, log_meta: log_meta, opts: opts}
+        {opts, Keyword.get(opts, :log_meta, [])}
       end
 
       @impl Plug
-      def call(conn, %{log_meta: log_meta} = options) do
-        conn |> get_user(options) |> report(log_meta) |> set_user(conn)
+      def call(conn, {opts, log_meta}) do
+        conn |> get_user(opts) |> report(log_meta) |> set_user(conn)
       end
 
       @impl Phauxth.Authenticate.Base
-      def get_user(conn, %{user_context: user_context}) do
+      def get_user(conn, _opts) do
         with id when not is_nil(id) <- get_session(conn, :session_id),
-             do: user_context.get_by(%{"session_id" => id})
+             do: Config.user_context().get_by(%{"session_id" => id})
       end
 
       @impl Phauxth.Authenticate.Base
@@ -99,9 +97,7 @@ defmodule Phauxth.Authenticate.Base do
       end
 
       @impl Phauxth.Authenticate.Base
-      def set_user(user, conn) do
-        assign(conn, :current_user, user)
-      end
+      def set_user(user, conn), do: assign(conn, :current_user, user)
 
       defoverridable Plug
       defoverridable Phauxth.Authenticate.Base

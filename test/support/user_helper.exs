@@ -20,6 +20,7 @@ defmodule Phauxth.TestUsers do
       :id,
       :email,
       :username,
+      :password_hash,
       :confirmed_at,
       :reset_sent_at,
       role: "user",
@@ -34,12 +35,14 @@ defmodule Phauxth.TestUsers do
       "1" => %TestUser{
         id: "1",
         email: "fred+1@example.com",
-        username: "fred"
+        username: "fred",
+        password_hash: Comeonin.Argon2.hashpwsalt("h4rd2gU3$$")
       },
       "2" => %TestUser{
         id: "2",
         email: "ray@example.com",
-        confirmed_at: DateTime.utc_now()
+        confirmed_at: DateTime.utc_now(),
+        password_hash: Comeonin.Argon2.hashpwsalt("h4rd2gU3$$")
       },
       "3" => %TestUser{
         id: "3",
@@ -49,7 +52,8 @@ defmodule Phauxth.TestUsers do
       },
       "4" => %TestUser{
         id: "4",
-        email: "igor@example.com"
+        email: "igor@example.com",
+        confirmed_at: DateTime.utc_now()
       },
       "4a43f849-d9fa-439e-b887-735378009c95" => %TestUser{
         id: "4a43f849-d9fa-439e-b887-735378009c95",
@@ -65,6 +69,10 @@ defmodule Phauxth.TestUsers do
 
   def get_by(%{"email" => email}) do
     users() |> Map.values() |> Enum.find(&(&1.email == email))
+  end
+
+  def get_by(%{"username" => username}) do
+    users() |> Map.values() |> Enum.find(&(&1.username == username))
   end
 
   def get_by(%{"user_id" => user_id}) do

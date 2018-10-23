@@ -11,24 +11,13 @@ defmodule Phauxth.Config do
   | log_level          | atom          | :info            |
   | drop_user_keys     | list of atoms | []               |
   | user_messages      | module        | Phauxth.UserMessages |
+  | crypto_module      | module        | N/A              |
   | endpoint           | module        | N/A              |
   | token_module       | module        | N/A              |
   | token_salt         | string        | N/A              |
 
   ## Umbrella apps
 
-  Due to how the configuration is handled in umbrella apps, you might
-  need to override the `token_salt` and `endpoint` values when using
-  them in the sub-apps.
-
-  And this example shows how the Phauxth.Confirm.verify function needs
-  to be called:
-
-      Phauxth.Confirm.verify(params, [
-        user_context: MyApp.Users,
-        endpoint: MyAppWeb.Endpoint,
-        token_salt: "somesalt"
-      ])
 
   ## Examples
 
@@ -99,6 +88,15 @@ defmodule Phauxth.Config do
   """
   def user_messages do
     Application.get_env(:phauxth, :user_messages, Phauxth.UserMessages)
+  end
+
+  @doc """
+  The module used to verify passwords.
+
+  This is used by the Phauxth.Login module.
+  """
+  def crypto_module do
+    Application.get_env(:phauxth, :crypto_module)
   end
 
   @doc """

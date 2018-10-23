@@ -1,13 +1,3 @@
-defmodule Phauxth.CustomAuthenticate do
-  use Phauxth.Authenticate.Base
-
-  @impl true
-  def get_user(conn, %{user_context: user_context}) do
-    with id when not is_nil(id) <- get_session(conn, :user_id),
-         do: user_context.get_by(%{"user_id" => id})
-  end
-end
-
 defmodule Phauxth.AbsintheAuthenticate do
   use Phauxth.Authenticate.Token
 
@@ -23,9 +13,9 @@ defmodule Phauxth.CustomCall do
   use Phauxth.Authenticate.Base
 
   @impl true
-  def call(conn, %{log_meta: log_meta} = opts) do
+  def call(conn, {opts, log_meta}) do
     meta = log_meta ++ [path: conn.request_path]
-    super(conn, %{opts | log_meta: meta})
+    super(conn, {opts, meta})
   end
 end
 
@@ -34,7 +24,6 @@ defmodule Phauxth.AuthenticateTokenCookie do
 
   @impl true
   def get_user(%Plug.Conn{req_cookies: %{"access_token" => token}}, opts) do
-    token_mod = Config.token_module()
-    verify_token(token, token_mod, opts)
+    verify_token(token, opts)
   end
 end

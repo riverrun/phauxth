@@ -24,6 +24,14 @@ defmodule Phauxth.Confirm.PassResetTest do
     assert message =~ "Invalid credentials"
   end
 
+  test "reset fails when confirmed_at is nil" do
+    assert capture_log(fn ->
+             valid_key = PhxToken.sign(%{"email" => "brian@example.com"}, [])
+             params = %{"key" => valid_key, "password" => "password"}
+             {:error, _} = PassReset.verify(params)
+           end) =~ ~s([warn]  user=nil message="unconfirmed user attempting to reset password")
+  end
+
   test "reset fails when reset_sent_at is not found" do
     assert capture_log(fn ->
              valid_key = PhxToken.sign(%{"email" => "igor@example.com"}, [])

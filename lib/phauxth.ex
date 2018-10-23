@@ -47,6 +47,8 @@ defmodule Phauxth do
   The `verify/2` function takes a map (usually Phoenix params) and opts
   (an empty list by default) and returns `{:ok, user}` or `{:error, message}`.
 
+  ### Login
+
   ### User confirmation
 
   `Phauxth.Confirm.verify` is used for email confirmation.
@@ -117,4 +119,22 @@ defmodule Phauxth do
   You can also find more information at the
   [Phauxth wiki](https://github.com/riverrun/phauxth/wiki).
   """
+
+  @type ok_or_error :: {:ok, map} | {:error, String.t() | atom}
+
+  @doc """
+  Verifies the user based on the params.
+  """
+  @callback verify(map, keyword) :: ok_or_error
+
+  @doc """
+  Validates the user details.
+  """
+  @callback validate(map, keyword) :: ok_or_error
+
+  @doc """
+  Logs the result of the verification and returns `{:ok, user}` or
+  `{:error, message}`.
+  """
+  @callback report(ok_or_error, keyword) :: ok_or_error
 end

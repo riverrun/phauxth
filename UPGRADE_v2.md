@@ -22,23 +22,19 @@ end
 
 ### verify/3 -> verify/2
 
-Previously, the second argument to the verify function was the user_context
-module. Now, this is set in the config, or the opts.
+Previously, the second argument to the verify function was the `user_context`
+module. Now, this is set in the config.
 
 ```elixir
 Phauxth.Confirm.verify(params, MyApp.Users)
+Phauxth.Login.verify(params, MyApp.Users)
 ```
 
 is now:
 
 ```elixir
 Phauxth.Confirm.verify(params) # with user_context set in the config
-```
-
-or:
-
-```elixir
-Phauxth.Confirm.verify(params, user_context: MyApp.Users)
+Phauxth.Login.verify(params)
 ```
 
 ### Session and token authentication
@@ -52,9 +48,8 @@ is now Phauxth.AuthenticateToken
 
 ### Login
 
-* Phauxth.Login and Phauxth.Confirm.Login have been removed
-  * the Phauxth installer and example project contain examples
-  of how to replace this functionality
+* Phauxth.Confirm.Login has been removed
+* the `crypto_module` for Phauxth.Login is now set in the config
 
 ### Password resetting
 
@@ -64,8 +59,3 @@ is now Phauxth.AuthenticateToken
 
 This section is only relevant if you were customizing any of the Phauxth plugs or
 verify functions.
-
-* the `init` function for Authenticate.Base now returns a map instead of a tuple
-* the `get_user` function in Authenticate.Base now takes a conn and map as input
-* the `get_user` function in Confirm.Base now takes a token and map as input
-

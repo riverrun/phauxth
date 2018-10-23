@@ -17,10 +17,8 @@ defmodule Phauxth.Authenticate do
 
   ## Options
 
-  There are two options:
+  There is one option:
 
-    * `:user_context` - the users module to be used
-      * the default is Phauxth.Config.user_context()
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 

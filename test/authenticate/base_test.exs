@@ -4,16 +4,12 @@ defmodule Phauxth.Authenticate.BaseTest do
 
   import ExUnit.CaptureLog
 
-  alias Phauxth.{Authenticate, CustomAuthenticate, CustomCall, SessionHelper, TestUsers}
+  alias Phauxth.{Authenticate, CustomCall, SessionHelper}
 
-  @session_opts %{user_context: TestUsers, log_meta: [], opts: []}
+  @session_opts {[], []}
 
   defp call(id, opts \\ @session_opts) do
     id |> SessionHelper.add_session() |> Authenticate.call(opts)
-  end
-
-  defp custom_authenticate(id) do
-    id |> SessionHelper.add_session(:user_id) |> CustomAuthenticate.call(@session_opts)
   end
 
   defp custom_call(id) do
@@ -48,21 +44,6 @@ defmodule Phauxth.Authenticate.BaseTest do
     conn = call("1111")
     %{current_user: user} = conn.assigns
     refute Map.has_key?(user, :password_hash)
-  end
-
-  test "current user in session - using user_id" do
-    conn = custom_authenticate("1")
-    %{current_user: user} = conn.assigns
-    assert user.email == "fred+1@example.com"
-    assert user.role == "user"
-  end
-
-  test "user_id can be uuid" do
-    uuid = "4a43f849-d9fa-439e-b887-735378009c95"
-    conn = custom_authenticate(uuid)
-    %{current_user: user} = conn.assigns
-    assert user.email == "brian@example.com"
-    assert user.role == "user"
   end
 
   test "custom call" do

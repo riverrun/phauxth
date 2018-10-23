@@ -19,10 +19,8 @@ defmodule Phauxth.AuthenticateToken do
 
   ## Options
 
-  There are two options:
+  There is one option:
 
-    * `:user_context` - the users module to be used
-      * the default is Phauxth.Config.user_context()
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
@@ -35,10 +33,6 @@ defmodule Phauxth.AuthenticateToken do
   the `web/router.ex` file:
 
       plug Phauxth.AuthenticateToken
-
-  And if you are using a different users module:
-
-      plug Phauxth.AuthenticateToken, user_context: MyApp.Users
 
   In the example above, you need to have the `get_by/1` function
   defined in MyApp.Users.

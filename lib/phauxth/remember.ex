@@ -10,10 +10,8 @@ defmodule Phauxth.Remember do
 
   ## Options
 
-  There are two options:
+  There is one option:
 
-    * `:user_context` - the users module to be used when querying the database
-      * the default is Phauxth.Config.user_context()
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
@@ -39,18 +37,16 @@ defmodule Phauxth.Remember do
   @impl Plug
   def call(%Plug.Conn{assigns: %{current_user: %{}}} = conn, _), do: conn
 
-  def call(%Plug.Conn{req_cookies: %{"remember_me" => token}} = conn, options) do
-    super(conn, Map.put(options, :token, token))
+  def call(%Plug.Conn{req_cookies: %{"remember_me" => _token}} = conn, opts) do
+    super(conn, opts)
   end
 
   def call(conn, _), do: conn
 
   @impl Phauxth.Authenticate.Base
-  def get_user(_conn, %{user_context: user_context, token: token, opts: opts}) do
-    token_mod = Config.token_module()
-
-    with {:ok, user_id} <- token_mod.verify(token, opts),
-         do: user_context.get_by(%{"user_id" => user_id})
+  def get_user(%Plug.Conn{req_cookies: %{"remember_me" => token}}, opts) do
+    with {:ok, user_id} <- Config.token_module().verify(token, opts),
+         do: Config.user_context().get_by(%{"user_id" => user_id})
   end
 
   @impl Phauxth.Authenticate.Base

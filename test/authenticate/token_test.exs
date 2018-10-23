@@ -4,9 +4,9 @@ defmodule Phauxth.Authenticate.TokenTest do
 
   import ExUnit.CaptureLog
 
-  alias Phauxth.{AuthenticateToken, PhxToken, SessionHelper, TestUsers}
+  alias Phauxth.{AuthenticateToken, PhxToken, SessionHelper}
 
-  @token_opts %{user_context: TestUsers, log_meta: [], opts: []}
+  @token_opts {[], []}
 
   defp add_token(id, token \\ nil, key_opts \\ []) do
     conn = conn(:get, "/") |> SessionHelper.add_key()
@@ -15,8 +15,7 @@ defmodule Phauxth.Authenticate.TokenTest do
   end
 
   defp call_api(id, token \\ nil, verify_opts \\ []) do
-    opts = %{user_context: TestUsers, log_meta: [], opts: verify_opts}
-    id |> add_token(token, []) |> AuthenticateToken.call(opts)
+    id |> add_token(token, []) |> AuthenticateToken.call({verify_opts, []})
   end
 
   test "authenticate api sets the current_user" do
@@ -57,8 +56,8 @@ defmodule Phauxth.Authenticate.TokenTest do
 
   test "key options passed on to the token module" do
     conn = add_token("3333", nil, key_length: 20)
-    opts_1 = %{user_context: TestUsers, log_meta: [], opts: [key_length: 20]}
-    opts_2 = %{user_context: TestUsers, log_meta: [], opts: []}
+    opts_1 = {[key_length: 20], []}
+    opts_2 = {[], []}
     conn = AuthenticateToken.call(conn, opts_1)
     %{current_user: user} = conn.assigns
     assert user.email == "froderick@example.com"
