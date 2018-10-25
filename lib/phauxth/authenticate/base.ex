@@ -36,7 +36,7 @@ defmodule Phauxth.Authenticate.Base do
   verify the token.
   """
 
-  @type error_message :: {:error, String.t()}
+  @type ok_or_error :: {:ok, map} | {:error, String.t() | atom}
 
   @doc """
   Gets the user based on the session or token data.
@@ -45,12 +45,12 @@ defmodule Phauxth.Authenticate.Base do
   information using the `get_by` function defined in the `user_context`
   module.
   """
-  @callback get_user(Plug.Conn.t(), keyword) :: map | error_message | nil
+  @callback authenticate(Plug.Conn.t(), keyword) :: ok_or_error
 
   @doc """
   Logs the result of the authentication and return the user struct or nil.
   """
-  @callback report(map | error_message | nil, keyword) :: map | nil
+  @callback report(ok_or_error, keyword) :: map | nil
 
   @doc """
   Sets the `current_user` variable.
@@ -73,27 +73,35 @@ defmodule Phauxth.Authenticate.Base do
 
       @impl Plug
       def call(conn, {opts, log_meta}) do
-        conn |> get_user(opts) |> report(log_meta) |> set_user(conn)
+        conn |> authenticate(opts) |> report(log_meta) |> set_user(conn)
       end
 
       @impl Phauxth.Authenticate.Base
-      def get_user(conn, _opts) do
-        with id when not is_nil(id) <- get_session(conn, :session_id),
-             do: Config.user_context().get_by(%{"session_id" => id})
+      def authenticate(conn, _opts) do
+        case get_session(conn, :session_id) do
+          nil -> {:error, "anonymous user"}
+          session_id -> get_user({:ok, %{"session_id" => session_id}})
+        end
       end
 
+      defp get_user({:ok, data}) do
+        case Config.user_context().get_by(data) do
+          nil -> {:error, "no user found"}
+          user -> {:ok, user}
+        end
+      end
+
+      defp get_user({:error, message}), do: {:error, message}
+
       @impl Phauxth.Authenticate.Base
-      def report(%{} = user, meta) do
+      def report({:ok, user}, meta) do
         Log.info(%Log{user: user.id, message: "user authenticated", meta: meta})
         Map.drop(user, Config.drop_user_keys())
       end
 
       def report({:error, message}, meta) do
-        Log.info(%Log{message: message, meta: meta}) && nil
-      end
-
-      def report(nil, meta) do
-        Log.info(%Log{message: "anonymous user", meta: meta}) && nil
+        Log.info(%Log{message: message, meta: meta})
+        nil
       end
 
       @impl Phauxth.Authenticate.Base

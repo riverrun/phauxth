@@ -28,6 +28,11 @@ defmodule Phauxth.Authenticate.BaseTest do
     assert conn.assigns == %{current_user: nil}
   end
 
+  test "no session found" do
+    conn = conn(:get, "/") |> SessionHelper.sign_conn() |> Authenticate.call(@session_opts)
+    assert conn.assigns == %{current_user: nil}
+  end
+
   test "user removed from session" do
     conn = call("1111") |> delete_session(:session_id)
 

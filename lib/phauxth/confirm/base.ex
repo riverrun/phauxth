@@ -18,13 +18,13 @@ defmodule Phauxth.Confirm.Base do
 
       def verify(%{"key" => token} = params, opts) do
         log_meta = Keyword.get(opts, :log_meta, [])
-        params |> validate(opts) |> report(log_meta)
+        params |> authenticate(opts) |> report(log_meta)
       end
 
       def verify(_, _), do: raise(ArgumentError, "No key found in the params")
 
       @impl true
-      def validate(%{"key" => token}, opts) do
+      def authenticate(%{"key" => token}, opts) do
         token
         |> Config.token_module().verify(opts ++ [max_age: 1200])
         |> get_user()

@@ -12,7 +12,7 @@ defmodule Phauxth.Login.Base do
       defmodule MyApp.LoginConfirm do
         use Phauxth.Login.Base
 
-        def validate(%{"password" => password} = params, opts) do
+        def authenticate(%{"password" => password} = params, opts) do
           case Config.user_context().get_by(params) do
             nil -> {:error, "no user found"}
             %{confirmed_at: nil} -> {:error, "account unconfirmed"}
@@ -21,9 +21,9 @@ defmodule Phauxth.Login.Base do
         end
       end
 
-  In this example, the `validate` function is overridden to check
+  In this example, the `authenticate` function is overridden to check
   the user struct to see if the user is confirmed. If the user has not
-  been confirmed, an error is returned. Otherwise, the default validate
+  been confirmed, an error is returned. Otherwise, the default authenticate
   function is run.
   """
 
@@ -40,13 +40,13 @@ defmodule Phauxth.Login.Base do
 
       def verify(%{"password" => _password} = params, opts) do
         log_meta = Keyword.get(opts, :log_meta, [])
-        params |> validate(opts) |> report(log_meta)
+        params |> authenticate(opts) |> report(log_meta)
       end
 
       def verify(_, _), do: raise(ArgumentError, "No password found in the params")
 
       @impl true
-      def validate(%{"password" => password} = params, opts) do
+      def authenticate(%{"password" => password} = params, opts) do
         case Config.user_context().get_by(params) do
           nil -> {:error, "no user found"}
           user -> Config.crypto_module().check_pass(user, password, opts)

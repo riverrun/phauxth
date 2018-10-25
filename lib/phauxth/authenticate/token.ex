@@ -19,7 +19,7 @@ defmodule Phauxth.Authenticate.Token do
         use Phauxth.Authenticate.Token
 
         @impl true
-        def get_user(%Plug.Conn{req_cookies: %{"access_token" => token}}, opts) do
+        def authenticate(%Plug.Conn{req_cookies: %{"access_token" => token}}, opts) do
           verify_token(token, opts)
         end
       end
@@ -54,7 +54,7 @@ defmodule Phauxth.Authenticate.Token do
   @doc """
   Gets the token from the authorization headers.
   """
-  @callback get_token_user(list, keyword) :: map | nil
+  @callback get_token(list, keyword) :: map | nil
 
   defmacro __using__(_) do
     quote do
@@ -65,24 +65,17 @@ defmodule Phauxth.Authenticate.Token do
       alias Phauxth.Config
 
       @impl Phauxth.Authenticate.Base
-      def get_user(conn, opts) do
-        conn |> get_req_header("authorization") |> get_token_user(opts)
+      def authenticate(conn, opts) do
+        conn |> get_req_header("authorization") |> get_token(opts)
       end
 
       @impl Phauxth.Authenticate.Token
-      def get_token_user([], _), do: {:error, "no token found"}
-
-      def get_token_user(["Bearer " <> token | _], opts) do
-        verify_token(token, opts)
-      end
-
-      def get_token_user([token | _], opts) do
-        verify_token(token, opts)
-      end
+      def get_token([], _), do: {:error, "no token found"}
+      def get_token(["Bearer " <> token | _], opts), do: verify_token(token, opts)
+      def get_token([token | _], opts), do: verify_token(token, opts)
 
       defp verify_token(token, opts) do
-        with {:ok, data} <- Config.token_module().verify(token, opts),
-             do: Config.user_context().get_by(data)
+        token |> Config.token_module().verify(opts) |> get_user()
       end
 
       defoverridable Plug

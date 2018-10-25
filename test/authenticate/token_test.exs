@@ -30,6 +30,15 @@ defmodule Phauxth.Authenticate.TokenTest do
     assert conn.assigns == %{current_user: nil}
   end
 
+  test "no token found" do
+    conn =
+      conn(:get, "/")
+      |> SessionHelper.add_key()
+      |> AuthenticateToken.call({[], []})
+
+    assert conn.assigns == %{current_user: nil}
+  end
+
   test "log reports error message for invalid token" do
     assert capture_log(fn ->
              call_api("1111", "garbage")

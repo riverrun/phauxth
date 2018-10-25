@@ -44,17 +44,16 @@ defmodule Phauxth.Remember do
   def call(conn, _), do: conn
 
   @impl Phauxth.Authenticate.Base
-  def get_user(%Plug.Conn{req_cookies: %{"remember_me" => token}}, opts) do
+  def authenticate(%Plug.Conn{req_cookies: %{"remember_me" => token}}, opts) do
     with {:ok, user_id} <- Config.token_module().verify(token, opts),
-         do: Config.user_context().get_by(%{"user_id" => user_id})
+         do: get_user({:ok, %{"user_id" => user_id}})
   end
 
   @impl Phauxth.Authenticate.Base
   def set_user(nil, conn), do: super(nil, conn)
 
   def set_user(user, conn) do
-    session_id = Phauxth.Utils.uuid4()
-    user = Map.put(user, :session_id, session_id)
+    %{id: session_id} = Config.user_context().create_session(user)
     conn = Authenticate.add_session(conn, session_id)
     super(user, conn)
   end

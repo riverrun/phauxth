@@ -123,14 +123,14 @@ defmodule Phauxth do
   @type ok_or_error :: {:ok, map} | {:error, String.t() | atom}
 
   @doc """
-  Verifies the user based on the params.
+  Verifies the user based on the user params.
   """
   @callback verify(map, keyword) :: ok_or_error
 
   @doc """
-  Validates the user details.
+  Authenticates the user based on the user params.
   """
-  @callback validate(map, keyword) :: ok_or_error
+  @callback authenticate(map, keyword) :: ok_or_error
 
   @doc """
   Logs the result of the verification and returns `{:ok, user}` or

@@ -22,7 +22,7 @@ defmodule Phauxth.RememberTest do
     assert Remember.init([]) == {[], []}
   end
 
-  test "call remember with default options", %{conn: conn} do
+  test "current_user set when calling remember with default options", %{conn: conn} do
     conn =
       conn
       |> SessionHelper.recycle_and_sign()
@@ -31,6 +31,15 @@ defmodule Phauxth.RememberTest do
     %{current_user: user} = conn.assigns
     assert user.username == "fred"
     assert user.role == "user"
+  end
+
+  test "session added when calling remember", %{conn: conn} do
+    session_id =
+      conn
+      |> SessionHelper.recycle_and_sign()
+      |> Remember.call(@opts)
+      |> get_session(:session_id)
+    assert session_id
   end
 
   test "error log when the cookie is invalid", %{conn: conn} do
