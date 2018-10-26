@@ -22,9 +22,10 @@ if Code.ensure_loaded?(Phoenix) do
     def verify(token, opts) do
       key_source = Keyword.get(opts, :key_source, Config.endpoint())
       salt = Keyword.get(opts, :token_salt, Config.token_salt())
+      {max_age, opts} = Keyword.pop(opts, :max_age, @max_age)
 
       try do
-        Token.verify(key_source, salt, token, opts ++ [max_age: @max_age])
+        Token.verify(key_source, salt, token, opts ++ [max_age: max_age])
       rescue
         _error in ArgumentError ->
           {:error, :invalid}
