@@ -1,4 +1,4 @@
-defmodule Phauxth.ConfirmTest do
+defmodule Phauxth.Confirm.BaseTest do
   use ExUnit.Case
   use Plug.Test
   import ExUnit.CaptureLog

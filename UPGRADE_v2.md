@@ -43,13 +43,12 @@ Phauxth.Confirm.verify(params, user_context: MyApp.Users)
 
 ### Session and token authentication
 
-* Phauxth.Authenticate does not check the session expiry value
-  * the session expiry value can be checked in the `get_by/1` function in the user context
+* Phauxth.Token module now defines a behaviour which you can use to define your own token implementation
+  * the Phauxth.PhxToken module provides an example of using this behaviour with Phoenix tokens
 * Phauxth.Authenticate for tokens (Phauxth.Authenticate, method: :token)
 is now Phauxth.AuthenticateToken
-  * there is no token implementation
-    * the Phauxth.Token module defines a behaviour which you can use to define your own token implementation
-      * the Phauxth.PhxToken module provides an example of using this behaviour
+* Phauxth.Authenticate does not check the session expiry value
+  * the session expiry value can be checked in the `get_by/1` function in the user context
 
 ### Login
 
@@ -60,4 +59,13 @@ is now Phauxth.AuthenticateToken
 ### Password resetting
 
 * Phauxth.Confirm.verify with the `:pass_reset mode` has been renamed to Phauxth.Confirm.PassReset.verify
+
+### Customizing Phauxth
+
+This section is only relevant if you were customizing any of the Phauxth plugs or
+verify functions.
+
+* the `init` function for Authenticate.Base now returns a map instead of a tuple
+* the `get_user` function in Authenticate.Base now takes a conn and map as input
+* the `get_user` function in Confirm.Base now takes a token and map as input
 

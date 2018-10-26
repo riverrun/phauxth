@@ -65,27 +65,21 @@ defmodule Phauxth.Authenticate.Token do
 
       alias Phauxth.Config
 
-      @impl Plug
-      def init(opts) do
-        {{Keyword.get(opts, :user_context, Config.user_context()), opts},
-         Keyword.get(opts, :log_meta, [])}
-      end
-
       @impl Phauxth.Authenticate.Base
-      def get_user(conn, opts) do
+      def get_user(conn, options) do
         token_mod = Config.token_module()
-        conn |> get_req_header("authorization") |> get_token_user(token_mod, opts)
+        conn |> get_req_header("authorization") |> get_token_user(token_mod, options)
       end
 
       @impl Phauxth.Authenticate.Token
       def get_token_user([], _, _), do: {:error, "no token found"}
 
-      def get_token_user(["Bearer " <> token | _], token_mod, opts) do
-        verify_token(token, token_mod, opts)
+      def get_token_user(["Bearer " <> token | _], token_mod, options) do
+        verify_token(token, token_mod, options)
       end
 
-      def get_token_user([token | _], token_mod, opts) do
-        verify_token(token, token_mod, opts)
+      def get_token_user([token | _], token_mod, options) do
+        verify_token(token, token_mod, options)
       end
 
       defp verify_token(token, token_mod, {user_context, opts}) do
@@ -99,7 +93,6 @@ defmodule Phauxth.Authenticate.Token do
           error ->
             reraise error, __STACKTRACE__
         end
-      end
 
       defoverridable Plug
       defoverridable Phauxth.Authenticate.Base

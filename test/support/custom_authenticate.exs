@@ -2,7 +2,7 @@ defmodule Phauxth.CustomAuthenticate do
   use Phauxth.Authenticate.Base
 
   @impl true
-  def get_user(conn, user_context) do
+  def get_user(conn, %{user_context: user_context}) do
     with id when not is_nil(id) <- get_session(conn, :user_id),
          do: user_context.get_by(%{"user_id" => id})
   end
@@ -23,9 +23,9 @@ defmodule Phauxth.CustomCall do
   use Phauxth.Authenticate.Base
 
   @impl true
-  def call(conn, {opts, log_meta}) do
+  def call(conn, %{log_meta: log_meta} = opts) do
     meta = log_meta ++ [path: conn.request_path]
-    super(conn, {opts, meta})
+    super(conn, %{opts | log_meta: meta})
   end
 end
 

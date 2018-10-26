@@ -1,4 +1,4 @@
-defmodule Phauxth.AuthenticateTest do
+defmodule Phauxth.Authenticate.BaseTest do
   use ExUnit.Case
   use Plug.Test
 
@@ -6,7 +6,7 @@ defmodule Phauxth.AuthenticateTest do
 
   alias Phauxth.{Authenticate, CustomAuthenticate, CustomCall, SessionHelper, TestUsers}
 
-  @session_opts {TestUsers, []}
+  @session_opts %{user_context: TestUsers, log_meta: [], opts: []}
 
   defp call(id, opts \\ @session_opts) do
     id |> SessionHelper.add_session() |> Authenticate.call(opts)

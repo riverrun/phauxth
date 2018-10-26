@@ -6,6 +6,8 @@ defmodule Phauxth.Confirm.Base do
   and it can also be used to create custom user confirmation modules.
   """
 
+  @type error_message :: {:error, String.t()}
+
   @doc """
   Verifies the confirmation key and gets the user data from the database.
 
@@ -14,12 +16,10 @@ defmodule Phauxth.Confirm.Base do
 
   ## Options
 
-  There are three options for the verify function:
+  There are two options for the verify function:
 
     * `:user_context` - the users module to be used when querying the database
       * the default is Phauxth.Config.user_context()
-    * `:endpoint` - the name of the endpoint of your app
-      * this can also be set in the config
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
@@ -67,18 +67,21 @@ defmodule Phauxth.Confirm.Base do
   user to the next page or sends a json response. If unsuccessful, the
   `handle_password_reset` function handles the error.
   """
-  @callback verify(map, keyword) :: {:ok, map} | {:error, String.t()}
+  @callback verify(map, keyword) :: {:ok, map} | error_message
 
   @doc """
-  Gets the user struct based on the supplied key.
+  Gets the user data using the key in the params.
+
+  In the default implementation, this function retrieves user information
+  using the `get_by` function defined in the `user_context` module.
   """
-  @callback get_user(term, tuple) :: map | nil
+  @callback get_user(binary, map) :: map | nil
 
   @doc """
   Prints out a log message and then returns {:ok, user} or
   {:error, message} to the calling function.
   """
-  @callback report(map, keyword) :: {:ok, map} | {:error, String.t()}
+  @callback report(map, keyword) :: {:ok, map} | error_message
 
   @doc false
   defmacro __using__(_) do
@@ -92,20 +95,18 @@ defmodule Phauxth.Confirm.Base do
       def verify(params, opts \\ [])
 
       def verify(%{"key" => token}, opts) do
-        {user_context, endpoint, log_meta, token_mod} = parse_opts(opts)
-        token_mod |> get_user({token, user_context, opts}) |> report(log_meta)
+        {user_context, opts} = Keyword.pop(opts, :user_context, Config.user_context())
+        {log_meta, opts} = Keyword.pop(opts, :log_meta, [])
+        options = %{user_context: user_context, log_meta: log_meta, opts: opts}
+        token |> get_user(options) |> report(log_meta)
       end
 
       def verify(_, _), do: raise(ArgumentError, "No key found in the params")
 
-      defp parse_opts(opts) do
-        {Keyword.get(opts, :user_context, Config.user_context()),
-         Keyword.get(opts, :endpoint, Config.endpoint()), Keyword.get(opts, :log_meta, []),
-         Config.token_module()}
-      end
-
       @impl true
-      def get_user(token_mod, {token, user_context, opts}) do
+      def get_user(token, %{user_context: user_context, opts: opts}) do
+        token_mod = Config.token_module()
+
         with {:ok, params} <- token_mod.verify(token, opts ++ [max_age: 1200]),
              do: user_context.get_by(params)
       end
@@ -125,35 +126,5 @@ defmodule Phauxth.Confirm.Base do
 
       defoverridable Phauxth.Confirm.Base
     end
-  end
-
-  alias Phauxth.{Config, Log}
-
-  @doc """
-  Checks if the user has been confirmed.
-  """
-  @spec check_user_confirmed(map, list) :: {:ok, map} | {:error, String.t()}
-  def check_user_confirmed(%{confirmed_at: nil} = user, meta) do
-    Log.info(%Log{user: user.id, message: "user confirmed", meta: meta})
-    {:ok, Map.drop(user, Config.drop_user_keys())}
-  end
-
-  def check_user_confirmed(%{} = user, meta) do
-    Log.warn(%Log{user: user.id, message: "user already confirmed", meta: meta})
-    {:error, Config.user_messages().already_confirmed()}
-  end
-
-  @doc """
-  Checks if a reset token has been sent to the user.
-  """
-  @spec check_reset_sent_at(map, list) :: {:ok, map} | {:error, String.t()}
-  def check_reset_sent_at(%{reset_sent_at: nil}, meta) do
-    Log.warn(%Log{message: "no reset token found", meta: meta})
-    {:error, Config.user_messages().default_error()}
-  end
-
-  def check_reset_sent_at(%{reset_sent_at: _time} = user, meta) do
-    Log.info(%Log{user: user.id, message: "user confirmed for password reset", meta: meta})
-    {:ok, Map.drop(user, Config.drop_user_keys())}
   end
 end
