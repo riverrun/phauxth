@@ -8,8 +8,8 @@
   * you now only have to define a `get_by(attrs)` function in the user_context module (`get/1` is no longer needed)
 
 * Changes
-  * Removed Phauxth.Login and Phauxth.Confirm.Login (their functionality can be handled by Comeonin)
-  * Phauxth.Confirm.verify/3 is now Phauxth.Confirm.verify/2
+  * Removed Phauxth.Confirm.Login
+  * the Confirm.verify/3 and Login.verify/3 are now Confirm.verify/2 and Login.verify/2
     * the user_context is now set in the config
   * Phauxth.Confirm.verify with the `:pass_reset mode` is now Phauxth.Confirm.PassReset.verify
   * Phauxth.Token is now a behaviour, which you can use to define your own token implementation

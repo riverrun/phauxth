@@ -1,9 +1,6 @@
 defmodule Phauxth.Token do
   @moduledoc """
   Behaviour for signing and verifying tokens.
-
-  See Phauxth.PhxToken for an example implementation of this behaviour
-  using Phoenix tokens.
   """
 
   @type data :: map | keyword | binary | integer

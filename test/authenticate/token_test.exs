@@ -4,13 +4,13 @@ defmodule Phauxth.Authenticate.TokenTest do
 
   import ExUnit.CaptureLog
 
-  alias Phauxth.{AuthenticateToken, PhxToken, SessionHelper}
+  alias Phauxth.{AuthenticateToken, SessionHelper, TestToken}
 
   @token_opts {[], []}
 
   defp add_token(id, token \\ nil, key_opts \\ []) do
     conn = conn(:get, "/") |> SessionHelper.add_key()
-    token = token || PhxToken.sign(%{"session_id" => id}, key_opts)
+    token = token || TestToken.sign(%{"session_id" => id}, key_opts)
     put_req_header(conn, "authorization", token)
   end
 
@@ -75,7 +75,7 @@ defmodule Phauxth.Authenticate.TokenTest do
   end
 
   test "token stored in a cookie" do
-    token = PhxToken.sign(%{"session_id" => "1111"}, [])
+    token = TestToken.sign(%{"session_id" => "1111"}, [])
 
     conn =
       conn(:get, "/")

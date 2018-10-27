@@ -40,7 +40,6 @@ Phauxth.Login.verify(params)
 ### Session and token authentication
 
 * Phauxth.Token module now defines a behaviour which you can use to define your own token implementation
-  * the Phauxth.PhxToken module provides an example of using this behaviour with Phoenix tokens
 * Phauxth.Authenticate for tokens (Phauxth.Authenticate, method: :token)
 is now Phauxth.AuthenticateToken
 * Phauxth.Authenticate does not check the session expiry value
@@ -59,3 +58,7 @@ is now Phauxth.AuthenticateToken
 
 This section is only relevant if you were customizing any of the Phauxth plugs or
 verify functions.
+
+* the Phauxth behaviour (used by Confirm.Base and Login.Base) now has three callbacks: verify/2, authenticate/2 and report/2
+* Phauxth.Authenticate.Base `get_user` callback is now `authenticate`, and it returns {:ok, user} or {:error, message}
+

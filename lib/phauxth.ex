@@ -103,6 +103,10 @@ defmodule Phauxth do
   The `user_context` module needs to have a `get_by(attrs)` function
   defined (see the examples below).
 
+      def get_by(%{"session_id" => session_id}) do
+        Repo.get(Session, session_id)
+      end
+
       def get_by(%{"user_id" => user_id}) do
         Repo.get(User, user_id)
       end

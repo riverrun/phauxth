@@ -3,11 +3,11 @@ defmodule Phauxth.Confirm.BaseTest do
   use Plug.Test
   import ExUnit.CaptureLog
 
-  alias Phauxth.{Confirm, PhxToken}
+  alias Phauxth.{Confirm, TestToken}
 
   setup do
     conn = conn(:get, "/") |> Phauxth.SessionHelper.add_key()
-    valid_email = PhxToken.sign(%{"email" => "fred+1@example.com"}, [])
+    valid_email = TestToken.sign(%{"email" => "fred+1@example.com"}, [])
     {:ok, %{conn: conn, valid_email: valid_email}}
   end
 
@@ -24,14 +24,14 @@ defmodule Phauxth.Confirm.BaseTest do
   end
 
   test "confirmation fails for expired token" do
-    expired_email = PhxToken.sign(%{"email" => "ray@example.com"}, [])
+    expired_email = TestToken.sign(%{"email" => "ray@example.com"}, [])
     %{params: params} = conn(:get, "/confirm?key=" <> expired_email) |> fetch_query_params
     {:error, message} = Confirm.verify(params, max_age: -1)
     assert message =~ "Invalid credentials"
   end
 
   test "confirmation fails for already confirmed account" do
-    confirmed_email = PhxToken.sign(%{"email" => "ray@example.com"}, [])
+    confirmed_email = TestToken.sign(%{"email" => "ray@example.com"}, [])
     %{params: params} = conn(:get, "/confirm?key=" <> confirmed_email) |> fetch_query_params
     {:error, message} = Confirm.verify(params)
     assert message =~ "Your account has already been confirmed"
@@ -57,7 +57,7 @@ defmodule Phauxth.Confirm.BaseTest do
   end
 
   test "key options passed on to the token module" do
-    valid_email = PhxToken.sign(%{"email" => "fred+1@example.com"}, key_iterations: 10)
+    valid_email = TestToken.sign(%{"email" => "fred+1@example.com"}, key_iterations: 10)
 
     %{params: params} = conn(:get, "/confirm?key=" <> valid_email) |> fetch_query_params
     {:ok, user} = Confirm.verify(params, key_iterations: 10)

@@ -39,6 +39,7 @@ defmodule Phauxth.RememberTest do
       |> SessionHelper.recycle_and_sign()
       |> Remember.call(@opts)
       |> get_session(:session_id)
+
     assert session_id
   end
 

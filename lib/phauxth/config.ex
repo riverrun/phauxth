@@ -9,12 +9,10 @@ defmodule Phauxth.Config do
   | :----------------- | :-----------  | ---------------: |
   | user_context       | module        | N/A              |
   | log_level          | atom          | :info            |
-  | drop_user_keys     | list of atoms | []               |
-  | user_messages      | module        | Phauxth.UserMessages |
-  | crypto_module      | module        | N/A              |
-  | endpoint           | module        | N/A              |
   | token_module       | module        | N/A              |
-  | token_salt         | string        | N/A              |
+  | crypto_module      | module        | N/A              |
+  | user_messages      | module        | Phauxth.UserMessages |
+  | drop_user_keys     | list of atoms | []               |
 
   ## Umbrella apps
 
@@ -26,10 +24,8 @@ defmodule Phauxth.Config do
 
       config :phauxth,
         user_context: MyApp.Users,
-        token_salt: "YkLmt7+f",
-        endpoint: MyAppWeb.Endpoint,
         log_level: :warn,
-        drop_user_keys: [:shoe_size]
+        drop_user_keys: [:secret_key]
 
   """
 
@@ -58,11 +54,31 @@ defmodule Phauxth.Config do
   @doc """
   The module used to sign and verify tokens.
 
-  This module must implement the Phauxth.Token behaviour. See
-  Phauxth.PhxToken for an example token module.
+  This module must implement the Phauxth.Token behaviour.
+  See the documentation for Phauxth.Token for more information.
   """
   def token_module do
     Application.get_env(:phauxth, :token_module)
+  end
+
+  @doc """
+  The module used to verify passwords.
+
+  This is used by the Phauxth.Login module.
+  """
+  def crypto_module do
+    Application.get_env(:phauxth, :crypto_module)
+  end
+
+  @doc """
+  Module to be used to display messages to users.
+
+  The default is Phauxth.UserMessages. See the documentation for
+  Phauxth.UserMessages.Base for details about customizing / translating
+  these messages.
+  """
+  def user_messages do
+    Application.get_env(:phauxth, :user_messages, Phauxth.UserMessages)
   end
 
   @doc """
@@ -80,56 +96,6 @@ defmodule Phauxth.Config do
   end
 
   @doc """
-  Module to be used to display messages to users.
-
-  The default is Phauxth.UserMessages. See the documentation for
-  Phauxth.UserMessages.Base for details about customizing / translating
-  these messages.
-  """
-  def user_messages do
-    Application.get_env(:phauxth, :user_messages, Phauxth.UserMessages)
-  end
-
-  @doc """
-  The module used to verify passwords.
-
-  This is used by the Phauxth.Login module.
-  """
-  def crypto_module do
-    Application.get_env(:phauxth, :crypto_module)
-  end
-
-  @doc """
-  The endpoint of your app.
-
-  This is used by the Phauxth.Confirm module.
-  """
-  def endpoint do
-    Application.get_env(:phauxth, :endpoint) ||
-      raise """
-      You need to either set the `endpoint` value in the config/config.exs
-      file or set it by using the `endpoint` keyword argument.
-      """
-  end
-
-  @doc """
-  The salt to be used when creating and verifying tokens.
-
-  This is used by the Phauxth.Authenticate module, if you are using
-  token authentication, and by the Phauxth.Confirm module.
-  """
-  def token_salt do
-    Application.get_env(:phauxth, :token_salt) ||
-      raise """
-      You need to either set the `token_salt` value in the config/config.exs
-      file or set it by using the `token_salt` keyword argument.
-
-      To generate a suitable random salt, use the `gen_token_salt` function
-      in the Phauxth.Config module.
-      """
-  end
-
-  @doc """
   Generates a random salt for use with token authentication.
   """
   def gen_token_salt(length \\ 8)
@@ -140,7 +106,7 @@ defmodule Phauxth.Config do
 
   def gen_token_salt(_) do
     raise ArgumentError, """
-    The length is too short. The token_salt should be at least 8 characters long.
+    The length is too short. The token salt should be at least 8 characters long.
     """
   end
 end
