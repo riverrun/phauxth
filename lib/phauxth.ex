@@ -4,7 +4,7 @@ defmodule Phauxth do
 
   Phauxth is designed to be secure, extensible and well-documented.
 
-  Phauxth offers two types of functions: Plugs, which are called with plug,
+  Phauxth offers two types of functions: Plugs, which are called with `plug`,
   and `verify/2` functions.
 
   ## Plugs
@@ -17,69 +17,33 @@ defmodule Phauxth do
   `Phauxth.Authenticate` checks to see if there is a session_id
   in the current session and sets the current_user value accordingly.
 
-  This is usually added to the pipeline you want to authenticate in the
-  router.ex file, as in the following example.
-
-      pipeline :browser do
-        plug Phauxth.Authenticate
-      end
-
   ### AuthenticateToken
 
   `Phauxth.AuthenticateToken` checks to see if there is an authorization token
   in the headers, verifies it, and sets the current_user value accordingly.
 
-      plug Phauxth.AuthenticateToken
-
   ### Remember
 
-  This Plug provides a check for a remember_me cookie.
-
-      pipeline :browser do
-        plug Phauxth.Authenticate
-        plug Phauxth.Remember
-      end
-
-  This needs to be called after `plug Phauxth.Authenticate`.
+  `Phauxth.Remember` checks to see if there is a valid remember_me cookie.
+  If there is one, it verifies the cookie and, if the verification is successful,
+  adds the user to the session.
 
   ## Phauxth verify/2
 
-  The `verify/2` function takes a map (usually Phoenix params) and opts
-  (an empty list by default) and returns `{:ok, user}` or `{:error, message}`.
+  The `verify/2` functions take a map (usually Phoenix params) and opts
+  (an empty list by default) and return `{:ok, user}` or `{:error, message}`.
 
   ### Login
+
+  `Phauxth.Login.verify` is used for user login.
 
   ### User confirmation
 
   `Phauxth.Confirm.verify` is used for email confirmation.
 
-  The function below is an example of how you would call verify to
-  confirm a user's account.
-
-      def new(conn, params) do
-        case Phauxth.Confirm.verify(params) do
-          {:ok, user} ->
-            Users.confirm_user(user)
-            message = "Your account has been confirmed"
-            Message.confirm_success(user.email)
-            handle_success(conn, message, session_path(conn, :new))
-          {:error, message} ->
-            handle_error(conn, message, session_path(conn, :new))
-        end
-      end
-
-  Note that the verify function does not update the database or send
-  an email to the user. Those need to be handled in your app.
-
   ### Password resetting
 
-  `Phauxth.Confirm.PassReset.verify` is used for password resetting, as
-  in the example below:
-
-      Phauxth.Confirm.PassReset.verify(params)
-
-  This function just verifies the confirmation key. It does not reset
-  the password or send an email to the user.
+  `Phauxth.Confirm.PassReset.verify` is used for password resetting.
 
   ## Phauxth with a new Phoenix project
 
@@ -97,18 +61,16 @@ defmodule Phauxth do
     * `--backups` - create backup files, with `.bak` extension, before writing new files
 
   Phauxth uses the `user_context` module to communicate with the
-  underlying database. This value can be set in the config - see the documentation
-  for `Phauxth.Config.user_context` for details.
+  underlying database. This value needs to be set in the config.
+  See the documentation for `Phauxth.Config.user_context` for details.
 
-  The `user_context` module needs to have a `get_by(attrs)` function
-  defined (see the examples below).
+  In addition, the `user_context` module needs to have a `get_by(attrs)`
+  function defined (see the examples below).
 
+      @spec get_by(map) :: User.t() | nil
       def get_by(%{"session_id" => session_id}) do
-        Repo.get(Session, session_id)
-      end
-
-      def get_by(%{"user_id" => user_id}) do
-        Repo.get(User, user_id)
+        with %Session{user_id: user_id} <- Sessions.get_session(session_id),
+        do: get_user(user_id)
       end
 
       def get_by(%{"email" => email}) do
@@ -128,11 +90,18 @@ defmodule Phauxth do
 
   @doc """
   Verifies the user based on the user params.
+
+  In the default implementations - Confirm.Base and Login.Base, this
+  function calls the `authenticate` function with the user params and
+  pipes the output to the `report` function.
   """
   @callback verify(map, keyword) :: ok_or_error
 
   @doc """
   Authenticates the user based on the user params.
+
+  After performing the relevant checks, this function also gets the
+  user data (if available).
   """
   @callback authenticate(map, keyword) :: ok_or_error
 

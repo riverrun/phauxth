@@ -2,7 +2,7 @@ defmodule Phauxth.Authenticate.Base do
   @moduledoc """
   Base module for authentication.
 
-  This is `use`-d by Phauxth.Authenticate and Phauxth.Remember, and it is also
+  This is `use`-d by Phauxth.Authenticate and Phauxth.Remember, and it is
   extended by Phauxth.Authenticate.Token.
 
   This module can also be used to produce a custom authentication module,
@@ -26,16 +26,16 @@ defmodule Phauxth.Authenticate.Base do
         def set_user(nil, conn), do: assign(conn, :current_user, nil)
 
         def set_user(user, conn) do
-          token = MyApp.Token.sign(%{"user_id" => user.email})
+          token = MyAppWeb.Token.sign(%{"user_id" => user.email})
           user |> super(conn) |> assign(:user_token, token)
         end
       end
 
   MyAppWeb.ChannelAuthenticate is called in the same way as Phauxth.Authenticate.
 
-  You can then use MyApp.Token.verify, in the `user_socket.ex` file, to
+  You can then use MyAppWeb.Token.verify, in the `user_socket.ex` file, to
   verify the token - see the documentation for Phauxth.Token for information
-  about how to create the MyApp.Token module.
+  about how to create the MyAppWeb.Token module.
   """
 
   @type ok_or_error :: {:ok, map} | {:error, String.t() | atom}
@@ -50,7 +50,7 @@ defmodule Phauxth.Authenticate.Base do
   @callback authenticate(Plug.Conn.t(), keyword) :: ok_or_error
 
   @doc """
-  Logs the result of the authentication and return the user struct or nil.
+  Logs the result of the authentication and returns the user struct or nil.
   """
   @callback report(ok_or_error, keyword) :: map | nil
 

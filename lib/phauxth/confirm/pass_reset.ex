@@ -1,8 +1,6 @@
 defmodule Phauxth.Confirm.PassReset do
   @moduledoc """
   Module to provide user confirmation when resetting passwords.
-
-  See the documentation for the `verify` function for details.
   """
 
   use Phauxth.Confirm.Base

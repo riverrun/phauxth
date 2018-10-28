@@ -1,11 +1,13 @@
 defmodule Phauxth.Authenticate do
   @moduledoc """
-  Authenticates the current user, using Phauxth sessions and a session
-  id.
+  Authenticates the current user using sessions.
 
-  You need to define a `get_by(%{"session_id" => session_id})` function
-  in the `user_context` module you are using - see the documentation
-  for Phauxth.Config for more information about the `user_context`.
+  You need to set a `user_context` module in the config and define a
+  `get_by(%{"session_id" => session_id})` function (see the examples
+  section below) in this module.
+
+  See the documentation for Phauxth.Config for more information
+  about the `user_context`.
 
   For information about customizing this Plug, see the documentation
   for Phauxth.Authenticate.Base.
@@ -24,17 +26,25 @@ defmodule Phauxth.Authenticate do
 
   ## Examples
 
-  Add the following line to the pipeline you want to authenticate in
-  the `web/router.ex` file:
+  Add the following line to the pipeline you want to authenticate
+  in the `web/router.ex` file:
 
       plug Phauxth.Authenticate
 
-  And if you are using a different users module:
+  Then, add the `user_context` module (the module you are using to handle
+  user data) to the config:
 
-      plug Phauxth.Authenticate, user_context: MyApp.Users
+      config :phauxth, user_context: MyApp.Accounts
 
-  In the example above, you need to have the `get_by/1` function
-  defined in MyApp.Users.
+  Finally, define a `get_by(%{"session_id" => session_id})` function
+  in the `user_context` module (in this case, in MyApp.Accounts).
+
+      def get_by(%{"session_id" => session_id}) do
+        with %Session{user_id: user_id} <- Sessions.get_session(session_id),
+        do: get_user(user_id)
+      end
+
+  This function should return a user struct or nil.
   """
 
   use Phauxth.Authenticate.Base

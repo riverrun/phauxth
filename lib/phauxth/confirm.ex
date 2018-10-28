@@ -2,7 +2,12 @@ defmodule Phauxth.Confirm do
   @moduledoc """
   Module to provide user confirmation for new users.
 
-  See the documentation for the `verify` function for details.
+  ## Options
+
+  There is one option:
+
+    * `:log_meta` - additional custom metadata for Phauxth.Log
+      * this should be a keyword list
   """
 
   use Phauxth.Confirm.Base

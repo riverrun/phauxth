@@ -23,8 +23,8 @@ defmodule Phauxth.TestToken do
 end
 
 defmodule Phauxth.PhoenixToken do
-  # This module consists of the Phoenix.Token module
-  # this is used for testing purposes.
+  # This module is based on the Phoenix.Token module
+  # and is used for testing purposes.
 
   require Logger
   alias Plug.Crypto.KeyGenerator
@@ -66,9 +66,6 @@ defmodule Phauxth.PhoenixToken do
 
   defp get_key_base(%Plug.Conn{} = conn),
     do: conn |> Phoenix.Controller.endpoint_module() |> get_endpoint_key_base()
-
-  defp get_key_base(%Phoenix.Socket{} = socket),
-    do: get_endpoint_key_base(socket.endpoint)
 
   defp get_key_base(endpoint) when is_atom(endpoint),
     do: get_endpoint_key_base(endpoint)

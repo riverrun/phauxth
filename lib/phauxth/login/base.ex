@@ -23,8 +23,7 @@ defmodule Phauxth.Login.Base do
 
   In this example, the `authenticate` function is overridden to check
   the user struct to see if the user is confirmed. If the user has not
-  been confirmed, an error is returned. Otherwise, the default authenticate
-  function is run.
+  been confirmed, an error is returned.
   """
 
   @doc false

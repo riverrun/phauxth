@@ -12,8 +12,9 @@
   * the Confirm.verify/3 and Login.verify/3 are now Confirm.verify/2 and Login.verify/2
     * the user_context is now set in the config
   * Phauxth.Confirm.verify with the `:pass_reset mode` is now Phauxth.Confirm.PassReset.verify
-  * Phauxth.Token is now a behaviour, which you can use to define your own token implementation
-    * the Phauxth.PhxToken module provides an example of using this behaviour with Phoenix tokens
+  * Phauxth.Token is now a behaviour
+    * you will need to define a token module using this behaviour in your app if you are
+    using Phauxth for token authentication, email confirmation or password resetting
 
 ## Version 1.2.5
 

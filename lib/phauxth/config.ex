@@ -14,9 +14,6 @@ defmodule Phauxth.Config do
   | user_messages      | module        | Phauxth.UserMessages |
   | drop_user_keys     | list of atoms | []               |
 
-  ## Umbrella apps
-
-
   ## Examples
 
   Add a `phauxth` entry to the `config.exs` file in your project,
@@ -46,6 +43,8 @@ defmodule Phauxth.Config do
 
   The default is `:info`, which means that `:info`, `:warn` and `:error` logs
   will be returned.
+
+  You can turn off the Phauxth logs by setting this value to `false`.
   """
   def log_level do
     Application.get_env(:phauxth, :log_level, :info)

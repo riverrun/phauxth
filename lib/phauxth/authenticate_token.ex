@@ -34,8 +34,15 @@ defmodule Phauxth.AuthenticateToken do
 
       plug Phauxth.AuthenticateToken
 
-  In the example above, you need to have the `get_by/1` function
-  defined in MyApp.Users.
+  Then, add the `user_context` module (the module you are using to handle
+  user data) to the config:
+
+      config :phauxth, user_context: MyApp.Accounts
+
+  Finally, define a `get_by(attrs)` function in the `user_context`
+  module (in this case, in MyApp.Accounts). This function should
+  return a user struct or nil, and the `attrs` should be the data
+  which was used to sign the token.
   """
 
   use Phauxth.Authenticate.Token
