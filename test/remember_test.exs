@@ -43,10 +43,8 @@ defmodule Phauxth.RememberTest do
     assert session_id
   end
 
-  test "error log when the cookie is invalid", %{conn: conn} do
-    invalid =
-      "SFMyNTY.g3QAAAACZAAEZGF0YWeBZAAGc2lnbmVkbgYAHU1We1sB.mMbd1DOs-1UnE29sTg1O9QC_l1YAHURVe7FsTTsXj88"
-
+  test "error log when the token is invalid", %{conn: conn} do
+    invalid = "garbage"
     conn = put_resp_cookie(conn, "remember_me", invalid, http_only: true, max_age: @max_age)
 
     assert capture_log(fn ->
@@ -86,7 +84,8 @@ defmodule Phauxth.RememberTest do
 
   test "delete cookie", %{conn: conn} do
     conn =
-      Remember.delete_rem_cookie(conn)
+      conn
+      |> Remember.delete_rem_cookie()
       |> send_resp(200, "")
 
     refute conn.req_cookies["remember_me"]
@@ -94,7 +93,8 @@ defmodule Phauxth.RememberTest do
 
   test "output to current_user does not contain password_hash", %{conn: conn} do
     conn =
-      SessionHelper.recycle_and_sign(conn)
+      conn
+      |> SessionHelper.recycle_and_sign()
       |> Remember.call(@opts)
 
     %{current_user: user} = conn.assigns

@@ -28,7 +28,7 @@ defmodule Phauxth.Confirm.PassResetTest do
     assert capture_log(fn ->
              valid_key = TestToken.sign(%{"email" => "brian@example.com"}, [])
              params = %{"key" => valid_key, "password" => "password"}
-             {:error, _} = PassReset.verify(params)
+             {:error, "Invalid credentials"} = PassReset.verify(params)
            end) =~ ~s([warn]  user=nil message="unconfirmed user attempting to reset password")
   end
 
@@ -36,7 +36,7 @@ defmodule Phauxth.Confirm.PassResetTest do
     assert capture_log(fn ->
              valid_key = TestToken.sign(%{"email" => "igor@example.com"}, [])
              params = %{"key" => valid_key, "password" => "password"}
-             {:error, _} = PassReset.verify(params)
+             {:error, "Invalid token"} = PassReset.verify(params)
            end) =~ ~s([warn]  user=nil message="no reset token found")
   end
 end

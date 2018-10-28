@@ -24,8 +24,8 @@ defmodule Phauxth.AuthenticateToken do
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
-  There are also options for signing / verifying the token.
-  See the documentation for the Phauxth.Token module for details.
+  There are also options for verifying the token. See the documentation
+  for the Phauxth.Token module for details.
 
   ## Examples
 

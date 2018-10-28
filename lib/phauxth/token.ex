@@ -4,7 +4,15 @@ defmodule Phauxth.Token do
 
   If you are using Phauxth for token authentication, email confirmation
   or password resetting, you will need to define a module in your app
-  that uses this behaviour.
+  that uses this behaviour (see the examples section below).
+
+  After you have created the token module, add the `token_module`
+  value to the phauxth config:
+
+      config phauxth, token_module: MyAppWeb.Auth.Token
+
+  Use the token module to sign the tokens, and then Phauxth will use
+  this module to verify the tokens.
 
   ## Examples
 

@@ -21,6 +21,7 @@ defmodule Phauxth.UserMessages.Base do
 
   @callback already_confirmed() :: String.t()
   @callback default_error() :: String.t()
+  @callback invalid_token() :: String.t()
 
   defmacro __using__(_) do
     quote do
@@ -28,6 +29,7 @@ defmodule Phauxth.UserMessages.Base do
 
       def already_confirmed, do: "Your account has already been confirmed"
       def default_error, do: "Invalid credentials"
+      def invalid_token, do: "Invalid token"
 
       defoverridable Phauxth.UserMessages.Base
     end
