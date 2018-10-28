@@ -10,5 +10,6 @@ defmodule Phauxth.UserMessagesTest do
   test "can customize the user messages" do
     assert CustomUserMessages.need_confirm() =~ "wear a whistle to come in 'ere, me old china"
     assert CustomUserMessages.default_error() =~ "Invalid credentials"
+    assert CustomUserMessages.invalid_token() =~ "Invalid token"
   end
 end
