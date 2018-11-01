@@ -23,6 +23,13 @@ defmodule Phauxth.Authenticate.BaseTest do
     assert user.role == "user"
   end
 
+  test "session id can be integer" do
+    conn = call(123)
+    %{current_user: user} = conn.assigns
+    assert user.email == "fred+1@example.com"
+    assert user.role == "user"
+  end
+
   test "no user found" do
     conn = call("9999")
     assert conn.assigns == %{current_user: nil}
@@ -34,7 +41,7 @@ defmodule Phauxth.Authenticate.BaseTest do
   end
 
   test "user removed from session" do
-    conn = call("1111") |> delete_session(:session_id)
+    conn = call("1111") |> delete_session(:phauxth_session_id)
 
     newconn =
       conn(:get, "/")

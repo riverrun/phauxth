@@ -5,12 +5,23 @@ defmodule Phauxth.Remember do
   Checks for a `remember_me` cookie, which contains a token. The token is
   then checked, and if it is valid, the user is added to the session.
 
-  Before using this Plug, you will need to define a `create_session`
-  function in the `user_context` module. The `create_session` function
-  should return `{:ok, session}` or `{:error, message}`.
-
   This module also contains functions to add / delete the `remember_me`
   cookie.
+
+  ## Configuration / setup
+
+  Add the `user_context` module (the module you are using to handle
+  user data) to the config:
+
+      config :phauxth, user_context: MyApp.Accounts
+
+  The user_context module (in this case, MyApp.Accounts) needs to have a
+  `get_by(attrs)` function, which returns either a user struct or nil,
+  and a `create_session(user)` function, which returns `{:ok, session}` or
+  `{:error, message}`.
+
+  You also need to define a token module that implements the Phauxth.Token
+  behaviour. See the documentation for the Phauxth.Token module for details.
 
   ## Options
 
@@ -19,8 +30,7 @@ defmodule Phauxth.Remember do
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
-  There are also options for verifying the token. See the documentation
-  for the Phauxth.Token module for details.
+  There are also options for verifying the token.
 
   ## Examples
 
@@ -34,7 +44,8 @@ defmodule Phauxth.Remember do
   """
 
   use Phauxth.Authenticate.Base
-  alias Phauxth.{Authenticate, Config}
+
+  alias Phauxth.Config
 
   @max_age 7 * 24 * 60 * 60
 
@@ -54,12 +65,20 @@ defmodule Phauxth.Remember do
   end
 
   @impl Phauxth.Authenticate.Base
-  def set_user(nil, conn), do: super(nil, conn)
+  def set_user(nil, conn) do
+    super(nil, delete_rem_cookie(conn))
+  end
 
   def set_user(user, conn) do
     {:ok, %{id: session_id}} = Config.user_context().create_session(user)
-    conn = Authenticate.add_session(conn, session_id)
+    conn = add_session(conn, session_id)
     super(user, conn)
+  end
+
+  defp add_session(conn, session_id) do
+    conn
+    |> put_session(:phauxth_session_id, session_id)
+    |> configure_session(renew: true)
   end
 
   @doc """

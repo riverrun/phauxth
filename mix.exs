@@ -1,7 +1,7 @@
 defmodule Phauxth.Mixfile do
   use Mix.Project
 
-  @version "2.0.0-beta.1"
+  @version "2.0.0-rc.0"
 
   @description """
   Authentication library for Phoenix, and other Plug-based, web applications
@@ -29,7 +29,7 @@ defmodule Phauxth.Mixfile do
 
   defp deps do
     [
-      {:plug, "~> 1.6"},
+      {:plug, "~> 1.7"},
       {:comeonin, "~> 4.1"},
       {:argon2_elixir, "~> 1.3", optional: true},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false}

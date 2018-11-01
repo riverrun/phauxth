@@ -38,7 +38,7 @@ defmodule Phauxth.RememberTest do
       conn
       |> SessionHelper.recycle_and_sign()
       |> Remember.call(@opts)
-      |> get_session(:session_id)
+      |> get_session(:phauxth_session_id)
 
     assert session_id
   end
@@ -68,7 +68,7 @@ defmodule Phauxth.RememberTest do
     conn =
       conn
       |> SessionHelper.recycle_and_sign()
-      |> put_session(:session_id, "5555")
+      |> put_session(:phauxth_session_id, "5555")
       |> Authenticate.call({[], []})
       |> Remember.call(@opts)
 

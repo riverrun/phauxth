@@ -25,6 +25,13 @@ defmodule Phauxth.Authenticate.TokenTest do
     assert user.role == "user"
   end
 
+  test "session id can be integer" do
+    conn = call_api(123)
+    %{current_user: user} = conn.assigns
+    assert user.email == "fred+1@example.com"
+    assert user.role == "user"
+  end
+
   test "authenticate api with invalid token sets the current_user to nil" do
     conn = call_api("1111", "garbage")
     assert conn.assigns == %{current_user: nil}

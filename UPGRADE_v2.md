@@ -37,13 +37,15 @@ Phauxth.Confirm.verify(params) # with user_context set in the config
 Phauxth.Login.verify(params)
 ```
 
-### Session and token authentication
+### Session authentication
 
-* Phauxth.Token module now defines a behaviour which you can use to define your own token implementation
-* Phauxth.Authenticate for tokens (Phauxth.Authenticate, method: :token)
-is now Phauxth.AuthenticateToken
 * Phauxth.Authenticate does not check the session expiry value
   * the session expiry value can be checked in the `get_by/1` function in the user context
+
+### Token authentication
+
+* Phauxth.Token module now defines a behaviour which you can use to define your own token implementation
+* Phauxth.Authenticate for tokens (Phauxth.Authenticate, method: :token) is now Phauxth.AuthenticateToken
 
 ### Login
 
@@ -53,6 +55,11 @@ is now Phauxth.AuthenticateToken
 ### Password resetting
 
 * Phauxth.Confirm.verify with the `:pass_reset mode` has been renamed to Phauxth.Confirm.PassReset.verify
+
+### Remember me
+
+* to use Phauxth.Remember, you need to define a `create_session(user)` function in the user_context module
+  * this function should return `{:ok, session}` or `{:error, message}`
 
 ### Customizing Phauxth
 

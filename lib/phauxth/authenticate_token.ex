@@ -2,20 +2,25 @@ defmodule Phauxth.AuthenticateToken do
   @moduledoc """
   Authenticates the user by verifying a Phauxth token.
 
-  You need to define a `get_by(attrs)` function in the `user_context`
-  module you are using - see the documentation for Phauxth.Config
-  for more information about the `user_context`.
+  This module looks for a token in the request headers,
+  checks to see if the token is valid and then sets the `current_user`
+  value accordingly.
 
-  ## Token authentication
+  If you want to store the token in a cookie, or customize this Plug
+  in any other way, see the documentation for Phauxth.Authenticate.Token.
 
-  This module looks for a token in the request headers. It then uses the
-  `token_module` (which you need to set in the config) to check if
-  it is valid. If it is valid, the `get_by` function in the `user_context`
-  module is called, to get user information from the database.
+  ## Configuration / setup
 
-  If you want to store the token in a cookie, see the documentation for
-  Phauxth.Authenticate.Token, which has an example of how you can create
-  a custom module to verify tokens stored in cookies.
+  Add the `user_context` module (the module you are using to handle
+  user data) to the config:
+
+      config :phauxth, user_context: MyApp.Accounts
+
+  The user_context module (in this case, MyApp.Accounts) needs to have a
+  `get_by(attrs)` function, which returns either a user struct or nil.
+
+  You also need to define a token module that implements the Phauxth.Token
+  behaviour. See the documentation for the Phauxth.Token module for details.
 
   ## Options
 
@@ -24,8 +29,7 @@ defmodule Phauxth.AuthenticateToken do
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
-  There are also options for verifying the token. See the documentation
-  for the Phauxth.Token module for details.
+  There are also options for verifying the token.
 
   ## Examples
 
@@ -34,15 +38,6 @@ defmodule Phauxth.AuthenticateToken do
 
       plug Phauxth.AuthenticateToken
 
-  Then, add the `user_context` module (the module you are using to handle
-  user data) to the config:
-
-      config :phauxth, user_context: MyApp.Accounts
-
-  Finally, define a `get_by(attrs)` function in the `user_context`
-  module (in this case, in MyApp.Accounts). This function should
-  return a user struct or nil, and the `attrs` should be the data
-  which was used to sign the token.
   """
 
   use Phauxth.Authenticate.Token

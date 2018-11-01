@@ -96,6 +96,9 @@ defmodule Phauxth.Config do
 
   @doc """
   Generates a random salt for use with token authentication.
+
+  If you are using tokens in your app, and the token implementation uses
+  salts, you can use this function to generate random salts.
   """
   def gen_token_salt(length \\ 8)
 

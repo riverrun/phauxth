@@ -80,7 +80,7 @@ defmodule Phauxth.Authenticate.Base do
 
       @impl Phauxth.Authenticate.Base
       def authenticate(conn, _opts) do
-        case get_session(conn, :session_id) do
+        case get_session(conn, :phauxth_session_id) do
           nil -> {:error, "anonymous user"}
           session_id -> get_user({:ok, %{"session_id" => session_id}})
         end

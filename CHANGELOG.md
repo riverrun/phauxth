@@ -12,6 +12,7 @@
   * the Confirm.verify/3 and Login.verify/3 are now Confirm.verify/2 and Login.verify/2
     * the user_context is now set in the config
   * Phauxth.Confirm.verify with the `:pass_reset mode` is now Phauxth.Confirm.PassReset.verify
+  * to use Phauxth.Remember, you need to define a `create_session(user)` function in the user_context module
   * Phauxth.Token is now a behaviour
     * you will need to define a token module using this behaviour in your app if you are
     using Phauxth for token authentication, email confirmation or password resetting

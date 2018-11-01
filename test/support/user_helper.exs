@@ -5,6 +5,7 @@ defmodule Phauxth.TestSessions do
 
   def sessions do
     %{
+      123 => %TestSession{id: 123, user_id: "1"},
       "1111" => %TestSession{id: "1111", user_id: "1"},
       "2222" => %TestSession{id: "2222", user_id: "2"},
       "3333" => %TestSession{id: "3333", user_id: "3"},
