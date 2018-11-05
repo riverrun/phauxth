@@ -1,6 +1,6 @@
 # Phauxth Changelog
 
-## Version 2.0.0-alpha
+## Version 2.0.0-rc
 
 * Enhancements
   * updated to use Elixir 1.7
