@@ -25,8 +25,10 @@ defmodule Phauxth.Remember do
 
   ## Options
 
-  There is one option:
+  There are two options:
 
+    * `:user_context` - the user_context module
+      * this can also be set in the config
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
@@ -52,8 +54,8 @@ defmodule Phauxth.Remember do
   @impl Plug
   def call(%Plug.Conn{assigns: %{current_user: %{}}} = conn, _), do: conn
 
-  def call(%Plug.Conn{req_cookies: %{"remember_me" => _token}} = conn, opts) do
-    super(conn, opts)
+  def call(%Plug.Conn{req_cookies: %{"remember_me" => _}} = conn, {user_context, _, _} = opts) do
+    conn |> super(opts) |> add_session(user_context)
   end
 
   def call(conn, _), do: conn
@@ -65,14 +67,15 @@ defmodule Phauxth.Remember do
   end
 
   @impl Phauxth.Authenticate.Base
-  def set_user(nil, conn) do
-    super(nil, delete_rem_cookie(conn))
+  def set_user(nil, conn), do: super(nil, delete_rem_cookie(conn))
+  def set_user(user, conn), do: super(user, conn)
+
+  defp add_session(%Plug.Conn{assigns: %{current_user: %{} = user}} = conn, user_context) do
+    {:ok, %{id: session_id}} = user_context.create_session(user)
+    Login.add_session(conn, session_id)
   end
 
-  def set_user(user, conn) do
-    {:ok, %{id: session_id}} = Config.user_context().create_session(user)
-    super(user, Login.add_session(conn, session_id))
-  end
+  defp add_session(conn, _), do: conn
 
   @doc """
   Adds a remember me cookie to the conn.

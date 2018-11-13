@@ -4,8 +4,10 @@ defmodule Phauxth.Confirm do
 
   ## Options
 
-  There is one option:
+  There are two options:
 
+    * `:user_context` - the user_context module
+      * this can also be set in the config
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
 
