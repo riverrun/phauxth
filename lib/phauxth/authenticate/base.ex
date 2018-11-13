@@ -47,7 +47,7 @@ defmodule Phauxth.Authenticate.Base do
   information using the `get_by` function defined in the `user_context`
   module.
   """
-  @callback authenticate(Plug.Conn.t(), keyword) :: ok_or_error
+  @callback authenticate(Plug.Conn.t(), module, keyword) :: ok_or_error
 
   @doc """
   Logs the result of the authentication and returns the user struct or nil.
@@ -70,30 +70,34 @@ defmodule Phauxth.Authenticate.Base do
 
       @impl Plug
       def init(opts) do
-        {opts, Keyword.get(opts, :log_meta, [])}
+        {Keyword.get(opts, :user_context, Config.user_context()),
+         Keyword.get(opts, :log_meta, []), opts}
       end
 
       @impl Plug
-      def call(conn, {opts, log_meta}) do
-        conn |> authenticate(opts) |> report(log_meta) |> set_user(conn)
+      def call(conn, {user_context, log_meta, opts}) do
+        conn
+        |> authenticate(user_context, opts)
+        |> report(log_meta)
+        |> set_user(conn)
       end
 
       @impl Phauxth.Authenticate.Base
-      def authenticate(conn, _opts) do
+      def authenticate(conn, user_context, _opts) do
         case get_session(conn, :phauxth_session_id) do
           nil -> {:error, "anonymous user"}
-          session_id -> get_user({:ok, %{"session_id" => session_id}})
+          session_id -> get_user({:ok, %{"session_id" => session_id}}, user_context)
         end
       end
 
-      defp get_user({:ok, data}) do
-        case Config.user_context().get_by(data) do
+      defp get_user({:ok, data}, user_context) do
+        case user_context.get_by(data) do
           nil -> {:error, "no user found"}
           user -> {:ok, user}
         end
       end
 
-      defp get_user({:error, message}), do: {:error, message}
+      defp get_user({:error, message}, _), do: {:error, message}
 
       @impl Phauxth.Authenticate.Base
       def report({:ok, user}, meta) do

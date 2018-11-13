@@ -54,4 +54,13 @@ defmodule Phauxth.Login.BaseTest do
       {:ok, _} = Login.verify(%{"no_key" => "no_key"})
     end
   end
+
+  test "set user_context in the keyword args" do
+    params = %{"email" => "deirdre@example.com", "password" => "h4rd2gU3$$"}
+    {:ok, %{email: email}} = Login.verify(params, user_context: Phauxth.OtherTestUsers)
+    assert email == "deirdre@example.com"
+    params = %{"email" => "deirdre@example.com", "password" => "ohnoitisnt"}
+    {:error, message} = Login.verify(params, user_context: Phauxth.OtherTestUsers)
+    assert message =~ "Invalid credentials"
+  end
 end

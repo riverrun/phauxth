@@ -18,4 +18,17 @@ defmodule Phauxth.Login do
   """
 
   use Phauxth.Login.Base
+
+  import Plug.Conn
+
+  @doc """
+  Adds the session_id to the conn.
+  """
+  @spec add_session(Plug.Conn.t(), binary) :: Plug.Conn.t()
+  def add_session(conn, session_id) do
+    conn
+    |> delete_session(:request_path)
+    |> put_session(:phauxth_session_id, session_id)
+    |> configure_session(renew: true)
+  end
 end

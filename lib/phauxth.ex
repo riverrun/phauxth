@@ -103,7 +103,7 @@ defmodule Phauxth do
   After performing the relevant checks, this function also gets the
   user data (if available).
   """
-  @callback authenticate(map, keyword) :: ok_or_error
+  @callback authenticate(map, module, keyword) :: ok_or_error
 
   @doc """
   Logs the result of the verification and returns `{:ok, user}` or

@@ -87,3 +87,19 @@ defmodule Phauxth.TestUsers do
     end
   end
 end
+
+defmodule Phauxth.OtherTestUsers do
+  def users do
+    %{
+      "1" => %{
+        id: "1111",
+        email: "deirdre@example.com",
+        confirmed_at: nil,
+        password_hash: Comeonin.Argon2.hashpwsalt("h4rd2gU3$$")
+      }
+    }
+  end
+
+  def get_by(%{"session_id" => "1111"}), do: users()["1"]
+  def get_by(%{"email" => "deirdre@example.com"}), do: users()["1"]
+end

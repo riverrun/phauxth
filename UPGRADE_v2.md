@@ -50,6 +50,7 @@ Phauxth.Login.verify(params)
 ### Login
 
 * Phauxth.Confirm.Login has been removed
+* Phauxth.Login.add_session has been removed
 * the `crypto_module` for Phauxth.Login is now set in the config
 
 ### Password resetting

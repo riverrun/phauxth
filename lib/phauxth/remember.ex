@@ -45,7 +45,7 @@ defmodule Phauxth.Remember do
 
   use Phauxth.Authenticate.Base
 
-  alias Phauxth.Config
+  alias Phauxth.{Config, Login}
 
   @max_age 7 * 24 * 60 * 60
 
@@ -59,9 +59,9 @@ defmodule Phauxth.Remember do
   def call(conn, _), do: conn
 
   @impl Phauxth.Authenticate.Base
-  def authenticate(%Plug.Conn{req_cookies: %{"remember_me" => token}}, opts) do
+  def authenticate(%Plug.Conn{req_cookies: %{"remember_me" => token}}, user_context, opts) do
     with {:ok, user_id} <- Config.token_module().verify(token, opts),
-         do: get_user({:ok, %{"user_id" => user_id}})
+         do: get_user({:ok, %{"user_id" => user_id}}, user_context)
   end
 
   @impl Phauxth.Authenticate.Base
@@ -71,14 +71,7 @@ defmodule Phauxth.Remember do
 
   def set_user(user, conn) do
     {:ok, %{id: session_id}} = Config.user_context().create_session(user)
-    conn = add_session(conn, session_id)
-    super(user, conn)
-  end
-
-  defp add_session(conn, session_id) do
-    conn
-    |> put_session(:phauxth_session_id, session_id)
-    |> configure_session(renew: true)
+    super(user, Login.add_session(conn, session_id))
   end
 
   @doc """

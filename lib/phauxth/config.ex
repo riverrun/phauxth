@@ -8,21 +8,21 @@ defmodule Phauxth.Config do
   | name               | type          | default          |
   | :----------------- | :-----------  | ---------------: |
   | user_context       | module        | N/A              |
-  | log_level          | atom          | :info            |
-  | token_module       | module        | N/A              |
   | crypto_module      | module        | N/A              |
+  | token_module       | module        | N/A              |
+  | log_level          | atom          | :info            |
   | user_messages      | module        | Phauxth.UserMessages |
   | drop_user_keys     | list of atoms | []               |
 
   ## Examples
 
   Add a `phauxth` entry to the `config.exs` file in your project,
-  as in the following example.
+  as in the following example:
 
       config :phauxth,
         user_context: MyApp.Users,
-        log_level: :warn,
-        drop_user_keys: [:secret_key]
+        crypto_module: Comeonin.Argon2,
+        token_module: MyAppWeb.Auth.Token
 
   """
 
@@ -37,17 +37,12 @@ defmodule Phauxth.Config do
   end
 
   @doc """
-  The log level for Phauxth logs.
+  The module used to verify passwords.
 
-  This can be `false`, `:debug`, `:info`, `:warn` or `:error`.
-
-  The default is `:info`, which means that `:info`, `:warn` and `:error` logs
-  will be returned.
-
-  You can turn off the Phauxth logs by setting this value to `false`.
+  This is used by the Phauxth.Login module.
   """
-  def log_level do
-    Application.get_env(:phauxth, :log_level, :info)
+  def crypto_module do
+    Application.get_env(:phauxth, :crypto_module)
   end
 
   @doc """
@@ -61,12 +56,17 @@ defmodule Phauxth.Config do
   end
 
   @doc """
-  The module used to verify passwords.
+  The log level for Phauxth logs.
 
-  This is used by the Phauxth.Login module.
+  This can be `false`, `:debug`, `:info`, `:warn` or `:error`.
+
+  The default is `:info`, which means that `:info`, `:warn` and `:error` logs
+  will be returned.
+
+  You can turn off the Phauxth logs by setting this value to `false`.
   """
-  def crypto_module do
-    Application.get_env(:phauxth, :crypto_module)
+  def log_level do
+    Application.get_env(:phauxth, :log_level, :info)
   end
 
   @doc """

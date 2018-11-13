@@ -38,15 +38,16 @@ defmodule Phauxth.Login.Base do
       def verify(params, opts \\ [])
 
       def verify(%{"password" => _password} = params, opts) do
+        user_context = Keyword.get(opts, :user_context, Config.user_context())
         log_meta = Keyword.get(opts, :log_meta, [])
-        params |> authenticate(opts) |> report(log_meta)
+        params |> authenticate(user_context, opts) |> report(log_meta)
       end
 
       def verify(_, _), do: raise(ArgumentError, "No password found in the params")
 
       @impl true
-      def authenticate(%{"password" => password} = params, opts) do
-        case Config.user_context().get_by(params) do
+      def authenticate(%{"password" => password} = params, user_context, opts) do
+        case user_context.get_by(params) do
           nil -> {:error, "no user found"}
           user -> Config.crypto_module().check_pass(user, password, opts)
         end

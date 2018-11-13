@@ -7,7 +7,7 @@ defmodule Phauxth.RememberTest do
   alias Phauxth.{Authenticate, Remember, SessionHelper}
 
   @max_age 7 * 24 * 60 * 60
-  @opts {[], []}
+  @opts {Phauxth.TestUsers, [], []}
 
   setup do
     conn =
@@ -19,7 +19,7 @@ defmodule Phauxth.RememberTest do
   end
 
   test "init function" do
-    assert Remember.init([]) == {[], []}
+    assert Remember.init([]) == {Phauxth.TestUsers, [], []}
   end
 
   test "current_user set when calling remember with default options", %{conn: conn} do
@@ -69,7 +69,7 @@ defmodule Phauxth.RememberTest do
       conn
       |> SessionHelper.recycle_and_sign()
       |> put_session(:phauxth_session_id, "5555")
-      |> Authenticate.call({[], []})
+      |> Authenticate.call({Phauxth.TestUsers, [], []})
       |> Remember.call(@opts)
 
     %{current_user: user} = conn.assigns

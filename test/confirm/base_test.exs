@@ -65,4 +65,11 @@ defmodule Phauxth.Confirm.BaseTest do
     {:error, message} = Confirm.verify(params)
     assert message =~ "Invalid credentials"
   end
+
+  test "set user_context in the keyword args" do
+    email = TestToken.sign(%{"email" => "deirdre@example.com"}, [])
+    %{params: params} = conn(:get, "/confirm?key=" <> email) |> fetch_query_params
+    {:ok, user} = Confirm.verify(params, user_context: Phauxth.OtherTestUsers)
+    assert user.email == "deirdre@example.com"
+  end
 end

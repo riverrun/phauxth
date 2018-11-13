@@ -6,7 +6,7 @@ defmodule Phauxth.Authenticate.BaseTest do
 
   alias Phauxth.{Authenticate, CustomCall, SessionHelper}
 
-  @session_opts {[], []}
+  @session_opts {Phauxth.TestUsers, [], []}
 
   defp call(id, opts \\ @session_opts) do
     id |> SessionHelper.add_session() |> Authenticate.call(opts)
@@ -62,5 +62,12 @@ defmodule Phauxth.Authenticate.BaseTest do
     assert capture_log(fn ->
              custom_call("1111")
            end) =~ ~s(user=1 message="user authenticated" path=/)
+  end
+
+  test "set user_context in the keyword args" do
+    opts = {Phauxth.OtherTestUsers, [], []}
+    conn = call("1111", opts)
+    %{current_user: user} = conn.assigns
+    assert user.email == "deirdre@example.com"
   end
 end
