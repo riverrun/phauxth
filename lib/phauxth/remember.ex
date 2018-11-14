@@ -47,7 +47,7 @@ defmodule Phauxth.Remember do
 
   use Phauxth.Authenticate.Base
 
-  alias Phauxth.{Config, Login}
+  alias Phauxth.Config
 
   @max_age 7 * 24 * 60 * 60
 
@@ -72,7 +72,10 @@ defmodule Phauxth.Remember do
 
   defp add_session(%Plug.Conn{assigns: %{current_user: %{} = user}} = conn, user_context) do
     {:ok, %{id: session_id}} = user_context.create_session(user)
-    Login.add_session(conn, session_id)
+
+    conn
+    |> put_session(:phauxth_session_id, session_id)
+    |> configure_session(renew: true)
   end
 
   defp add_session(conn, _), do: conn
