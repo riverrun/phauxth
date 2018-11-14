@@ -33,7 +33,7 @@ defmodule Phauxth.UserMessages.Base do
       def default_error, do: "Invalid credentials"
       def invalid_token, do: "Invalid token"
 
-      defoverridable Phauxth.UserMessages.Base
+      defoverridable need_confirm: 0, already_confirmed: 0, default_error: 0, invalid_token: 0
     end
   end
 end
