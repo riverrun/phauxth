@@ -1,72 +1,163 @@
-# Upgrade to version 2
+# Updating to Phauxth 2.0.0
 
 ## Elixir version
 
 You need to use Elixir version 1.7 or above.
 
-## Changes
+## Configuration
 
-### User context module
+In most cases, you will need to set the following values:
 
-In version 1, you needed to define the functions `get/1` and `get_by/1`.
-Now, in version 2, you only need to define a `get_by/1` function.
+* user_context
+* crypto_module - needed for Phauxth.Login
+* token_module - needed for Phauxth.AuthenticateToken, Phauxth.Confirm and Phauxth.Remember
 
-The following is an example `get_by/1` function if you are using
-Phauxth.Authenticate or Phauxth.AuthenticateToken:
+## Phauxth.Authenticate
 
-```elixir
+### with sessions
+
+This no longer uses the `get/1` function in the user_context module.
+Instead, it uses the `get_by(%{"session_id" => session_id})` function.
+In addition, Phauxth.Authenticate does not check if the session has
+expired - you need to do that in the `get_by/1` function, as in the
+example below:
+
+```
 def get_by(%{"session_id" => session_id}) do
-  Repo.get_by(User, session_id: session_id)
+  with %Session{user_id: user_id} <- Sessions.get_session(session_id),
+       do: get_user(user_id)
 end
 ```
 
-### verify/3 -> verify/2
+and `Sessions.get_session/1` is:
 
-Previously, the second argument to the verify function was the `user_context`
-module. Now, this is set in the config.
-
-```elixir
-Phauxth.Confirm.verify(params, MyApp.Users)
-Phauxth.Login.verify(params, MyApp.Users)
+```
+def get_session(id) do
+  now = DateTime.utc_now()
+  Repo.get(from(s in Session, where: s.expires_at > ^now), id)
+end
 ```
 
-is now:
+### with tokens
 
-```elixir
-Phauxth.Confirm.verify(params) # with user_context set in the config
-Phauxth.Login.verify(params)
+Change `plug Phauxth.Authenticate, method: :token` to `plug Phauxth.AuthenticateToken`
+
+## Phauxth.Remember
+
+You need to define a `create_session` function in the user_context module.
+This function should return `{:ok, session}` or `{:error, message}`, as
+in the example below:
+
+```
+def create_session(attrs \\ %{}) do
+  %Session{} |> Session.changeset(attrs) |> Repo.insert()
+end
 ```
 
-### Session authentication
+with `Session.changeset` being something like:
 
-* Phauxth.Authenticate does not check the session expiry value
-  * the session expiry value can be checked in the `get_by/1` function in the user context
+```
+def changeset(user, attrs) do
+  user
+  |> set_expires_at(attrs)
+  |> cast(attrs, [:user_id])
+  |> validate_required([:user_id])
+end
+```
 
-### Token authentication
+## Phauxth.Login.verify and Phauxth.Confirm.verify
 
-* Phauxth.Token module now defines a behaviour which you can use to define your own token implementation
-* Phauxth.Authenticate for tokens (Phauxth.Authenticate, method: :token) is now Phauxth.AuthenticateToken
+Change `Phauxth.Login.verify(params, MyApp.Users)` or `Phauxth.Confirm.verify(params, MyApp.Users)` to:
+
+`Phauxth.Login.verify(params)` or `Phauxth.Confirm.verify(params)` (with the user_context set in the config)
+
+or you can set the user_context as an option, as in the following example:
+
+`Phauxth.Login.verify(params, user_context: MyApp.OtherUsers)`
 
 ### Login
 
-* Phauxth.Confirm.Login has been removed
-* Phauxth.Login.add_session has been removed
-* the `crypto_module` for Phauxth.Login is now set in the config
+`Phauxth.Confirm.Login` and `Phauxth.Login.add_session` have been removed.
+
+`Phauxth.Confirm.Login` can be replaced by adding a module like the following
+to your app:
+
+```
+defmodule MyAppWeb.Auth.Login do
+  use Phauxth.Login.Base
+
+  alias Comeonin.Argon2
+  alias MyApp.Accounts
+
+  @impl true
+  def authenticate(%{"password" => password} = params, _, opts) do
+    case Accounts.get_by(params) do
+      nil -> {:error, "no user found"}
+      %{confirmed_at: nil} -> {:error, "account unconfirmed"}
+      user -> Argon2.check_pass(user, password, opts)
+    end
+  end
+end
+```
+
+and `Phauxth.Login.add_session` can be replaced by adding the following
+function to the session controller:
+
+```
+defp add_session(conn, user, params) do
+  {:ok, %{id: session_id}} = Sessions.create_session(%{user_id: user.id})
+
+  conn
+  |> delete_session(:request_path)
+  |> put_session(:phauxth_session_id, session_id)
+  |> configure_session(renew: true)
+end
+```
 
 ### Password resetting
 
-* Phauxth.Confirm.verify with the `:pass_reset mode` has been renamed to Phauxth.Confirm.PassReset.verify
+`Phauxth.Confirm.verify` with the `:pass_reset mode` has been renamed to `Phauxth.Confirm.PassReset.verify`.
 
-### Remember me
+## Token authentication
 
-* to use Phauxth.Remember, you need to define a `create_session(user)` function in the user_context module
-  * this function should return `{:ok, session}` or `{:error, message}`
+The Phauxth.Token module now defines a behaviour which you can use to
+define your own token implementation.
 
-### Customizing Phauxth
+If you are using tokens, you will need to add a module that uses the
+Phauxth.Token behaviour to your app - and set this module as the `token_module`
+in the config.
+
+Below is an example implementation using Phoenix.Token (the token_salt value
+should be a random string - you can use `Phauxth.Config.gen_token_salt` to
+create it):
+
+```
+defmodule MyAppWeb.Auth.Token do
+  @behaviour Phauxth.Token
+
+  alias Phoenix.Token
+  alias MyAppWeb.Endpoint
+
+  @max_age 14_400
+  @token_salt "JaKgaBf2"
+
+  @impl true
+  def sign(data, opts \\ []) do
+    Token.sign(Endpoint, @token_salt, data, opts)
+  end
+
+  @impl true
+  def verify(token, opts \\ []) do
+    Token.verify(Endpoint, @token_salt, token, opts ++ [max_age: @max_age])
+  end
+end
+```
+
+## Customizing Phauxth
 
 This section is only relevant if you were customizing any of the Phauxth plugs or
 verify functions.
 
-* the Phauxth behaviour (used by Confirm.Base and Login.Base) now has three callbacks: verify/2, authenticate/2 and report/2
+* the Phauxth behaviour (used by Confirm.Base and Login.Base) now has three callbacks: verify/2, authenticate/3 and report/2
 * Phauxth.Authenticate.Base `get_user` callback is now `authenticate`, and it returns {:ok, user} or {:error, message}
 
