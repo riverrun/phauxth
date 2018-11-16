@@ -80,7 +80,7 @@ defmodule Phauxth.TestUsers do
     users() |> Map.values() |> Enum.find(&(&1.id == user_id))
   end
 
-  def create_session(%{id: user_id}) do
+  def create_session(%{user_id: user_id}) do
     case TestSessions.sessions() |> Map.values() |> Enum.find(&(&1.user_id == user_id)) do
       nil -> {:error, "No user found"}
       session -> {:ok, session}

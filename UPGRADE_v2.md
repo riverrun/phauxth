@@ -18,6 +18,7 @@ In most cases, you will need to set the following values:
 
 This no longer uses the `get/1` function in the user_context module.
 Instead, it uses the `get_by(%{"session_id" => session_id})` function.
+
 In addition, Phauxth.Authenticate does not check if the session has
 expired - you need to do that in the `get_by/1` function, as in the
 example below:
@@ -54,11 +55,12 @@ def create_session(attrs \\ %{}) do
 end
 ```
 
-with `Session.changeset` being something like:
+In the function above, the attrs should be a map containing `%{user_id: user_id}`,
+and the `Session.changeset` should be something like:
 
 ```
-def changeset(user, attrs) do
-  user
+def changeset(session, attrs) do
+  session
   |> set_expires_at(attrs)
   |> cast(attrs, [:user_id])
   |> validate_required([:user_id])
@@ -129,7 +131,7 @@ in the config.
 
 Below is an example implementation using Phoenix.Token (the token_salt value
 should be a random string - you can use `Phauxth.Config.gen_token_salt` to
-create it):
+generate it):
 
 ```
 defmodule MyAppWeb.Auth.Token do

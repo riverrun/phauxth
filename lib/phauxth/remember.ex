@@ -71,7 +71,7 @@ defmodule Phauxth.Remember do
   def set_user(user, conn), do: super(user, conn)
 
   defp add_session(%Plug.Conn{assigns: %{current_user: %{} = user}} = conn, user_context) do
-    {:ok, %{id: session_id}} = user_context.create_session(user)
+    {:ok, %{id: session_id}} = user_context.create_session(%{user_id: user.id})
 
     conn
     |> put_session(:phauxth_session_id, session_id)
@@ -85,8 +85,7 @@ defmodule Phauxth.Remember do
   """
   @spec add_rem_cookie(Plug.Conn.t(), integer, integer) :: Plug.Conn.t()
   def add_rem_cookie(conn, user_id, max_age \\ @max_age, extra \\ "") do
-    token_mod = Config.token_module()
-    cookie = token_mod.sign(user_id, max_age: max_age)
+    cookie = Config.token_module().sign(user_id, max_age: max_age)
     put_resp_cookie(conn, "remember_me", cookie, http_only: true, max_age: max_age, extra: extra)
   end
 
