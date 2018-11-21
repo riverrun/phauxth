@@ -52,10 +52,28 @@ defmodule Phauxth.Remember do
   @max_age 7 * 24 * 60 * 60
 
   @impl Plug
+  def init(opts) do
+    create_session_func =
+      opts[:create_session_func] ||
+        raise """
+        Phauxth.Remember - you need to set a `create_session_func` in the opts
+        """
+
+    unless is_function(create_session_func, 1) do
+      raise """
+      Phauxth.Remember - the `create_session_func` should be a function
+      that takes one argument
+      """
+    end
+
+    {create_session_func, super(opts)}
+  end
+
+  @impl Plug
   def call(%Plug.Conn{assigns: %{current_user: %{}}} = conn, _), do: conn
 
-  def call(%Plug.Conn{req_cookies: %{"remember_me" => _}} = conn, {user_context, _, _} = opts) do
-    conn |> super(opts) |> add_session(user_context)
+  def call(%Plug.Conn{req_cookies: %{"remember_me" => _}} = conn, {create_session_func, opts}) do
+    conn |> super(opts) |> add_session(create_session_func)
   end
 
   def call(conn, _), do: conn
@@ -70,8 +88,8 @@ defmodule Phauxth.Remember do
   def set_user(nil, conn), do: super(nil, delete_rem_cookie(conn))
   def set_user(user, conn), do: super(user, conn)
 
-  defp add_session(%Plug.Conn{assigns: %{current_user: %{} = user}} = conn, user_context) do
-    {:ok, %{id: session_id}} = user_context.create_session(%{user_id: user.id})
+  defp add_session(%Plug.Conn{assigns: %{current_user: %{}}} = conn, create_session_func) do
+    {:ok, %{id: session_id}} = create_session_func.(conn)
 
     conn
     |> put_session(:phauxth_session_id, session_id)

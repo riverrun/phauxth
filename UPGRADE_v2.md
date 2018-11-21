@@ -45,25 +45,15 @@ Change `plug Phauxth.Authenticate, method: :token` to `plug Phauxth.Authenticate
 
 ## Phauxth.Remember
 
-You need to define a `create_session` function in the user_context module.
-This function should return `{:ok, session}` or `{:error, message}`, as
-in the example below:
+You need to define a `create_session/1` function and add this function
+to the opts when calling Phauxth.Remember.
+
+The `create_session/1` function takes the conn as input and should return
+`{:ok, session}` or `{:error, message}`, as in the example below:
 
 ```
-def create_session(attrs \\ %{}) do
-  %Session{} |> Session.changeset(attrs) |> Repo.insert()
-end
-```
-
-In the function above, the attrs should be a map containing `%{user_id: user_id}`,
-and the `Session.changeset` should be something like:
-
-```
-def changeset(session, attrs) do
-  session
-  |> set_expires_at(attrs)
-  |> cast(attrs, [:user_id])
-  |> validate_required([:user_id])
+def create_session(%Plug.Conn{assigns: %{current_user: %{id: user_id}}} = conn) do
+  Sessions.create_session(%{user_id: user_id})
 end
 ```
 

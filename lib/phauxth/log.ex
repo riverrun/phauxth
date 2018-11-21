@@ -30,8 +30,9 @@ defmodule Phauxth.Log do
   log_level to false.
   """
 
-  require Logger
   alias Phauxth.Config
+
+  require Logger
 
   defstruct user: "nil", message: "", meta: []
 

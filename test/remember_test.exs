@@ -7,7 +7,6 @@ defmodule Phauxth.RememberTest do
   alias Phauxth.{Authenticate, Remember, SessionHelper}
 
   @max_age 7 * 24 * 60 * 60
-  @opts {Phauxth.TestUsers, [], []}
 
   setup do
     conn =
@@ -19,14 +18,24 @@ defmodule Phauxth.RememberTest do
   end
 
   test "init function" do
-    assert Remember.init([]) == {Phauxth.TestUsers, [], []}
+    assert {_, {Phauxth.TestUsers, [], _}} = Remember.init(create_session_func: &create_session/1)
+  end
+
+  test "init function raises if no create_session_func is set" do
+    assert_raise RuntimeError, fn -> Remember.init([]) end
+  end
+
+  test "init function raises if create_session_func is wrong arity" do
+    assert_raise RuntimeError, fn ->
+      Remember.init(create_session_func: &wrong_create_session/0)
+    end
   end
 
   test "current_user set when calling remember with default options", %{conn: conn} do
     conn =
       conn
       |> SessionHelper.recycle_and_sign()
-      |> Remember.call(@opts)
+      |> Remember.call(opts())
 
     %{current_user: user} = conn.assigns
     assert user.username == "fred"
@@ -37,7 +46,7 @@ defmodule Phauxth.RememberTest do
     session_id =
       conn
       |> SessionHelper.recycle_and_sign()
-      |> Remember.call(@opts)
+      |> Remember.call(opts())
       |> get_session(:phauxth_session_id)
 
     assert session_id
@@ -51,7 +60,7 @@ defmodule Phauxth.RememberTest do
              conn(:get, "/")
              |> recycle_cookies(conn)
              |> SessionHelper.sign_conn()
-             |> Remember.call(@opts)
+             |> Remember.call(opts())
            end) =~ ~s(user=nil message=invalid)
   end
 
@@ -59,7 +68,7 @@ defmodule Phauxth.RememberTest do
     conn =
       conn(:get, "/")
       |> SessionHelper.sign_conn()
-      |> Remember.call(@opts)
+      |> Remember.call(opts())
 
     refute conn.assigns[:current_user]
   end
@@ -70,7 +79,7 @@ defmodule Phauxth.RememberTest do
       |> SessionHelper.recycle_and_sign()
       |> put_session(:phauxth_session_id, "5555")
       |> Authenticate.call({Phauxth.TestUsers, [], []})
-      |> Remember.call(@opts)
+      |> Remember.call(opts())
 
     %{current_user: user} = conn.assigns
     assert user.id == "4a43f849-d9fa-439e-b887-735378009c95"
@@ -95,9 +104,18 @@ defmodule Phauxth.RememberTest do
     conn =
       conn
       |> SessionHelper.recycle_and_sign()
-      |> Remember.call(@opts)
+      |> Remember.call(opts())
 
     %{current_user: user} = conn.assigns
     refute Map.has_key?(user, :password_hash)
   end
+
+  defp create_session(conn) do
+    %{id: user_id} = conn.assigns.current_user
+    Phauxth.TestUsers.create_session(%{user_id: user_id})
+  end
+
+  defp wrong_create_session, do: IO.puts("No!")
+
+  defp opts, do: {&create_session/1, {Phauxth.TestUsers, [], []}}
 end
