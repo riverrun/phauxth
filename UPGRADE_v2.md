@@ -17,7 +17,8 @@ In most cases, you will need to set the following values:
 ### with sessions
 
 This no longer uses the `get/1` function in the user_context module.
-Instead, it uses the `get_by(%{"session_id" => session_id})` function.
+Instead, Phauxth.Authenticate uses the `get_by(%{"session_id" => session_id})`
+function.
 
 In addition, Phauxth.Authenticate does not check if the session has
 expired - you need to do that in the `get_by/1` function, as in the
@@ -30,7 +31,7 @@ def get_by(%{"session_id" => session_id}) do
 end
 ```
 
-and `Sessions.get_session/1` is:
+with `Sessions.get_session/1` something like:
 
 ```
 def get_session(id) do
@@ -52,10 +53,12 @@ The `create_session/1` function takes the conn as input and should return
 `{:ok, session}` or `{:error, message}`, as in the example below:
 
 ```
-def create_session(%Plug.Conn{assigns: %{current_user: %{id: user_id}}} = conn) do
+def create_session(%Plug.Conn{assigns: %{current_user: %{id: user_id}}}) do
   Sessions.create_session(%{user_id: user_id})
 end
 ```
+
+with `Sessions.create_session/1` adding the session data to the database.
 
 ## Phauxth.Login.verify and Phauxth.Confirm.verify
 

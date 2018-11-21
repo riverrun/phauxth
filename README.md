@@ -5,12 +5,12 @@
 
 Authentication library for Phoenix, and other Plug-based, web applications.
 
-## Version 2.0.0-rc and 1.2
+## Version 2.0.0 and 1.2
 
-The master branch points to version 2.0.0-rc, which is being developed
+The master branch points to version 2.0.0, which is being developed
 with phoenix 1.4.0 in mind.
 
-The v1.2 branch has the version 1.2, which is the stable version.
+The v1.2 branch has version 1.2.
 
 ## Overview
 
