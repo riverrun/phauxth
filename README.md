@@ -5,16 +5,9 @@
 
 Authentication library for Phoenix, and other Plug-based, web applications.
 
-## Version 2.0.0 and 1.2
-
-The master branch points to version 2.0.0, which is being developed
-with phoenix 1.4.0 in mind.
-
-The v1.2 branch has version 1.2.
-
 ## Overview
 
-Phauxth is designed with Phoenix >1.3 in mind, but it can also be used with
+Phauxth is designed with Phoenix 1.3 and 1.4 in mind, but it can also be used with
 older versions of Phoenix and any other Plug-based application. It is
 designed to be secure, extensible and well-documented.
 
