@@ -38,6 +38,13 @@ of functions you can use to authorize users' access to resources.
 Phauxth with email confirmation.
 * [An example api](https://github.com/riverrun/phoenix-todoapp) using Phauxth.
 
+## Donate
+
+If you'd like to donate towards maintaing this project you may do so here: https://www.patreon.com/riverrun
+If you want to make a one-off payment, this page can give you some info about how to do that : https://support.patreon.com/hc/en-us/articles/204606215-Can-I-make-a-one-time-payment-
+
+Pull requests also gladly accepted. Thank you so much for your support.
+
 ### License
 
 BSD
