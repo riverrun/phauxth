@@ -9,7 +9,7 @@ Authentication library for Phoenix, and other Plug-based, web applications.
 
 Phauxth is designed with Phoenix 1.3 and 1.4 in mind, but it can also be used with
 older versions of Phoenix and any other Plug-based application. It is
-designed to be secure, extensible and well-documented.
+designed to be secure, extensible, easy to use and well-documented.
 
 For a general overview of some of the goals of Phauxth and its basic usage,
 see [this post](https://riverrun.github.io/projects/phauxth/2017/09/25/phauxth.html).
@@ -32,18 +32,28 @@ If you have set up your app using the [Phauxth installer](https://github.com/riv
 the `authorize.ex` file in the controllers directory provides examples
 of functions you can use to authorize users' access to resources.
 
-## Phauxth examples
+## Example apps using Phauxth
 
 * [A basic example](https://github.com/riverrun/phauxth-example) of using
 Phauxth with email confirmation.
 * [An example api](https://github.com/riverrun/phoenix-todoapp) using Phauxth.
 
-## Donate
+## Contributing
 
-If you'd like to donate towards maintaing this project you may do so here: https://www.patreon.com/riverrun
-If you want to make a one-off payment, this page can give you some info about how to do that : https://support.patreon.com/hc/en-us/articles/204606215-Can-I-make-a-one-time-payment-
+There are many ways you can contribute to the development of Phauxth, including:
 
-Pull requests also gladly accepted. Thank you so much for your support.
+* reporting issues
+* improving documentation
+* sharing your experiences with others
+* [making a financial contribution](#donations)
+
+## Donations
+
+You can support the ongoing maintenance of this project by
+[making donations through Patreon](https://www.patreon.com/riverrun).
+
+Patreon, by default, will bill you on a monthly basis. If you prefer to make a one-off payment,
+see [this guide](https://support.patreon.com/hc/en-us/articles/204606215-Can-I-make-a-one-time-payment-).
 
 ### License
 
