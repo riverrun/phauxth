@@ -66,7 +66,7 @@ defmodule Phauxth.Remember do
       """
     end
 
-    {create_session_func, super(opts)}
+    {create_session_func, super(opts ++ [max_age: @max_age])}
   end
 
   @impl Plug
