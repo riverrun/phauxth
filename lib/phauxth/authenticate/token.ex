@@ -64,6 +64,9 @@ defmodule Phauxth.Authenticate.Token do
 
       alias Phauxth.Config
 
+      @impl Plug
+      def init(opts), do: super(opts ++ [max_age: 14400])
+
       @impl Phauxth.Authenticate.Base
       def authenticate(conn, user_context, opts) do
         conn |> get_req_header("authorization") |> get_token(user_context, opts)

@@ -4,15 +4,18 @@ defmodule Phauxth.Confirm do
 
   ## Options
 
-  There are two options:
+  There are three main options:
 
     * `:user_context` - the user_context module
       * this can also be set in the config
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
+    * `:max_age` - the maximum age for the token
+      * the default is 720 seconds - 20 minutes
 
-  There are also options for verifying the token. See the documentation
-  for the Phauxth.Token module for details.
+  The options keyword list is also passed to the token verify function.
+  See the documentation for Phauxth.Token for information about defining
+  and setting the token module.
   """
 
   use Phauxth.Confirm.Base

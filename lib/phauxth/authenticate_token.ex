@@ -24,14 +24,18 @@ defmodule Phauxth.AuthenticateToken do
 
   ## Options
 
-  There are two options:
+  There are three main options:
 
     * `:user_context` - the user_context module
       * this can also be set in the config
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
+    * `:max_age` - the maximum age for the token
+      * the default is 14400 seconds - 4 hours
 
-  There are also options for verifying the token.
+  The options keyword list is also passed to the token verify function.
+  See the documentation for Phauxth.Token for information about defining
+  and setting the token module.
 
   ## Examples
 
@@ -39,6 +43,10 @@ defmodule Phauxth.AuthenticateToken do
   the `web/router.ex` file:
 
       plug Phauxth.AuthenticateToken
+
+  To set the max_age to two hours:
+
+      plug Phauxth.AuthenticateToken, max_age: 7200
 
   """
 

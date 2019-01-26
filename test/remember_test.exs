@@ -117,5 +117,5 @@ defmodule Phauxth.RememberTest do
 
   defp wrong_create_session, do: IO.puts("No!")
 
-  defp opts, do: {&create_session/1, {Phauxth.TestUsers, [], []}}
+  defp opts, do: Remember.init(create_session_func: &create_session/1)
 end
