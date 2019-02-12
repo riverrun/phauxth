@@ -9,7 +9,7 @@ Code.require_file("support/test_token.exs", __DIR__)
 Code.require_file("support/user_helper.exs", __DIR__)
 
 Application.put_env(:phauxth, :user_context, Phauxth.TestUsers)
-Application.put_env(:phauxth, :crypto_module, Comeonin.Argon2)
+Application.put_env(:phauxth, :crypto_module, Argon2)
 Application.put_env(:argon2_elixir, :t_cost, 2)
 Application.put_env(:argon2_elixir, :m_cost, 8)
 Application.put_env(:phauxth, :token_module, Phauxth.TestToken)

@@ -3,8 +3,7 @@ defmodule Phauxth.Login do
   Module to login users.
 
   Before using this module, you will need to add the `crypto_module` value
-  to the config. The recommended module is Comeonin.Argon2 - other valid
-  values are Comeonin.Bcrypt and Comeonin.Pkdf2.
+  to the config. The `crypto_module` must implement the Comeonin behaviour.
 
   ## Options
 

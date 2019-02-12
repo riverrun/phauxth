@@ -1,4 +1,4 @@
-# Updating to Phauxth 2.0.0
+# Updating to Phauxth 2.1.0
 
 ## Elixir version
 
@@ -10,7 +10,9 @@ In most cases, you will need to set the following values:
 
 * user_context
 * crypto_module - needed for Phauxth.Login
+  * the recommended value is Argon2
 * token_module - needed for Phauxth.AuthenticateToken, Phauxth.Confirm and Phauxth.Remember
+  * you need to write this yourself - see the Phauxth.Token module for more information
 
 ## Phauxth.Authenticate
 
@@ -81,7 +83,6 @@ to your app:
 defmodule MyAppWeb.Auth.Login do
   use Phauxth.Login.Base
 
-  alias Comeonin.Argon2
   alias MyApp.Accounts
 
   @impl true
@@ -133,7 +134,6 @@ defmodule MyAppWeb.Auth.Token do
   alias Phoenix.Token
   alias MyAppWeb.Endpoint
 
-  @max_age 14_400
   @token_salt "JaKgaBf2"
 
   @impl true
@@ -143,7 +143,7 @@ defmodule MyAppWeb.Auth.Token do
 
   @impl true
   def verify(token, opts \\ []) do
-    Token.verify(Endpoint, @token_salt, token, opts ++ [max_age: @max_age])
+    Token.verify(Endpoint, @token_salt, token, opts)
   end
 end
 ```

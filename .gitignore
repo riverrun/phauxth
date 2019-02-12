@@ -1,8 +1,9 @@
-_build
-tmp
-/cover
-/deps
-/doc
+/_build/
+/cover/
+/deps/
+/doc/
+/tmp/
 /.fetch
 erl_crash.dump
+*.ez
 phx_integration_test.log

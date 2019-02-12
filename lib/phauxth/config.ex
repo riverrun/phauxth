@@ -21,7 +21,7 @@ defmodule Phauxth.Config do
 
       config :phauxth,
         user_context: MyApp.Users,
-        crypto_module: Comeonin.Argon2,
+        crypto_module: Argon2,
         token_module: MyAppWeb.Auth.Token
 
   """

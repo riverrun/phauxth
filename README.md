@@ -1,6 +1,5 @@
 # Phauxth
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/alovedalongthe)
 [![Hex.pm Version](http://img.shields.io/hexpm/v/phauxth.svg)](https://hex.pm/packages/phauxth)
 [![Build Status](https://travis-ci.org/riverrun/phauxth.svg?branch=master)](https://travis-ci.org/riverrun/phauxth)
 
@@ -37,7 +36,7 @@ Phauxth with email confirmation.
 
 ## Contributing
 
-There are many ways you can contribute to the development of Phauxth, including:
+There are many ways you can contribute to the development of Comeonin, including:
 
 * reporting issues
 * improving documentation
@@ -46,8 +45,13 @@ There are many ways you can contribute to the development of Phauxth, including:
 
 ## Donations
 
-If you would like to buy me a cup of coffee, you can
-do so through [paypal](https://www.paypal.me/alovedalongthe)
+This software is offered free of charge, but if you find it useful
+and you would like to buy me a cup of coffee, you can do so through
+[paypal](https://www.paypal.me/alovedalongthe).
+
+### Documentation
+
+http://hexdocs.pm/phauxth
 
 ### License
 

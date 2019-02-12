@@ -1,5 +1,11 @@
 # Phauxth Changelog
 
+## Version 2.1.0
+
+* Changes
+  * removed Comeonin dependency
+    * the password hashing library you use needs to implement the Comeonin behaviour
+
 ## Version 2.0.0
 
 * Enhancements
