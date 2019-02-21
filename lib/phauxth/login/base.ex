@@ -47,10 +47,9 @@ defmodule Phauxth.Login.Base do
 
       @impl true
       def authenticate(%{"password" => password} = params, user_context, opts) do
-        case user_context.get_by(params) do
-          nil -> {:error, "no user found"}
-          user -> Config.crypto_module().check_pass(user, password, opts)
-        end
+        params
+        |> user_context.get_by()
+        |> Config.crypto_module().check_pass(password, opts)
       end
 
       @impl true

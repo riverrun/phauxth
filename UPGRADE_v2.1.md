@@ -1,5 +1,14 @@
 # Updating to Phauxth 2.1.0
 
+## Updating from 2.0 -> 2.1
+
+In version 2.1, you need to remove the references to Comeonin, as it
+is not directly used any more (it is now a dependency of the password
+hashing library you are using).
+
+See [this commit](https://github.com/riverrun/phauxth-example/commit/e1d315b82295cdeaeb7e4101f6948add9c9c0296)
+to see how the example app was updated.
+
 ## Elixir version
 
 You need to use Elixir version 1.7 or above.
