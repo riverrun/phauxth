@@ -90,14 +90,14 @@ defmodule Phauxth.Authenticate.Base do
         end
       end
 
-      defp get_user({:ok, data}, user_context) do
+      def get_user({:ok, data}, user_context) do
         case user_context.get_by(data) do
           nil -> {:error, "no user found"}
           user -> {:ok, user}
         end
       end
 
-      defp get_user({:error, message}, _), do: {:error, message}
+      def get_user({:error, message}, _), do: {:error, message}
 
       @impl Phauxth.Authenticate.Base
       def report({:ok, user}, meta) do
