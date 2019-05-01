@@ -1,5 +1,10 @@
 # Phauxth Changelog
 
+## Version 2.2.0
+
+* Enhancements
+  * added Phauxth.Confirm.Base behaviour with `get_user/2` callback
+
 ## Version 2.1.0
 
 * Changes

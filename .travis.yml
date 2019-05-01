@@ -1,30 +1,20 @@
 language: elixir
-sudo: false
+
 elixir:
   - 1.7
   - 1.8
+
 otp_release:
   - 21.1
-env:
-  - MIX_ENV=test
+
+script:
+  - mix compile --warnings-as-errors
+  - mix format --check-formatted
+  - mix test
+  - mix dialyzer --halt-exit-status
+
 cache:
   directories:
-    - _build
-    - deps
-    - ~/.mix
-    - ~/.hex
-jobs:
-  include:
-    - stage: format
-      env:
-        - MIX_ENV=dev
-      script: mix format --check-formatted
-      elixir: 1.7
-    - stage: types
-      env:
-        - MIX_ENV=dev
-      before_script: travis_wait 20 mix dialyzer --plt
-      script: mix dialyzer --halt-exit-status
-      elixir: 1.7
-notifications:
-  email: false
+    - priv/plts
+
+sudo: false

@@ -54,7 +54,7 @@ defmodule Phauxth.Authenticate.Token do
   @doc """
   Gets the token from the authorization headers.
   """
-  @callback get_token(list, module, keyword) :: {:ok, map} | {:error, String.t()}
+  @callback get_token(list, module, keyword) :: {:ok, map} | {:error, String.t() | atom}
 
   defmacro __using__(_) do
     quote do

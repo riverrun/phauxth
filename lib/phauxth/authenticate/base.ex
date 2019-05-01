@@ -38,8 +38,6 @@ defmodule Phauxth.Authenticate.Base do
   about how to create the MyAppWeb.Token module.
   """
 
-  @type ok_or_error :: {:ok, map} | {:error, String.t() | atom}
-
   @doc """
   Gets the user based on the session or token data.
 
@@ -47,12 +45,13 @@ defmodule Phauxth.Authenticate.Base do
   information using the `get_by` function defined in the `user_context`
   module.
   """
-  @callback authenticate(Plug.Conn.t(), module, keyword) :: ok_or_error
+  @callback authenticate(Plug.Conn.t(), module, keyword) ::
+              {:ok, map} | {:error, String.t() | atom}
 
   @doc """
   Logs the result of the authentication and returns the user struct or nil.
   """
-  @callback report(ok_or_error, keyword) :: map | nil
+  @callback report({:ok, map} | {:error, String.t() | atom}, keyword) :: map | nil
 
   @doc """
   Sets the `current_user` variable.

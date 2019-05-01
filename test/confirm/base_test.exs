@@ -1,6 +1,7 @@
 defmodule Phauxth.Confirm.BaseTest do
   use ExUnit.Case
   use Plug.Test
+
   import ExUnit.CaptureLog
 
   alias Phauxth.{Confirm, TestToken}
