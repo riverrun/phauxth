@@ -3,7 +3,7 @@ defmodule Phauxth.Confirm.PassResetTest do
   use Plug.Test
   import ExUnit.CaptureLog
 
-  alias Phauxth.{Confirm.PassReset, TestToken}
+  alias Phauxth.{Confirm.PassReset, CustomGetUserPassReset, TestToken}
 
   setup do
     conn = conn(:get, "/") |> Phauxth.SessionHelper.add_key()
@@ -15,6 +15,7 @@ defmodule Phauxth.Confirm.PassResetTest do
     params = %{"key" => valid_email, "password" => "password"}
     {:ok, user} = PassReset.verify(params)
     assert user
+    assert user.email == "froderick@example.com"
   end
 
   test "reset password fails with expired token" do
@@ -38,5 +39,13 @@ defmodule Phauxth.Confirm.PassResetTest do
              params = %{"key" => valid_key, "password" => "password"}
              {:error, "Invalid token"} = PassReset.verify(params)
            end) =~ ~s([warn]  user=nil message="no reset token found")
+  end
+
+  test "get_user/2 can be overridden for pass_reset", %{valid_email: valid_email} do
+    params = %{"key" => valid_email, "password" => "password"}
+    {:ok, user} = CustomGetUserPassReset.verify(params)
+    assert user
+    assert user.email == "froderick@example.com"
+    assert user.current_email == "froderick@example.com"
   end
 end
