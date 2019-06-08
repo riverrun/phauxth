@@ -12,7 +12,7 @@ see [this post](https://riverrun.github.io/projects/phauxth/2017/09/25/phauxth.h
 
 ## Upgrading from version 2.0 to 2.1
 
-In version 2.1, you need to remove all the references to Comeonin.
+In version 2.1 and above, you need to remove all the references to Comeonin.
 Make the following changes in your app (if necessary, replacing Argon2
 with the hashing module you are using):
 
@@ -48,7 +48,7 @@ Phauxth with email confirmation.
 
 ## Contributing
 
-There are many ways you can contribute to the development of Comeonin, including:
+There are many ways you can contribute to the development of Phauxth, including:
 
 * reporting issues
 * improving documentation
@@ -57,9 +57,9 @@ There are many ways you can contribute to the development of Comeonin, including
 
 ## Donations
 
-This software is offered free of charge, but if you find it useful
-and you would like to buy me a cup of coffee, you can do so through
-[paypal](https://www.paypal.me/alovedalongthe).
+First of all, I would like to emphasize that this software is offered
+free of charge. However, if you find it useful, and you would like to
+buy me a cup of coffee, you can do so at [paypal](https://www.paypal.me/alovedalongthe).
 
 ### Documentation
 
