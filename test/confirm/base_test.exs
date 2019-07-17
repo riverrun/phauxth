@@ -68,9 +68,16 @@ defmodule Phauxth.Confirm.BaseTest do
   end
 
   test "set user_context in the keyword args" do
-    email = TestToken.sign(%{"email" => "deirdre@example.com"}, [])
-    %{params: params} = conn(:get, "/confirm?key=" <> email) |> fetch_query_params
+    token = TestToken.sign(%{"email" => "deirdre@example.com"}, [])
+    %{params: params} = conn(:get, "/confirm?key=" <> token) |> fetch_query_params
     {:ok, user} = Confirm.verify(params, user_context: Phauxth.OtherTestUsers)
     assert user.email == "deirdre@example.com"
+  end
+
+  test "set token_module in the keyword args" do
+    token = TestToken.sign(%{"email" => "fred+1@example.com"}, [])
+    %{params: params} = conn(:get, "/confirm?key=" <> token) |> fetch_query_params
+    {:ok, user} = Confirm.verify(params, token_module: Phauxth.OtherTestToken)
+    assert user.email == "brian@example.com"
   end
 end

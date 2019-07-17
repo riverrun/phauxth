@@ -26,6 +26,7 @@ defmodule Phauxth.Confirm.Base do
       def verify(%{"key" => token} = params, opts) do
         user_context = Keyword.get(opts, :user_context, Config.user_context())
         log_meta = Keyword.get(opts, :log_meta, [])
+        opts = Keyword.put_new(opts, :token_module, Config.token_module())
         params |> authenticate(user_context, opts) |> report(log_meta)
       end
 
@@ -33,8 +34,10 @@ defmodule Phauxth.Confirm.Base do
 
       @impl Phauxth
       def authenticate(%{"key" => token}, user_context, opts) do
+        token_module = opts[:token_module]
+
         token
-        |> Config.token_module().verify(opts ++ [max_age: 1200])
+        |> token_module.verify(opts ++ [max_age: 1200])
         |> get_user(user_context)
       end
 

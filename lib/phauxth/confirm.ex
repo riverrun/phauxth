@@ -4,9 +4,11 @@ defmodule Phauxth.Confirm do
 
   ## Options
 
-  There are three main options:
+  There are four main options:
 
     * `:user_context` - the user_context module
+      * this can also be set in the config
+    * `:token_module` - the token module
       * this can also be set in the config
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list

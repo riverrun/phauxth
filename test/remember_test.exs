@@ -86,6 +86,19 @@ defmodule Phauxth.RememberTest do
     assert user.email == "brian@example.com"
   end
 
+  test "set token_module in the keyword args", %{conn: conn} do
+    opts = [create_session_func: &create_session/1, token_module: Phauxth.OtherTestToken]
+
+    conn =
+      conn
+      |> SessionHelper.recycle_and_sign()
+      |> Remember.call(Remember.init(opts))
+
+    %{current_user: user} = conn.assigns
+    assert user.username == "ray"
+    assert user.role == "user"
+  end
+
   test "add cookie", %{conn: conn} do
     conn = SessionHelper.recycle_and_sign(conn)
     assert conn.req_cookies["remember_me"]

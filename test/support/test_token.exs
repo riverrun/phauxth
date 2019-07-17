@@ -21,6 +21,27 @@ defmodule Phauxth.TestToken do
   end
 end
 
+defmodule Phauxth.OtherTestToken do
+  @behaviour Phauxth.Token
+
+  alias Phauxth.TestToken
+
+  @impl true
+  def sign(data, opts \\ []) do
+    TestToken.sign(data, opts)
+  end
+
+  @impl true
+  def verify(token, opts \\ []) do
+    case TestToken.verify(token, opts) do
+      {:ok, %{"session_id" => "1111"}} -> {:ok, %{"session_id" => "2222"}}
+      {:ok, %{"email" => "fred+1@example.com"}} -> {:ok, %{"email" => "brian@example.com"}}
+      {:ok, "1"} -> {:ok, "2"}
+      {:error, message} -> {:error, message}
+    end
+  end
+end
+
 defmodule Phauxth.PhoenixToken do
   # This module is based on the Phoenix.Token module
   # and is used for testing purposes.

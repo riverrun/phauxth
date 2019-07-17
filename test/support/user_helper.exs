@@ -42,6 +42,7 @@ defmodule Phauxth.TestUsers do
       "2" => %TestUser{
         id: "2",
         email: "ray@example.com",
+        username: "ray",
         confirmed_at: DateTime.utc_now(),
         password_hash: Argon2.hash_pwd_salt("h4rd2gU3$$")
       },

@@ -25,9 +25,11 @@ defmodule Phauxth.Remember do
 
   ## Options
 
-  There are three main options:
+  There are four main options:
 
     * `:user_context` - the user_context module
+      * this can also be set in the config
+    * `:token_module` - the token module
       * this can also be set in the config
     * `:log_meta` - additional custom metadata for Phauxth.Log
       * this should be a keyword list
@@ -70,7 +72,13 @@ defmodule Phauxth.Remember do
       """
     end
 
-    {create_session_func, super(opts ++ [max_age: @max_age])}
+    opts =
+      opts
+      |> Keyword.put_new(:max_age, 14_400)
+      |> Keyword.put_new(:token_module, Config.token_module())
+      |> super()
+
+    {create_session_func, opts}
   end
 
   @impl Plug
@@ -84,7 +92,9 @@ defmodule Phauxth.Remember do
 
   @impl Phauxth.Authenticate.Base
   def authenticate(%Plug.Conn{req_cookies: %{"remember_me" => token}}, user_context, opts) do
-    with {:ok, user_id} <- Config.token_module().verify(token, opts),
+    token_module = opts[:token_module]
+
+    with {:ok, user_id} <- token_module.verify(token, opts),
          do: get_user({:ok, %{"user_id" => user_id}}, user_context)
   end
 
@@ -106,8 +116,9 @@ defmodule Phauxth.Remember do
   Adds a remember me cookie to the conn.
   """
   @spec add_rem_cookie(Plug.Conn.t(), integer, integer) :: Plug.Conn.t()
-  def add_rem_cookie(conn, user_id, max_age \\ @max_age, extra \\ "") do
-    cookie = Config.token_module().sign(user_id, max_age: max_age)
+  def add_rem_cookie(conn, user_id, max_age \\ @max_age, extra \\ "", token_module \\ nil) do
+    token_module = token_module || Config.token_module()
+    cookie = token_module.sign(user_id, max_age: max_age)
     put_resp_cookie(conn, "remember_me", cookie, http_only: true, max_age: max_age, extra: extra)
   end
 

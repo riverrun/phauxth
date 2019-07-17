@@ -65,7 +65,12 @@ defmodule Phauxth.Authenticate.Token do
       alias Phauxth.Config
 
       @impl Plug
-      def init(opts), do: super(opts ++ [max_age: 14400])
+      def init(opts) do
+        opts
+        |> Keyword.put_new(:max_age, 14_400)
+        |> Keyword.put_new(:token_module, Config.token_module())
+        |> super()
+      end
 
       @impl Phauxth.Authenticate.Base
       def authenticate(conn, user_context, opts) do
@@ -82,7 +87,8 @@ defmodule Phauxth.Authenticate.Token do
         do: verify_token(token, user_context, opts)
 
       defp verify_token(token, user_context, opts) do
-        token |> Config.token_module().verify(opts) |> get_user(user_context)
+        token_module = opts[:token_module]
+        token |> token_module.verify(opts) |> get_user(user_context)
       end
 
       defoverridable Plug

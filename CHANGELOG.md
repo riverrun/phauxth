@@ -1,5 +1,10 @@
 # Phauxth Changelog
 
+## Version 2.3.0
+
+* Enhancements
+  * added option to use keyword arguments for `token_module`
+
 ## Version 2.2.0
 
 * Enhancements

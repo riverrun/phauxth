@@ -85,6 +85,13 @@ defmodule Phauxth.Authenticate.TokenTest do
     assert conn.assigns == %{current_user: nil}
   end
 
+  test "set token_module in the keyword args" do
+    conn = call_api("1111", nil, token_module: Phauxth.OtherTestToken)
+    %{current_user: user} = conn.assigns
+    assert user.email == "ray@example.com"
+    assert user.role == "user"
+  end
+
   test "token stored in a cookie" do
     token = TestToken.sign(%{"session_id" => "1111"}, [])
 
