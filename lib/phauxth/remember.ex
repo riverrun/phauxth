@@ -115,11 +115,16 @@ defmodule Phauxth.Remember do
   @doc """
   Adds a remember me cookie to the conn.
   """
-  @spec add_rem_cookie(Plug.Conn.t(), integer, integer) :: Plug.Conn.t()
-  def add_rem_cookie(conn, user_id, max_age \\ @max_age, extra \\ "", token_module \\ nil) do
+  # In v3.0, move all cookie options to a keyword list.
+  @spec add_rem_cookie(Plug.Conn.t(), integer | binary, integer) :: Plug.Conn.t()
+  def add_rem_cookie(conn, user_id, max_age \\ @max_age, extra \\ "", token_module \\ nil, domain \\ nil) do
     token_module = token_module || Config.token_module()
     cookie = token_module.sign(user_id, max_age: max_age)
-    put_resp_cookie(conn, "remember_me", cookie, http_only: true, max_age: max_age, extra: extra)
+    if domain do
+      put_resp_cookie(conn, "remember_me", cookie, http_only: true, max_age: max_age, extra: extra, domain: domain)
+    else
+      put_resp_cookie(conn, "remember_me", cookie, http_only: true, max_age: max_age, extra: extra)
+    end
   end
 
   @doc """
