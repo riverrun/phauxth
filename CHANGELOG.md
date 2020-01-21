@@ -1,5 +1,10 @@
 # Phauxth Changelog
 
+## Version 2.3.1
+
+* Enhancements
+  * added `domain` option to `add_rem_cookie` (in the Remember module)
+
 ## Version 2.3.0
 
 * Enhancements
