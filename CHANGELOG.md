@@ -1,5 +1,10 @@
 # Phauxth Changelog
 
+## Version 2.3.2
+
+* Bug fixes
+  * updated documentation for `authenticate` function in the Authenticate.Token and Login.Base modules
+
 ## Version 2.3.1
 
 * Enhancements

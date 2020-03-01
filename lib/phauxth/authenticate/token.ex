@@ -19,8 +19,8 @@ defmodule Phauxth.Authenticate.Token do
         use Phauxth.Authenticate.Token
 
         @impl true
-        def authenticate(%Plug.Conn{req_cookies: %{"access_token" => token}}, opts) do
-          verify_token(token, opts)
+        def authenticate(%Plug.Conn{req_cookies: %{"access_token" => token}}, user_context, opts) do
+          verify_token(token, user_context, opts)
         end
       end
 

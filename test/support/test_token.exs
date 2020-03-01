@@ -85,13 +85,15 @@ defmodule Phauxth.PhoenixToken do
   end
 
   defp get_key_base(%Plug.Conn{} = conn),
-    do: conn |> Phoenix.Controller.endpoint_module() |> get_endpoint_key_base()
+    do: conn |> endpoint_module() |> get_endpoint_key_base()
 
   defp get_key_base(endpoint) when is_atom(endpoint),
     do: get_endpoint_key_base(endpoint)
 
   defp get_key_base(string) when is_binary(string) and byte_size(string) >= 20,
     do: string
+
+  defp endpoint_module(conn), do: conn.private.phoenix_endpoint
 
   defp get_endpoint_key_base(endpoint) do
     endpoint.config(:secret_key_base) ||

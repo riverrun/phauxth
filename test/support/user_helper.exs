@@ -21,7 +21,6 @@ defmodule Phauxth.TestUsers do
       :id,
       :email,
       :username,
-      :password_hash,
       :confirmed_at,
       :reset_sent_at,
       role: "user",

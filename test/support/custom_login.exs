@@ -1,6 +1,7 @@
 defmodule Phauxth.CustomLogin do
   use Phauxth.Login.Base
 
+  @impl true
   def authenticate(%{"password" => password} = params, user_context, opts) do
     case user_context.get_by(params) do
       nil -> {:error, "no user found"}
