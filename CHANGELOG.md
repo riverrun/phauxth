@@ -1,5 +1,11 @@
 # Phauxth Changelog
 
+## Version 2.4.0
+
+* Enhancements
+  * added Authenticate.Remember module so that the Remember module can be more easily customized
+  * updated dependencies
+
 ## Version 2.3.2
 
 * Bug fixes
