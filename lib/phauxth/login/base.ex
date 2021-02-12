@@ -17,7 +17,7 @@ defmodule Phauxth.Login.Base do
           case user_context.get_by(params) do
             nil -> {:error, "no user found"}
             %{confirmed_at: nil} -> {:error, "account unconfirmed"}
-            user -> Config.crypto_module().check_pass(user, password, opts)
+            user -> Phauxth.Login.check_pass(user, password, opts)
           end
         end
       end
@@ -50,7 +50,7 @@ defmodule Phauxth.Login.Base do
       def authenticate(%{"password" => password} = params, user_context, opts) do
         params
         |> user_context.get_by()
-        |> Config.crypto_module().check_pass(password, opts)
+        |> Phauxth.Login.check_pass(password, opts)
       end
 
       @impl Phauxth
